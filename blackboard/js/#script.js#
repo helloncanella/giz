@@ -17,6 +17,7 @@ var background = new Image();
 //-----------------------------------------------------------------------------------------------------
 
 //Auxiliary methods (create library)
+
 Object.prototype.size = function(){
     var size = 0, key;
 

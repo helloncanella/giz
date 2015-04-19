@@ -16,6 +16,8 @@ function Blackboard (){
     
     this.setup = function(){
 	
+
+
 	this.setCanvas();
 	this.inputHandler();
 	
@@ -23,6 +25,17 @@ function Blackboard (){
 	$(window).resize(function(){
 	    self.setCanvas();
 	});	
+
+	var chalck = new Image();
+	chalck.src = "../blackboard/assets/kawaii.png";
+	console.log(chalck);
+
+	chalk.onload = function(){
+	    this.context.drawImage(chalck,100,100);
+	}    
+	
+
+	console.log("Debug "+this.context.drawImage(chalck,10,10));
     }
 
     this.setCanvas = function(){
@@ -45,10 +58,10 @@ function Blackboard (){
 
 	console.log(background.src);
 	
-	var pattern = context.createPattern(background,"repeat");
-	context.rect(0,0,canvas.width,canvas.height);
-	context.fillStyle = pattern;
-	context.fill();
+	//var pattern = context.createPattern(background,"repeat");
+	//context.rect(0,0,canvas.width,canvas.height);
+	//context.fillStyle = pattern;
+	//context.fill();
 	
     }
 
@@ -123,7 +136,8 @@ function Blackboard (){
 
 	var chalck = new Image();
 	chalck.src = "../blackboard/assets/kawaii.png";
-	this.context.drawImage(chalck,currentPosition.x,currentPosition.y);
+
+	
 
 	console.log(chalck);
 	

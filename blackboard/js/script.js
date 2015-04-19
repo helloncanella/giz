@@ -1,5 +1,5 @@
 function Blackboard (){
-    var self = this;
+    var self = this; // assingning "this", preventing problems
    
     //canvas variables
     this.canvas    = null;
@@ -9,13 +9,16 @@ function Blackboard (){
     this.pressed   = null;
     this.unpressed = null;
     this.moving    = null;
-
+    this.lastPointerPosition = {
+	x:0,
+	y:0
+    }
     
     this.setup = function(){
 	
 	this.setCanvas();
 	this.inputHandler();
-
+	
 	var self = this;	
 	$(window).resize(function(){
 	    self.setCanvas();
@@ -39,6 +42,8 @@ function Blackboard (){
 	//Drawing background
 	var background = new Image();
 	background.src = "../blackboard/assets/chalkboard.jpg";
+
+	console.log(background.src);
 	
 	var pattern = context.createPattern(background,"repeat");
 	context.rect(0,0,canvas.width,canvas.height);
@@ -49,6 +54,7 @@ function Blackboard (){
 
 
     this.inputHandler = function(){
+	
 	//Verifying if there is support for touch events
 	var touchSupported = Modernizr.touch;
 	if(touchSupported){
@@ -62,43 +68,80 @@ function Blackboard (){
 	    this.moving    = "mousemove";
 	}
 
-	var self = this;
+	
 	$(document).bind(self.pressed,self.onPressed());
-
+	
     }
 
     this.onPressed = function(){
 	
-	var self = this;
-
-	this.onMoving();
 	
-	$(document).bind(this.unpressed,this.onUnpressed());
-	$(document).bind(this.moving,this.onMoving());
-
+	$(document).bind(self.unpressed,self.onUnpressed());
+	
 	return function(){
+	    self.traceLine(event);
+	    $(document).bind(self.moving,self.onMoving(event));
 	    console.log("pressed");
 	}
 	
     }
 
     this.onUnpressed = function(){
-	$(document).unbind(this.moving);
-
 
 	return function(){
+	    $(document).unbind(self.moving);
 	    console.log("unpressed");
 	}
     }
 
-    this.onMoving = function(){
+    this.onMoving = function(event){
+	
 	return function(event){
+	    self.traceLine(event);
 	    console.log("moving");
-	    event.preventDefault();
+	    console.log(event.pageX+","+event.pageY);
 	    return false;
 	}
     }
 
+
+    this.traceLine = function(event){
+	var lastPosition = this.lastPointerPosition;
+	var currentPosition={
+	    x: event.pageX - $('canvas').offset().left,
+	    y: event.pageY - $('canvas').offset().top,
+	}
+	
+	var distance = {
+	    x:currentPosition.x-lastPosition.x,
+	    y:currentPosition.y-lastPosition.y,
+	    modulus: function(){
+		return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2))
+	    }
+	   
+	}
+
+	var chalck = new Image();
+	chalck.src = "../blackboard/assets/kawaii.png";
+	this.context.drawImage(chalck,currentPosition.x,currentPosition.y);
+
+	console.log(chalck);
+	
+
+	console.log("distance: "+ distance.modulus());
+
+	
+	this.lastPointerPosition = lastPosition = currentPosition;
+
+	//var distance = 
+
+	
+	//console.log("cp => "+currentPosition.x+","+currentPosition.y);
+	
+	//console.log('tracing line');
+    }
+    
+   
 
 }
 

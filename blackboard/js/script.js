@@ -17,6 +17,7 @@ var background = new Image();
 //-----------------------------------------------------------------------------------------------------
 
 //Auxiliary methods (create library)
+
 Object.prototype.size = function(){
     var size = 0, key;
 
@@ -151,8 +152,9 @@ function Blackboard(images){
 	$(document).bind(self.unpressed,self.onUnpressed());
 	
 	return function(){
-	    self.traceLine(event);
+	    
 	    $(document).bind(self.moving,self.onMoving(event));
+	    self.traceLine(event);
 	    console.log("pressed");
 	}
 	
@@ -172,7 +174,7 @@ function Blackboard(images){
 	    self.traceLine(event);
 	    console.log("moving");
 	    console.log(event.pageX+","+event.pageY);
-	    return false;
+	    
 	}
     }
 
@@ -193,8 +195,9 @@ function Blackboard(images){
 	   
 	}
 
-	var chalck = new Image();
-	chalck.src = "../blackboard/assets/kawaii.png";
+	//Tracing line
+	this.context.drawImage(chalk, currentPosition.x, currentPosition.y);
+	
 
 	
 

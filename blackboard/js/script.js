@@ -39,7 +39,7 @@ log("ok");
 //-----------------------------------------------------------------------------------------------------
 
 var chalk = new Image();
-chalk.src = "../blackboard/assets/chalk-brush.png";
+chalk.src = "../blackboard/assets/kawaii.png";
 
 var background = new Image();
 background.src = "../blackboard/assets/chalkboard.jpg";
@@ -88,7 +88,7 @@ function Blackboard(images){
     this.pressed   = null;
     this.unpressed = null;
     this.moving    = null;
-    this.lastPointerPosition = {
+    this.lastPosition = {
 	x:0,
 	y:0
     }
@@ -147,13 +147,12 @@ function Blackboard(images){
     }
 
     this.onPressed = function(){
-	
-	
+		
 	$(document).bind(self.unpressed,self.onUnpressed());
 	
 	return function(){
-	    
 	    $(document).bind(self.moving,self.onMoving(event));
+	    self.updatePosition(event);
 	    self.traceLine(event);
 	    console.log("pressed");
 	}
@@ -178,36 +177,55 @@ function Blackboard(images){
 	}
     }
 
+    
+    this.updatePosition = function(event){
+	this.lastPosition = {
+	    x: event.pageX - $('canvas').offset().left-chalk.width/2,
+	    y: event.pageY - $('canvas').offset().top-chalk.height/2
+	}
+    }
 
     this.traceLine = function(event){
-	var lastPosition = this.lastPointerPosition;
+
 	var currentPosition={
-	    x: event.pageX - $('canvas').offset().left,
-	    y: event.pageY - $('canvas').offset().top,
+	    x: event.pageX - $('canvas').offset().left-chalk.width/2,
+	    y: event.pageY - $('canvas').offset().top-chalk.height/2
 	}
 	
 	var distance = {
-	    x:currentPosition.x-lastPosition.x,
-	    y:currentPosition.y-lastPosition.y,
+	    x:currentPosition.x-this.lastPosition.x,
+	    y:currentPosition.y-this.lastPosition.y,
 	    modulus: function(){
 		return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2))
 	    }
 	   
 	}
 
+	var x,y, angle = Math.atan2(distance.y, distance.x); // finding the angle of change of direction
+	log("angle: "+angle);
+
 	//Tracing line
-	this.context.drawImage(chalk, currentPosition.x, currentPosition.y);
+	for(var z=0; (z<distance.modulus()||z==0); z++){
+	    
+	    
+
+	    
+	    x = this.lastPosition.x+Math.cos(angle)*z;
+	    y = this.lastPosition.y+Math.sin(angle)*z;
+
+	    log("cos: "+Math.cos(angle));
+	    
+	    this.context.drawImage(chalk, x, y,2,2);
+	}
 	
 
-	
 
-	console.log(chalck);
-	
+
 
 	console.log("distance: "+ distance.modulus());
 
 	
-	this.lastPointerPosition = lastPosition = currentPosition;
+	this.lastPosition = currentPosition;
 
 	//var distance = 
 

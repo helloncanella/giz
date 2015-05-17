@@ -1,23 +1,4 @@
-/*var blackboard = new Blackboard();
-blackboard.setup();
-
-//Drawing background
-var background = new Image();
-	background.src = "../blackboard/assets/chalkboard.jpg";
-
-	console.log(background.src);
-	
-	var pattern = context.createPattern(background,"repeat");
-	context.rect(0,0,canvas.width,canvas.height);
-	context.fillStyle = pattern;
-	context.fill();
-*/
-
-
-//-----------------------------------------------------------------------------------------------------
-
 //Auxiliary methods (create library)
-
 Object.prototype.size = function(){
     var size = 0, key;
 
@@ -55,7 +36,7 @@ for(var item in images){
     
    images[item].onload = function(){
 	
-	count++; //counting the number of loaded images
+       count++; //counting the number of loaded images
 
 	console.log(count);
 
@@ -76,14 +57,23 @@ function Blackboard(images){
     var self = this; // assingning "this", preventing problems
 
     //canvas variables
-    var canvas  = this.canvas   = null;
-    var context = this.context  = null;
+    this.canvas = null;
+    this.context = null;
 
     //images variables
     var chalk = images["chalk"];
     var background = images["background"];
-	
     
+    //ratio between canvas and world dimensions
+    this.scale = null;
+
+    //world variables
+  /*  this.world = null;
+    this.gravity = null;    
+    this.worldHeight=10; // variables is given based on MKS 
+    this.worldWidth=null; // to be defined */
+    
+
     //events variables
     this.pressed   = null;
     this.unpressed = null;
@@ -94,13 +84,13 @@ function Blackboard(images){
     }
     
     this.setup = function(){
-	
-	this.setCanvas();
+	this.setWorldAndCanvas();
+//	this.setWorld();
 	this.inputHandler();
 	
 	//Resizing canvas when window is changed
 	$(window).resize(function(){
-	    self.setCanvas();
+	    self.setWorldAndCanvas();
 	});	
 
     }
@@ -124,8 +114,36 @@ function Blackboard(images){
 	context.fill();	
 		
     }
+/*
+    this.setWorldAndCanvas = function(){
+	this.setCanvas();
+	this.scale=this.worldHeight/this.canvas.height;
+	this.worldWidth = this.canvas.width/this.scale;
+	this.setWorld();
+    }
 
+    this.setWorld = function(){
+	this.gravity =new Vec(0,-10);
+	
+	var sleep = false;//avoid dynamic bodies to stop when touched by the static
+	this.world = new World(this.gravity,sleep);
 
+	//Defining the walls (Need to be rethought in the future)
+	var ground = new BodyDef();
+	ground.type= Body.b2_staticBody;
+	ground.position.Set(this.worldWidth,0);
+	
+	var fixture = new Fixture();
+	fixture.restituition=0.2;
+	fixture.shape = new PolygonShape();
+	fixture.shape.SetAsBox(this.worldWidth,this.worldHeight*0.01);
+
+	this.world.CreateBody(ground).CreateFixture(fixture);
+
+	
+	
+    }
+*/
     this.inputHandler = function(){
 	
 	//Verifying if there is support for touch events

@@ -1,0 +1,18 @@
+#Controller
+class C
+  contructor: () ->
+  
+    
+
+#View    
+class V
+
+  class Canvas
+    constructor: (@body,@name) ->
+
+    
+#Model (data)
+class M
+
+  class Body
+    contructor: () ->

@@ -53,12 +53,14 @@ function Scenario(){
     }
 
 
+
     this.setWorld =  function(){
 	this.gravity = new Vec(0,-10);
 
 	var sleep = false; //If true the body will sleep when reach static body
 	this.world = new World(this.gravity,sleep); 
     }
+
 
 
     this.insertBody = function(){
@@ -77,8 +79,6 @@ function Scenario(){
 	this.body = this.world.CreateBody(square);
 
 	this.body.CreateFixture(fixture);
-
-	
 
     }
  

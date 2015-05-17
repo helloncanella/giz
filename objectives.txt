@@ -1,0 +1,14 @@
+First objective:
+
+- bring squares and circles to life.
+
+	How to proceed?
+	
+		1. set canvas and world
+		2. wake up input handler
+			if keydown = s
+				build square
+			ifelse keydown = c
+				build circle
+		
+	

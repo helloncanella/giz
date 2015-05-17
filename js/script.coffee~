@@ -1,0 +1,38 @@
+#Controller
+class C
+     
+  init: () ->
+    @model = new M()
+    @canvas= new Canvas(10,20)
+
+    
+    @world = @model. new World(10,50,{x:0,y:-10},false)
+    console.log(@world.width)  
+    
+    0
+
+ 
+  
+#View  
+class V
+
+  class Canvas
+    contructor: (@width,@height) ->
+
+  class Body
+    contructor: () ->
+
+  
+    
+#Model (data)
+class M
+
+  class Body
+    contructor: () ->
+
+  class World
+    constructor:(@width,@height,@gravity,@sleep) ->
+
+
+giz = new C()
+giz.init();

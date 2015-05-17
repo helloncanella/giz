@@ -5,6 +5,8 @@ First objective:
 	How to proceed?
 	
 		1. set canvas and world
+		   User will pass desired  
+
 		2. wake up input handler
 			if keydown = s
 				build square

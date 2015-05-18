@@ -2,21 +2,46 @@
 class Brain
   constructor: () ->
 
+
+
   init: () ->
-    @worldData = new WorldData(10,50,{x:0,y:-10},false)
+    @world = new World(10,50,{x:0,y:-10},false)
+    @world.setWorld()
     @canvas= new CanvasView()
     @canvas.setCanvas()
+    @inputHandler()
+    0
 
+  inputHandler: () ->  
+    $(window).keydown (event) ->
+      keyCode = event.which  
+
+      body = new Body()  
+      
+      #print square
+      if keyCode==83
+        console.log("square")
+      if keyCode==67
+        console.log('circle')
+
+    
 
 
 #--------------------------------------------------------------------------------
 #Model (data)
-class BodyData
-  contructor: () ->
+class Body
+  
+  contructor: (@type, ) ->
+    @
 
-class WorldData
+class World
   constructor: (@width,@height,@gravity,@sleep) ->
-
+  setWorld: () ->
+    gravity = new b2Vec2(@gravity.x,@gravity.y)
+    world = new b2World(gravity,@sleep)
+    console.log(gravity,b2World)
+    0
+ 
 
 #--------------------------------------------------------------------------------
 

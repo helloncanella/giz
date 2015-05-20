@@ -3,31 +3,49 @@
   var Body, BodyView, Brain, CanvasView, World, giz;
 
   Brain = (function() {
-    function Brain() {}
+    function Brain(worldHeight) {
+      this.worldHeight = worldHeight;
+    }
 
     Brain.prototype.init = function() {
-      this.world = new World(10, 50, {
+      this.worldDef = new World(10, 50, {
         x: 0,
         y: -10
       }, false);
-      this.world.setWorld();
+      this.world = this.worldDef.setWorld();
       this.canvas = new CanvasView();
       this.canvas.setCanvas();
-      this.inputHandler();
+      this.scale = getCanvasWorldRatio();
+      this.bodiesArray = [];
+      inputHandler();
       return 0;
+    };
+
+    Brain.prototype.getCanvasWorldRatio = function() {
+      var scale;
+      return scale = this.canvas.height / this.worldHeight;
     };
 
     Brain.prototype.inputHandler = function() {
       return $(window).keydown(function(event) {
-        var body, keyCode;
+        var body, dimensions, keyCode, shape;
         keyCode = event.which;
-        body = new Body();
         if (keyCode === 83) {
-          console.log("square");
+          shape = "circle";
+          dimensions = {
+            radius: Math.random() * 5 + 0.1
+          };
         }
         if (keyCode === 67) {
-          return console.log('circle');
+          shape = "square";
+          dimensions = {
+            side: Math.random() * 5 + 0.1
+          };
         }
+        body = new Body(this.world, shape, dimensions, this.worldWidth, this.wordHeight);
+        body.putBodyInTheWorld();
+        this.bodiesArray.push(body);
+        return 0;
       });
     };
 
@@ -38,9 +56,32 @@
   Body = (function() {
     function Body() {}
 
-    Body.prototype.contructor = function(type) {
-      this.type = type;
-      return this;
+    Body.prototype.contructor = function(world1, shape1, dimensions1, worldWidth, wordHeight) {
+      this.world = world1;
+      this.shape = shape1;
+      this.dimensions = dimensions1;
+      this.worldWidth = worldWidth;
+      this.wordHeight = wordHeight;
+    };
+
+    Body.prototype.putBodyInTheWorld = function() {
+      var bodyDef, fixture, halfSide, randomX, randomY;
+      randomX = Math.random() * this.worldWidth;
+      randomY = Math.random() * this.wordHeight;
+      bodyDef = new b2BodyDef();
+      bodyDef.type = Body.b2_dynamicBody;
+      bodyDef.position.Set(randomX, randomY);
+      this.body = this.world.CreateBody(bodyDef);
+      fixture = new FixtureDef();
+      fixture.density = 1.0;
+      if (this.shap === "circle") {
+        fixture.shape = new b2CircleShape(this.dimensions.radius);
+      } else if (this.shape === "square") {
+        halfSide = this.dimensions.side / 2;
+        fixture.shape = new b2PolygonShape();
+        fixture.shape.SetAsBox(halfSide, halfSide);
+      }
+      return this.body.CreateFixture(fixture);
     };
 
     return Body;
@@ -58,9 +99,7 @@
     World.prototype.setWorld = function() {
       var gravity, world;
       gravity = new b2Vec2(this.gravity.x, this.gravity.y);
-      world = new b2World(gravity, this.sleep);
-      console.log(gravity, b2World);
-      return 0;
+      return world = new b2World(gravity, this.sleep);
     };
 
     return World;
@@ -71,10 +110,10 @@
     function CanvasView() {}
 
     CanvasView.prototype.setCanvas = function() {
-      var canvas, height, self, width;
+      var height, self, width;
       $('canvas').remove();
       $('<canvas></canvas>').prependTo('body');
-      canvas = $('canvas');
+      this.canvas = $('canvas');
       width = this.width = $(window).width();
       height = this.height = $(window).height();
       self = this;
@@ -82,11 +121,12 @@
         self.setCanvas();
         return 0;
       });
-      canvas.attr({
+      this.canvas.attr({
         width: width,
         height: height
       });
-      return 0;
+      0;
+      return this.context = this.canvas[0].getContext('2d');
     };
 
     return CanvasView;
@@ -102,7 +142,7 @@
 
   })();
 
-  giz = new Brain();
+  giz = new Brain(30);
 
   giz.init();
 

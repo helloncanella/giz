@@ -1,0 +1,19 @@
+class Banana
+  pause:false
+  init:()->
+    $('#pause').click ()->
+      @pause=true
+    $('#play').click () ->
+      @pause = false
+    
+    start=null
+    window.requestAnimationFrame @update 
+    0
+
+  update: () ->
+    console.log 'oi'
+     
+    
+fruit = new Banana()
+fruit.init()
+ 

@@ -14,8 +14,9 @@ class Brain
 
     @bodiesArray = []
     @inputHandler()
+    @setButtons()
     0
-
+    
   getCanvasWorldRatio: () ->
     console.log("canvas's height",@canvas.height)
     return scale = @canvas.height/@worldHeight
@@ -51,7 +52,39 @@ class Brain
       @bodiesArray.push(body)
       #console.log @bodiesArray
       0
+
+  setButtons:()->
+    @animation = $('#play').click requestAnimationFrame @update.bind @
+    $('#pause').click cancelAnimationFrame @animation
+
+  draw:(body)->
+    worldPosition = body.getWorldPosition()
+    canvasPosition = convertWorldToCanvasFrame(@scale,worldPosition)  
+
+    if body.shape is 'square'
+      side = body.dimensions.side
+      @context.rect(canvasPosition.x, canvasPosition.y,side, side)
+    if body.shape is 'circle'  
+      radius = body.dimensions.radius
+      @context.beginPath()
+      @context.arc(canvasPosition.x, canvasPosition.y, radius, 0, 2*Math.PI)
+ 
+    @context.stroke()   
+
+  update:()->
+    for body in @bodiesArray
+      @draw body
+      @animation = requestAnimationFrame @update.bind @   
+       
    
+  convertWorldToCanvasFrame:(scale,worldPosition) ->
+    return canvasPosition ={
+      x: worldPosition.x*scale
+      y: worldPosition.y*scale
+    } 
+      
+        
+    
       
     
 
@@ -86,17 +119,18 @@ class Body
       halfSide = @dimensions.side/2
       fixture.shape = new b2PolygonShape()
       fixture.shape.SetAsBox(halfSide,halfSide)  
-
-    ##console.log('shape',this.shape)
+    
     @body.CreateFixture(fixture)
-       
+
+  getWorldPosition: () ->
+    return @body.GetPosition()
       
 
 class World
   constructor: (@width,@height,@gravity,@sleep) ->
   setWorld: () ->
     gravity = new b2Vec2(@gravity.x,@gravity.y)
-    world = new b2World(gravity,@sleep)
+    return world = new b2World(gravity,@sleep)
    
  
 
@@ -124,6 +158,7 @@ class CanvasView
 
     @context = @canvas[0].getContext('2d')
 
+    return 0
     ##console.log 'canvas', @
 class BodyView
   contructor: () ->

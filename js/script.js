@@ -19,6 +19,7 @@
       this.scale = this.getCanvasWorldRatio();
       this.bodiesArray = [];
       this.inputHandler();
+      this.setButtons();
       return 0;
     };
 
@@ -56,6 +57,47 @@
       return 0;
     };
 
+    Brain.prototype.setButtons = function() {
+      this.animation = $('#play').click(requestAnimationFrame(this.update.bind(this)));
+      return $('#pause').click(cancelAnimationFrame(this.animation));
+    };
+
+    Brain.prototype.draw = function(body) {
+      var canvasPosition, radius, side, worldPosition;
+      worldPosition = body.getWorldPosition();
+      canvasPosition = convertWorldToCanvasFrame(this.scale, worldPosition);
+      if (body.shape === 'square') {
+        side = body.dimensions.side;
+        this.context.rect(canvasPosition.x, canvasPosition.y, side, side);
+      }
+      if (body.shape === 'circle') {
+        radius = body.dimensions.radius;
+        this.context.beginPath();
+        this.context.arc(canvasPosition.x, canvasPosition.y, radius, 0, 2 * Math.PI);
+      }
+      return this.context.stroke();
+    };
+
+    Brain.prototype.update = function() {
+      var body, i, len, ref, results;
+      ref = this.bodiesArray;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        body = ref[i];
+        this.draw(body);
+        results.push(this.animation = requestAnimationFrame(this.update.bind(this)));
+      }
+      return results;
+    };
+
+    Brain.prototype.convertWorldToCanvasFrame = function(scale, worldPosition) {
+      var canvasPosition;
+      return canvasPosition = {
+        x: worldPosition.x * scale,
+        y: worldPosition.y * scale
+      };
+    };
+
     return Brain;
 
   })();
@@ -88,6 +130,10 @@
         fixture.shape.SetAsBox(halfSide, halfSide);
       }
       return this.body.CreateFixture(fixture);
+    };
+
+    Body.prototype.getWorldPosition = function() {
+      return this.body.GetPosition();
     };
 
     return Body;
@@ -132,7 +178,8 @@
         height: height
       });
       0;
-      return this.context = this.canvas[0].getContext('2d');
+      this.context = this.canvas[0].getContext('2d');
+      return 0;
     };
 
     return CanvasView;

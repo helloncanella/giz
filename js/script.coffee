@@ -1,3 +1,7 @@
+#Auxiliar function
+log = (logText) ->
+  console.log logText
+
 #Controller
 class Brain
   constructor: (@worldHeight) ->
@@ -5,78 +9,108 @@ class Brain
   init: () ->
     @worldDef = new World(10,50,{x:0,y:-10},false)
     @world = @worldDef.setWorld()
-    console.log('world',@world)
+   
 
     @canvas= new CanvasView()
     @canvas.setCanvas()
 
-    @scale = @getCanvasWorldRatio()
+   
 
+    @scale = @getCanvasWorldRatio()
+    @worldWidth = @calculateWorldWidth()
+    
     @bodiesArray = []
     @inputHandler()
     @setButtons()
+    
     0
     
   getCanvasWorldRatio: () ->
-    console.log("canvas's height",@canvas.height)
+   
     return scale = @canvas.height/@worldHeight
    
-
+  calculateWorldWidth: ()->
+    return @canvas.width/@scale
+  
   inputHandler: () ->  
     $(window).keydown @keyDownEvent.bind(@)
     0
 
   keyDownEvent: (event)  ->
       keyCode = event.which  
+
+      if keyCode is 83 or keyCode is 67 
+        #print square
+        if keyCode==67
+          shape = "circle"
+          dimensions = { 
+            radius:Math.random()*5+0.1 
+          }
+        if keyCode==83
+          shape = "square"
+          dimensions = {
+            side:Math.random()*5+0.1 
+          } 
+          
+        body = new Body(@world,shape,dimensions,@worldWidth,@worldHeight) 
+        #console.log('body', body)
        
-      #print square
-      if keyCode==83
-        shape = "circle"
-        dimensions = { 
-          radius:Math.random()*5+0.1 
-        }
-      if keyCode==67
-        shape = "square"
-        dimensions = {
-          side:Math.random()*5+0.1 
-        } 
+        body.putBodyInTheWorld()
+        @draw body
+        @bodiesArray.push(body)
+        #console.log @bodiesArray
+        0 
+
+  setButtons: () ->
         
-      console.log('world',@world)
+    $('#play').click((()->
+      @animation=requestAnimationFrame((()->@update(@)).bind @)
+    ).bind @) 
+  
+    $('#pause').click((() ->
+      alert @animation      
+      cancelAnimationFrame @animation
+    ).bind @)
 
-      body = new Body(@world,shape,dimensions,@worldWidth,@wordHeight) 
-      #console.log('body', body)
     
-      console.log 'this', this
-
-      body.putBodyInTheWorld()
-      @bodiesArray.push(body)
-      #console.log @bodiesArray
-      0
-
-  setButtons:()->
-    @animation = $('#play').click requestAnimationFrame @update.bind @
-    $('#pause').click cancelAnimationFrame @animation
-
+  
   draw:(body)->
     worldPosition = body.getWorldPosition()
-    canvasPosition = convertWorldToCanvasFrame(@scale,worldPosition)  
+    canvasPosition = @convertWorldToCanvasFrame(@scale,worldPosition)  
 
+    @context = @canvas.context
+      
     if body.shape is 'square'
-      side = body.dimensions.side
+      side = body.dimensions.side*@scale
       @context.rect(canvasPosition.x, canvasPosition.y,side, side)
     if body.shape is 'circle'  
-      radius = body.dimensions.radius
+      radius = body.dimensions.radius*@scale
       @context.beginPath()
       @context.arc(canvasPosition.x, canvasPosition.y, radius, 0, 2*Math.PI)
  
     @context.stroke()   
-
-  update:()->
-    for body in @bodiesArray
-      @draw body
-      @animation = requestAnimationFrame @update.bind @   
-       
    
+  update: (self) ->
+
+  
+    self.world.Step(1/60,8,3)
+
+    self.draw self.bodiesArray[0] 
+      
+    console.log self.bodiesArray[0].getWorldPosition()
+    self.world.ClearForces(); 
+   # for body in @bodiesArray
+    #  @draw body
+     # console.log body.getWorldPosition()
+      
+    requestAnimationFrame(()->
+      self.animation = self.update(self)
+    )
+    0     
+
+  test: () ->
+    console.log olá 
+    
   convertWorldToCanvasFrame:(scale,worldPosition) ->
     return canvasPosition ={
       x: worldPosition.x*scale
@@ -92,17 +126,11 @@ class Brain
 #--------------------------------------------------------------------------------
 #Model (data)
 class Body
-  constructor: (@world,@shape,@dimensions,@worldWidth,@wordHeight) ->
+  constructor: (@world,@shape,@dimensions,@worldWidth,@worldHeight) ->
   putBodyInTheWorld: () ->
     randomX = Math.random()*@worldWidth
-    randomY = Math.random()*@wordHeight  
-
-    console.log 'random',@worldWidth,randomY
-
-    ##console.log 'this', this
-    ##console.log 'height', @worldWidth
-    ##console.log 'worldInsideBody',@world
-    
+    randomY = Math.random()*@worldHeight  
+       
     bodyDef = new b2BodyDef()
     bodyDef.type = Body.b2_dynamicBody
     bodyDef.position.Set(randomX,randomY)
@@ -141,10 +169,10 @@ class CanvasView
   
   setCanvas: () ->
     $('canvas').remove()
-    $('<canvas></canvas>').prependTo('body')
-
+    $('<canvas></canvas>').appendTo('body')
 
     @canvas=$('canvas')
+       
     width=@width=$(window).width()
     height=@height=$(window).height()
 
@@ -152,16 +180,12 @@ class CanvasView
     $(window).resize () ->
       self.setCanvas() 
       0 
-        
+   
     @canvas.attr({width:width, height:height})
-    0
-
     @context = @canvas[0].getContext('2d')
-
+    
     return 0
-    ##console.log 'canvas', @
-class BodyView
-  contructor: () ->
+
 
 
 giz = new Brain(30)

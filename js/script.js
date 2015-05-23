@@ -19,8 +19,10 @@
       this.world = this.worldDef.setWorld();
       this.canvas = new CanvasView();
       this.canvas.setCanvas();
+      this.context = this.canvas.context;
       this.scale = this.getCanvasWorldRatio();
       this.worldWidth = this.calculateWorldWidth();
+      console.log('WORLD DIMENSIONS', this.worldWidth, this.worldHeight);
       this.bodiesArray = [];
       this.inputHandler();
       this.setButtons();
@@ -81,10 +83,10 @@
       var canvasPosition, radius, side, worldPosition;
       worldPosition = body.getWorldPosition();
       canvasPosition = this.convertWorldToCanvasFrame(this.scale, worldPosition);
-      this.context = this.canvas.context;
+      console.log(body.getWorldVelocity());
       if (body.shape === 'square') {
         side = body.dimensions.side * this.scale;
-        this.context.rect(canvasPosition.x, canvasPosition.y, side, side);
+        this.context.rect(canvasPosition.x + side / 2, canvasPosition.y + side / 2, side, side);
       }
       if (body.shape === 'circle') {
         radius = body.dimensions.radius * this.scale;
@@ -95,9 +97,14 @@
     };
 
     Brain.prototype.update = function(self) {
-      self.world.Step(1 / 60, 8, 3);
-      self.draw(self.bodiesArray[0]);
-      console.log(self.bodiesArray[0].getWorldPosition());
+      var body, i, len, ref;
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      self.world.Step(1 / 60, 10, 10);
+      ref = this.bodiesArray;
+      for (i = 0, len = ref.length; i < len; i++) {
+        body = ref[i];
+        this.draw(body);
+      }
       self.world.ClearForces();
       requestAnimationFrame(function() {
         return self.animation = self.update(self);
@@ -113,7 +120,7 @@
       var canvasPosition;
       return canvasPosition = {
         x: worldPosition.x * scale,
-        y: worldPosition.y * scale
+        y: (this.worldHeight - worldPosition.y) * scale
       };
     };
 
@@ -135,16 +142,19 @@
       randomX = Math.random() * this.worldWidth;
       randomY = Math.random() * this.worldHeight;
       bodyDef = new b2BodyDef();
-      bodyDef.type = Body.b2_dynamicBody;
+      bodyDef.type = b2Body.b2_dynamicBody;
       bodyDef.position.Set(randomX, randomY);
       this.body = this.world.CreateBody(bodyDef);
+      console.log('corpão', this.body);
       fixture = new b2FixtureDef();
       fixture.density = 1.0;
+      fixture.friction = 0.5;
+      fixture.restitution = 0.2;
       if (this.shape === "circle") {
         fixture.shape = new b2CircleShape(this.dimensions.radius);
       } else if (this.shape === "square") {
         halfSide = this.dimensions.side / 2;
-        fixture.shape = new b2PolygonShape();
+        fixture.shape = new b2PolygonShape;
         fixture.shape.SetAsBox(halfSide, halfSide);
       }
       return this.body.CreateFixture(fixture);
@@ -152,6 +162,10 @@
 
     Body.prototype.getWorldPosition = function() {
       return this.body.GetPosition();
+    };
+
+    Body.prototype.getWorldVelocity = function() {
+      return this.body.GetLinearVelocity();
     };
 
     return Body;

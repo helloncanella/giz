@@ -14,10 +14,12 @@ class Brain
     @canvas= new CanvasView()
     @canvas.setCanvas()
 
-   
+    @context = @canvas.context
 
     @scale = @getCanvasWorldRatio()
     @worldWidth = @calculateWorldWidth()
+
+    console.log 'WORLD DIMENSIONS', @worldWidth, @worldHeight 
     
     @bodiesArray = []
     @inputHandler()
@@ -78,11 +80,12 @@ class Brain
     worldPosition = body.getWorldPosition()
     canvasPosition = @convertWorldToCanvasFrame(@scale,worldPosition)  
 
-    @context = @canvas.context
+    console.log body.getWorldVelocity()
+
       
     if body.shape is 'square'
       side = body.dimensions.side*@scale
-      @context.rect(canvasPosition.x, canvasPosition.y,side, side)
+      @context.rect((canvasPosition.x+side/2),(canvasPosition.y+side/2),side, side)
     if body.shape is 'circle'  
       radius = body.dimensions.radius*@scale
       @context.beginPath()
@@ -92,18 +95,20 @@ class Brain
    
   update: (self) ->
 
-  
-    self.world.Step(1/60,8,3)
+    @context.clearRect(0,0,@canvas.width,@canvas.height)   
+    self.world.Step(1/60,10,10)
 
-    self.draw self.bodiesArray[0] 
-      
-    console.log self.bodiesArray[0].getWorldPosition()
-    self.world.ClearForces(); 
-   # for body in @bodiesArray
-    #  @draw body
-     # console.log body.getWorldPosition()
-      
+    
+        
+    for body in @bodiesArray
+      @draw body
+
+   
+    self.world.ClearForces()
+    
+     
     requestAnimationFrame(()->
+      
       self.animation = self.update(self)
     )
     0     
@@ -114,7 +119,7 @@ class Brain
   convertWorldToCanvasFrame:(scale,worldPosition) ->
     return canvasPosition ={
       x: worldPosition.x*scale
-      y: worldPosition.y*scale
+      y: (@worldHeight - worldPosition.y)*scale 
     } 
       
         
@@ -132,26 +137,33 @@ class Body
     randomY = Math.random()*@worldHeight  
        
     bodyDef = new b2BodyDef()
-    bodyDef.type = Body.b2_dynamicBody
+    bodyDef.type = b2Body.b2_dynamicBody
     bodyDef.position.Set(randomX,randomY)
 
    
     @body = @world.CreateBody(bodyDef)
 
+    console.log 'corpão', @body 
+
     fixture = new b2FixtureDef()
     fixture.density = 1.0
+    fixture.friction = 0.5;
+    fixture.restitution = 0.2; 
     
     if @shape=="circle"
       fixture.shape = new b2CircleShape(@dimensions.radius)
     else if @shape=="square"
       halfSide = @dimensions.side/2
-      fixture.shape = new b2PolygonShape()
+      fixture.shape = new b2PolygonShape
       fixture.shape.SetAsBox(halfSide,halfSide)  
     
     @body.CreateFixture(fixture)
 
   getWorldPosition: () ->
     return @body.GetPosition()
+
+  getWorldVelocity: () -> 
+    return @body.GetLinearVelocity()
       
 
 class World

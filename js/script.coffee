@@ -20,8 +20,14 @@ class Brain
     @worldWidth = @calculateWorldWidth()
 
     console.log 'WORLD DIMENSIONS', @worldWidth, @worldHeight 
-    
-    @bodiesArray = []
+
+    #Building Edges
+    #   'start' and 'end' refer to a line whose start and end is defined by these variables
+    #   the origin of my cartesian system [0,0] is the point fixed in the left-bottom corner
+    log 'ok1'
+    @stickEdgesInTheWorld('top','left','right','bottom',{start:[20,10],end:[60,10]})  
+
+    @dynamicBodiesArray = []
     @inputHandler()
     @setButtons()
     
@@ -33,7 +39,31 @@ class Brain
    
   calculateWorldWidth: ()->
     return @canvas.width/@scale
-  
+
+  stickEdgesInTheWorld: (edges...) ->
+    log 'ok2'
+    for edge in edges
+      log 'ok3'
+      if edge=='top'
+        log edge
+        log 'ok4'
+        dimensions={start:[0,@worldHeight],end:[@worldWidth,@worldHeight]}
+      else if edge=='right'
+        dimensions={start:[@worldWidth,@worldHeight],end:[@worldWidth,0]} 
+      else if edge=='bottom'    
+        dimensions={start:[@worldWidth,0],end:[0,0]} 
+      else if edge=='left'
+        dimensions={start:[0,0],end:[0,@worldHeight]}
+      else
+        dimensions=edge
+
+      log 'ok5' 
+      body = new Body(@world,'static','edge',dimensions,@worldWidth,@worldHeight) 
+
+      log 'ok6' 
+      body.putBodyInTheWorld()
+        
+             
   inputHandler: () ->  
     $(window).keydown @keyDownEvent.bind(@)
     0
@@ -53,13 +83,13 @@ class Brain
           dimensions = {
             side:Math.random()*5+0.1 
           } 
-          
-        body = new Body(@world,shape,dimensions,@worldWidth,@worldHeight) 
+
+        body = new Body(@world,'dynamic',shape,dimensions,@worldWidth,@worldHeight) 
         #console.log('body', body)
-       
+
         body.putBodyInTheWorld()
         @draw body
-        @bodiesArray.push(body)
+        @dynamicBodiesArrays.push(body)
         #console.log @bodiesArray
         0 
 
@@ -100,7 +130,7 @@ class Brain
 
     
         
-    for body in @bodiesArray
+    for body in @dynamicBodiesArray
       @draw body
 
    
@@ -108,7 +138,6 @@ class Brain
     
      
     requestAnimationFrame(()->
-      
       self.animation = self.update(self)
     )
     0     
@@ -131,13 +160,18 @@ class Brain
 #--------------------------------------------------------------------------------
 #Model (data)
 class Body
-  constructor: (@world,@shape,@dimensions,@worldWidth,@worldHeight) ->
+  constructor: (@world,@type,@shape,@dimensions,@worldWidth,@worldHeight) ->
   putBodyInTheWorld: () ->
     randomX = Math.random()*@worldWidth
     randomY = Math.random()*@worldHeight  
        
     bodyDef = new b2BodyDef()
-    bodyDef.type = b2Body.b2_dynamicBody
+
+    if @type=='dynamic'
+      bodyDef.type = b2Body.b2_dynamicBody
+    else
+      bodyDef.type = b2Body.b2_staticBody
+
     bodyDef.position.Set(randomX,randomY)
 
    
@@ -147,7 +181,7 @@ class Body
 
     fixture = new b2FixtureDef()
     fixture.density = 1.0
-    fixture.friction = 0.5;
+    fixture.friction = 0.0;
     fixture.restitution = 0.2; 
     
     if @shape=="circle"
@@ -155,7 +189,12 @@ class Body
     else if @shape=="square"
       halfSide = @dimensions.side/2
       fixture.shape = new b2PolygonShape
-      fixture.shape.SetAsBox(halfSide,halfSide)  
+      fixture.shape.SetAsBox(halfSide,halfSide)
+    else if @shape=="edge"
+      end= new b2Vec2(@dimensions.end[0],@dimensions.end[1])
+      fixture.shape= new b2EdgeShape
+      fixture.shape.Set(start,end)
+  
     
     @body.CreateFixture(fixture)
 

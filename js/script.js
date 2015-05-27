@@ -25,11 +25,11 @@
       this.worldWidth = this.calculateWorldWidth();
       console.log('WORLD DIMENSIONS', this.worldWidth, this.worldHeight);
       log('ok1');
+      this.dynamicBodiesArray = [];
       this.stickEdgesInTheWorld('top', 'left', 'right', 'bottom', {
         start: [20, 10],
-        end: [60, 10]
+        end: [60, 15]
       });
-      this.dynamicBodiesArray = [];
       this.inputHandler();
       this.setButtons();
       return 0;
@@ -51,7 +51,7 @@
       results = [];
       for (i = 0, len = edges.length; i < len; i++) {
         edge = edges[i];
-        log('ok3');
+        log(edge);
         if (edge === 'top') {
           log(edge);
           log('ok4');
@@ -79,8 +79,10 @@
         }
         log('ok5');
         body = new Body(this.world, 'static', 'edge', dimensions, this.worldWidth, this.worldHeight);
-        log('ok6');
-        results.push(body.putBodyInTheWorld());
+        body.putBodyInTheWorld();
+        this.draw(body);
+        this.dynamicBodiesArray.push(body);
+        results.push(0);
       }
       return results;
     };
@@ -109,7 +111,7 @@
         body = new Body(this.world, 'dynamic', shape, dimensions, this.worldWidth, this.worldHeight);
         body.putBodyInTheWorld();
         this.draw(body);
-        this.dynamicBodiesArrays.push(body);
+        this.dynamicBodiesArray.push(body);
         return 0;
       }
     };
@@ -127,7 +129,7 @@
     };
 
     Brain.prototype.draw = function(body) {
-      var canvasPosition, radius, side, worldPosition;
+      var canvasPosition, end, radius, side, start, worldPosition;
       worldPosition = body.getWorldPosition();
       canvasPosition = this.convertWorldToCanvasFrame(this.scale, worldPosition);
       console.log(body.getWorldVelocity());
@@ -139,6 +141,19 @@
         radius = body.dimensions.radius * this.scale;
         this.context.beginPath();
         this.context.arc(canvasPosition.x, canvasPosition.y, radius, 0, 2 * Math.PI);
+      }
+      if (body.shape === 'edge') {
+        start = {
+          x: body.dimensions.start[0] * this.scale,
+          y: body.dimensions.start[1] * this.scale
+        };
+        end = {
+          x: body.dimensions.end[0] * this.scale,
+          y: body.dimensions.end[1] * this.scale
+        };
+        this.context.beginPath();
+        this.context.moveTo(start.x, start.y);
+        this.context.lineTo(end.x, end.y);
       }
       return this.context.stroke();
     };
@@ -186,7 +201,7 @@
     }
 
     Body.prototype.putBodyInTheWorld = function() {
-      var bodyDef, end, fixture, halfSide, randomX, randomY;
+      var bodyDef, end, fixture, halfSide, randomX, randomY, start;
       randomX = Math.random() * this.worldWidth;
       randomY = Math.random() * this.worldHeight;
       bodyDef = new b2BodyDef();
@@ -209,11 +224,21 @@
         fixture.shape = new b2PolygonShape;
         fixture.shape.SetAsBox(halfSide, halfSide);
       } else if (this.shape === "edge") {
+        log('ok5.9');
+        start = new b2Vec2(this.dimensions.start[0], this.dimensions.start[1]);
+        log(start);
+        log('ok6');
         end = new b2Vec2(this.dimensions.end[0], this.dimensions.end[1]);
-        fixture.shape = new b2EdgeShape;
-        fixture.shape.Set(start, end);
+        log(end);
+        log('ok7');
+        fixture.shape = new b2PolygonShape;
+        fixture.shape.SetAsEdge(start, end);
+        log(fixture.shape);
+        log('ok8');
       }
-      return this.body.CreateFixture(fixture);
+      log('ok9');
+      this.body.CreateFixture(fixture);
+      return log('ok10');
     };
 
     Body.prototype.getWorldPosition = function() {

@@ -25,9 +25,9 @@ class Brain
     #   'start' and 'end' refer to a line whose start and end is defined by these variables
     #   the origin of my cartesian system [0,0] is the point fixed in the left-bottom corner
     log 'ok1'
-    @stickEdgesInTheWorld('top','left','right','bottom',{start:[20,10],end:[60,10]})  
-
     @dynamicBodiesArray = []
+    @stickEdgesInTheWorld('top','left','right','bottom',{start:[20,10],end:[60,15]})  
+
     @inputHandler()
     @setButtons()
     
@@ -43,7 +43,7 @@ class Brain
   stickEdgesInTheWorld: (edges...) ->
     log 'ok2'
     for edge in edges
-      log 'ok3'
+      log edge
       if edge=='top'
         log edge
         log 'ok4'
@@ -59,11 +59,12 @@ class Brain
 
       log 'ok5' 
       body = new Body(@world,'static','edge',dimensions,@worldWidth,@worldHeight) 
-
-      log 'ok6' 
+       
       body.putBodyInTheWorld()
-        
-             
+      @draw body
+      @dynamicBodiesArray.push(body)
+      0
+               
   inputHandler: () ->  
     $(window).keydown @keyDownEvent.bind(@)
     0
@@ -89,7 +90,7 @@ class Brain
 
         body.putBodyInTheWorld()
         @draw body
-        @dynamicBodiesArrays.push(body)
+        @dynamicBodiesArray.push(body)
         #console.log @bodiesArray
         0 
 
@@ -120,7 +121,20 @@ class Brain
       radius = body.dimensions.radius*@scale
       @context.beginPath()
       @context.arc(canvasPosition.x, canvasPosition.y, radius, 0, 2*Math.PI)
- 
+    if body.shape is 'edge' 
+      start={
+        x:body.dimensions.start[0]*@scale
+        y:body.dimensions.start[1]*@scale
+      }
+      end={
+        x:body.dimensions.end[0]*@scale
+        y:body.dimensions.end[1]*@scale
+      }
+
+      @context.beginPath();
+      @context.moveTo(start.x,start.y);
+      @context.lineTo(end.x, end.y);
+       
     @context.stroke()   
    
   update: (self) ->
@@ -144,7 +158,7 @@ class Brain
 
   test: () ->
     console.log olá 
-    
+     
   convertWorldToCanvasFrame:(scale,worldPosition) ->
     return canvasPosition ={
       x: worldPosition.x*scale
@@ -187,16 +201,27 @@ class Body
     if @shape=="circle"
       fixture.shape = new b2CircleShape(@dimensions.radius)
     else if @shape=="square"
-      halfSide = @dimensions.side/2
+      halfSide = @dimensions.side/2 
       fixture.shape = new b2PolygonShape
       fixture.shape.SetAsBox(halfSide,halfSide)
     else if @shape=="edge"
+      log 'ok5.9'
+      start= new b2Vec2(@dimensions.start[0],@dimensions.start[1])
+      log start
+      log 'ok6'
       end= new b2Vec2(@dimensions.end[0],@dimensions.end[1])
-      fixture.shape= new b2EdgeShape
-      fixture.shape.Set(start,end)
+      log end
+      log 'ok7'
+     
+      fixture.shape= new b2PolygonShape
+      fixture.shape.SetAsEdge(start,end)
+      log fixture.shape
+      log 'ok8'
   
-    
+      
+    log 'ok9'
     @body.CreateFixture(fixture)
+    log 'ok10'
 
   getWorldPosition: () ->
     return @body.GetPosition()
@@ -215,7 +240,7 @@ class World
 
 #--------------------------------------------------------------------------------
 
-#View
+#View 
 class CanvasView
   
   setCanvas: () ->

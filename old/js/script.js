@@ -31,8 +31,7 @@
         end: [60, 15]
       });
       this.inputHandler();
-      this.setButtons();
-      return 0;
+      return this.setButtons();
     };
 
     Brain.prototype.getCanvasWorldRatio = function() {
@@ -81,8 +80,7 @@
         body = new Body(this.world, 'static', 'edge', dimensions, this.worldWidth, this.worldHeight);
         body.putBodyInTheWorld();
         this.draw(body);
-        this.dynamicBodiesArray.push(body);
-        results.push(0);
+        results.push(this.dynamicBodiesArray.push(body));
       }
       return results;
     };
@@ -111,8 +109,7 @@
         body = new Body(this.world, 'dynamic', shape, dimensions, this.worldWidth, this.worldHeight);
         body.putBodyInTheWorld();
         this.draw(body);
-        this.dynamicBodiesArray.push(body);
-        return 0;
+        return this.dynamicBodiesArray.push(body);
       }
     };
 
@@ -172,10 +169,6 @@
         return self.animation = self.update(self);
       });
       return 0;
-    };
-
-    Brain.prototype.test = function() {
-      return console.log(olá);
     };
 
     Brain.prototype.convertWorldToCanvasFrame = function(scale, worldPosition) {
@@ -290,8 +283,7 @@
         width: width,
         height: height
       });
-      this.context = this.canvas[0].getContext('2d');
-      return 0;
+      return this.context = this.canvas[0].getContext('2d');
     };
 
     return CanvasView;

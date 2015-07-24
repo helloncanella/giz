@@ -30,8 +30,7 @@ class Brain
 
     @inputHandler()
     @setButtons()
-    
-    0
+   
     
   getCanvasWorldRatio: () ->
    
@@ -63,7 +62,7 @@ class Brain
       body.putBodyInTheWorld()
       @draw body
       @dynamicBodiesArray.push(body)
-      0
+
                
   inputHandler: () ->  
     $(window).keydown @keyDownEvent.bind(@)
@@ -92,7 +91,7 @@ class Brain
         @draw body
         @dynamicBodiesArray.push(body)
         #console.log @bodiesArray
-        0 
+        
 
   setButtons: () ->
         
@@ -112,7 +111,6 @@ class Brain
     canvasPosition = @convertWorldToCanvasFrame(@scale,worldPosition)  
 
     console.log body.getWorldVelocity()
-
       
     if body.shape is 'square'
       side = body.dimensions.side*@scale
@@ -155,9 +153,6 @@ class Brain
       self.animation = self.update(self)
     )
     0     
-
-  test: () ->
-    console.log olá 
      
   convertWorldToCanvasFrame:(scale,worldPosition) ->
     return canvasPosition ={
@@ -259,8 +254,7 @@ class CanvasView
    
     @canvas.attr({width:width, height:height})
     @context = @canvas[0].getContext('2d')
-    
-    return 0
+
 
 
 

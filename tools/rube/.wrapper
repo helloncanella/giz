@@ -1,0 +1,12 @@
+#!/bin/sh
+
+here="${0%/*}"
+
+LD_LIBRARY_PATH="$here"/lib:"$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH
+export LANG=en_US.utf8
+export LC_NUMERIC=en_US.utf8
+export QT_PLUGIN_PATH="$here"/lib
+cd $here
+exec "$0".bin "$@"
+

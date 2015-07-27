@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en" class="article">
+<head>
+  <meta charset="utf-8">
+  <title>Making Games with Box2dWeb - Build New Games</title>
+  <meta name="author" content="Bocoup">
+  
+  <meta name="description" content="Making Games With Box2dWeb Nov 28th, 2012 | by Pascal Rettig One of the most complicated and math-intensive components of game development is &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  
+  
+  <link rel="canonical" href="http://buildnewgames.com/box2dweb">
+  <link href="/favicon.png" rel="icon">
+
+  <link href="/assets/css/reset.css" media="screen, projection" rel="stylesheet" type="text/css">
+
+  <link rel="stylesheet" href="assets/css/factory.css">
+
+  <!--[if (gt IE 8)|!(IE)]><!-->
+    <link href="/assets/css/fonts.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <!--<![endif]-->
+  <link href="/assets/css/base.css" media="screen, projection" rel="stylesheet" type="text/css">
+  
+  <!-- 
+  <link href="/assets/css/screen-small.css" media="screen and (max-width: 480px)" rel="stylesheet" type="text/css">
+  <link href="/assets/css/screen-medium.css" media="screen and (min-width: 481px)" rel="stylesheet" type="text/css">
+  <link href="/assets/css/screen-large.css" media="screen and (min-width: 1024px)" rel="stylesheet" type="text/css">
+  <link href="/assets/css/screen-horizontally-small.css" rel="stylesheet" type="text/css">
+   -->
+  <link href="/assets/css/screen-medium.css" rel="stylesheet" type="text/css">
+
+  <link href="/atom.xml" rel="alternate" title="Build New Games" type="application/atom+xml">
+
+  <!--[if lt IE 9]>
+    <script src="/js/lib/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="clearfix ">
+
+    <section id="main" class="article">
+      <article style="
+    width: 61.8%;     line-height: 1.62;     font-size: 1.2em;     margin: 0 auto;
+">
+  
+    <header>
+      
+        <h1 class="entry-title">Making Games With Box2dWeb</h1>
+      
+      
+        <p class="meta">
+          
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-11-28T12:00:00+00:00" pubdate data-updated="true">Nov 28<span>th</span>, 2012</time>
+           | by <a href="http://www.twitter.com/cykod">Pascal Rettig</a>
+        </p>
+      
+    </header>
+
+  
+  
+  
+    <div class="entry-content"><p>One of the most complicated and math-intensive components of game development is collision detection and response. If all you need is to calculate when a couple of rectangles overlap, it’s not a big deal, but for games that involve lots of irregularly shaped sprites moving and reacting to each other realistically, you’ll want to use an industrial strength tool to get the job done.</p>
+
+<p>Enter the physics engine.</p>
+
+<p>The idea behind using a physics engine in your game is that instead of hacking together a very-loose approximation of how real objects might interact for your game, dropping in an engine whose sole purpose is to run the physics simulation allows you to leave it to the engine to handle object dynamics and interactions and concentrate on the game itself.</p>
+
+<p>To this end a number of different Physics engines, both 2D and 3D have made their way to JavaScript, many of them ports from other languages, but some written from scratch. For an overview of a number of different engines, take a look at Chandler Prall’s <a href="http://buildnewgames.com/physics-engines-comparison/">JavaScript Physics Engine Comparison</a>.</p>
+
+<p>Of the myriad of open-source 2D engines that are available, one stands out: Box2D. One reason for this is that it was used as the simulation engine behind mega-hit Angry birds, whose physics-based gameplay required a bullet-proof physics implementation. Box2D is the 2D physics engine of choice for many games, and thus was ported wholesale over to Flash and ActionScript a while back. To get a JavaScript version, some ambitious folks have taken advantage of the similarities between ActionScript and JavaScript and created a converter that converted the ActionScript to JavaScript.</p>
+
+<p>There are a few ports floating about, but the most popular one is Box2DWeb:</p>
+
+<p><a href="http://code.google.com/p/box2dweb/">http://code.google.com/p/box2dweb/</a></p>
+
+<p>Some work has also been done to convert directly from C++ to JavaScript using emscripten (See <a href="https://github.com/kripken/box2d.js/">box2d.js</a>) but this has a different API than box2dweb and doesn’t appear to be kept up.</p>
+
+<p>Box2DWeb doesn’t have it’s own documentation per se, but it shares the same API as the Flash library it was converted from, so the <a href="http://www.box2dflash.org/docs/2.1a/reference/">Box2DFlash Documention</a> can be used to figure out the Box2DWeb API. If you’re interested in really diving into Box2D, the official <a href="http://www.box2d.org/manual.html">Box2D C++ manual</a> also makes for a worthwhile read, although it contains some newer features not found in Box2DWeb.</p>
+
+<h2 id="bootstrapping">Bootstrapping</h2>
+
+<p>To get a Box2D world up and running, you’ll need to pull in the library, which is packed up nicely in a single JavaScript file Box2dWeb-2.1.a.3.js</p>
+
+<p>The examples below are going to use the following basic HTML wrapper:</p>
+
+<script src="https://gist.github.com/4163433.js"> </script>
+
+<p>This pulls in the Box2DWeb library and example.js file that will contain all the example code.</p>
+
+<p>All of Box2DWeb comes namespaced inside of the <code>Box2D</code> object, sometimes pretty deeply nested under sub-objects.  So that you don’t go insane with all the namespacing, it’s recommended that you pull out some of the most-used classes into easy-to-access variables, as shown below:</p>
+
+<script src="https://gist.github.com/4163436.js"> </script>
+
+<p>This article is going to build up a small example that shows you how to use Box2D and how it might integrate into your game engine. This example will wrap many of the more verbose pieces of Box2D in wrapper classes to simplify the API you need to expose to your game.</p>
+
+<h2 id="creating-the-world">Creating the world</h2>
+
+<p>The main container object for simulations in Box2D is the b2World object. It take two parameters, a gravity vector and whether or not it should skip simulating inactive bodies. 2D Vectors in Box2DWeb are created using the b2Vec2 object, whose constructor takes in <code>x</code> and <code>y</code> components. Creating a world with earth gravity that puts inactive objects to sleep would look like:</p>
+
+<script src="https://gist.github.com/4163682.js?file=gistfile1.js"></script>
+
+<p>You generally want to set the second parameter to true so that Box2D doesn’t waste CPU cycles simulating the big stack of boxes that’s just siting there, not moving, until the player crashes into them and wakes them up. This can, however, lead to situations where you need to be careful to progamatically wake up objects when you manually move them to a state where they should be simulated (like when you pick up a box with the mouse cursor and leave it hanging in mid air).</p>
+
+<p>One other thing you’ll want to take into consideration is the relationship between Box2D units and your rendering target (canvas in these examples.) The Box2D length unit is the meter and having objects that are sized in meters makes it happiest (happiness, in regards to a physics engine, refers to calculation stability.) But since many games like to think in pixels, you’ll want some idea of a scaling ratio between Box2D units and pixels. Let’s settle on a scale of 30 pixels per meter for now, but you can adjust this as you like.</p>
+
+<p>Wrapping world creation and a couple of additions in a simple constructor function gives the following code:</p>
+
+<script src="https://gist.github.com/4163437.js?file=gistfile1.js"></script>
+
+<h2 id="stepping-the-world">Stepping the world</h2>
+
+<p>To advance the simulation by a certain amount of time, you’ll need to manually call the <code>b2World.Step</code> method (notice, all methods in Box2DWeb begin with capital letters, which is un-javascript-like but matches the Box2DFlash API). <code>Step</code> takes three parameters: a time step, the number of velocity iterations. and the number of position iterations.</p>
+
+<p>The Box2D manual <a href="http://www.box2d.org/manual.html#_Toc253068188">suggests</a> using 8 and 3 as velocity and position iterations respectively, but these can be tuned as needed, trading accuracy for speed by increasing those numbers.</p>
+
+<p>The time step parameter is fairly self explanatory: it’s the amount of time in fractions of a second that Box2D should simulate the world for. Box2D works best when this is a fixed amount of time and not a variable amount of time dependant on the framerate. This means that you’ll need to do some house keeping to make sure that the physics simulation runs at a constant frame rate, even when being driven by requestAnimationFrame.</p>
+
+<p>Building on the Physics class from the last code listing, you could write a step method as:</p>
+
+<script src="https://gist.github.com/4163442.js"> </script>
+
+<p>As you can see above, Box2D also supports a debug draw mode which, when passed a canvas element, will draw a basic vector debug rendering output onto that canvas. This will be used for the first few examples and a helper method to activate it is shown below:</p>
+
+<script src="https://gist.github.com/4163445.js?file=gistfile1.js"></script>
+
+<p>Tying this together with initialization and a <code>gameLoop</code> using requestAnimationFrame gets you the following:</p>
+
+<script src="https://gist.github.com/4163448.js"> </script>
+
+<p>Two items to note in the above listing. The first is that since requestAnimationFrame stops firing when your game’s tab is unfocused, if you run your simulation code from a requestAnimationFrame loop you’ll want to put in an upper time limit on the size of <code>dt</code> to prevent your game from fast-forwarding when the user refocuses the tab.</p>
+
+<p>The other option is to put your simulation in a setTimeout or setInterval driven loop which doesn’t exhibit this behavior, but using requestAnimationFrame as a sort of automatic pause for your game can be useful in single-player games. If you’re building a multi-player game, it’s probably not a good plan and using setTimeout or setInterval might be better.</p>
+
+<p>You’ll also want to add in the <a href="http://paulirish.com/2011/requestanimationframe-for-smart-animating/">requestAnimationFrame Shim</a></p>
+
+<h2 id="adding-in-bodies">Adding in Bodies</h2>
+
+<p>An empty world without anything going on in it is pretty boring. In order to give it some life, we’ll need to add some Box2D bodies to it. Bodies are what Box2D calls the objects that it simulates.</p>
+
+<p>Bodies can either be static, kinematic, or dynamic. Static and kinematic bodies are used for walls and platforms that don’t need to react to collisions, while dynamic bodies are used for everything that’s needs to be simulated normally. Both static and kinematic bodies are treated as if they have infinite mass and can be moved manually by the developer. Kinematic bodies can also have a velocity. Static and kinematic bodies don’t collide with other static and kinematic bodies, only with dynamic bodies.</p>
+
+<p>To create a Box2D body that interacts with other bodies, you need two things, a body definition and one or more fixture definitions. The body definition defines the initial attributes of the entire body, such as it’s position, velocity, angular velocity, damping (the inverse of bounciness) and boolean attributes such as whether to start out active, if the body is allowed to sleep. You can also decide whether the body should be treated as <code>bullet</code>, which garners it more processor intensive but accurate collision detection to prevent small, fast moving objects from passing through other objects entirely. You can reuse body definitions if you like.</p>
+
+<p>One additional feature of bodies is that you can set a piece of arbitrary <code>userData</code> on them. This <code>userData</code> is often used to tie the physics object back to a graphical representation.</p>
+
+<p>Fixtures are the glue that binds shapes to a body. A body can have one or more fixtures. All fixtures are rigid inside of a single body, which means that the individual fixtures don’t move relative to each other but rather combine to create a single rigid body. Fixtures also contain additional information such as density, friction, restitution, and collision flags that control with other fixtures to collide with. You can also flag fixtures as sensors to prevent a collision response but still receive notification of a collision. Fixtures are created by calling <code>b2Body.CreateFixture</code> and passing in a fixture definition.</p>
+
+<p>To create a fixture definition you can attach to a body, you need to give it a shape to work with. Box2D supports two different types of shapes. The first type, <code>b2CircleShape</code> represent, not surprisingly, shapes that are perfect circles. The second type <code>b2PolygonShape</code> are used for shapes that can be represented with a series of vertices. The vertices of <code>b2PolygonShape</code>’s must define a convex polygon in clockwise order (if your vertices are counter-clockwise, your shape won’t collide with anything.)</p>
+
+<p>Since boxes are such a common shape, Box2D provides a helper method to easily create the vertices for a <code>b2PolygonShape</code> box of a given width and height called <code>SetAsBox</code>, which takes a two parameters that correspond to 1/2 the width and 1/2 the height of the vertices to create.</p>
+
+<p>Convex polygons are polygons that have no indents (visually, it means you should only be able to draw a line from one vertex to it’s neighbors without passing through the shape.) This means if you want to create a more complicated shape, such as the capital letter L, you cannot do so with a single shape in a single fixture. You must add multiple fixtures to your body instead. Once thing to remember is that your collision shape does not need to match your game sprite exactly, but can instead be a simplified representation of that shape. So even if your video game character running around with a big bazooka doesn’t look like a convex shape, modeling them as one is probably ok.</p>
+
+<p>Keeping your collision shapes simple with result in faster collision detection and will likely make for better gameplay. Concave polygons tend to get stuck on things, so even if you could realistically model Bazooka guy, he might be better off as concave anyway so his Bazooka doesn’t get caught on ledges and leave him dangling off cliffs unrealistically as a multi-fixture rigid-body.</p>
+
+<p>With all that in mind, let’s create a simple class that makes it easy to create bodies. This class will take in the physics object from the previous section and go through the steps necessary to add a new body to the world:</p>
+
+<script src="https://gist.github.com/4163452.js?file=gistfile1.js"></script>
+
+<p>The <code>Body</code> defines a simple constructor function that, using a set of defaults defined above, let’s you create single-fixture Box2D objects easily without jumping through all the normal definition and fixture hoops.</p>
+
+<p>Modifying the <code>init()</code> method from above to add in some objects as shown below to get some objects on the screen:</p>
+
+<script src="https://gist.github.com/4163457.js"> </script>
+
+<p><a href="/assets/article//box2dweb/example1.html">View this example</a></p>
+
+<p>If you view the example you’ll see the three boxes fall down and then change color to gray when they are put to sleep by the simulation.</p>
+
+<h2 id="taking-over-rendering">Taking over rendering</h2>
+
+<p>While Box2dWeb’s debug rendering is a boon to getting started quickly, at some point you’re going to want to handle your own rendering so that you can build a game other than “Attack of the Transparent Boxes.”</p>
+
+<p>There are two ways to go about this. The first is to keep a list of bodies separate from Box2D and loop over those after each step and render them. The second is to use the <code>world.GetBodyList()</code> to return the first body and then call <code>body.GetNext()</code> to return the next element. This works because Box2D keeps a linked list of bodies to iterate over with. You can pull the element you’ve associated with the body out by calling <code>GetUserData()</code>.</p>
+
+<p>Either method will work and the second makes bookkeeping easier, but if you have game elements that aren’t simulated with Box2D (which you might) you must use the former.</p>
+
+<p>In these examples, were going to use the latter method as it’s less code.</p>
+
+<p>Bodies will also need how to render themselves. The easiest way to handle this is simply to add in a <code>draw()</code> method to our simple Body wrapper class that looks at its type and then renders itself by drawing the appropriate shape. To make this more applicable to normal games as well, bodies will also support drawing an image.</p>
+
+<p>Drawing shapes with canvas isn’t particularly difficult, but with Box2D, the main thing to watch out for here is correctly positioning and rotating the drawn such that the way it’s drawn on the screen correctly reflects Box2D’s internal representation.</p>
+
+<p>By correctly applying the matrix operations using the built-in canvas matrix transformations in global to specific order, we can make drawing the shapes straightforward.</p>
+
+<p>The three transforms we need to worry about are the global scale (if you remember, we’re drawing objects at 30 pixels to a meter), the object translation and then the object’s angle.  The global scale transform can be handled outside of the main loop, while the latter two transformations both need to be applied per object.</p>
+
+<p>Using the Box2D <code>GetBodyList()</code> method, the <code>Physics.step()</code> method is modified to draw the objects itself unless debug rendering is on:</p>
+
+<script src="https://gist.github.com/4163464.js?file=gistfile1.js"></script>
+
+<p>In a normal game if you already have a rendering loop, you’d iterate over the sprites and then reach in and grab the Box2D representation data each step.</p>
+
+<p>Next up is the Body class drawing method. This method will save the current transformation matrix, translate and then rotate the matrix so that the object can be drawn centered at the origin and then will draw the object based on the shape. In this example, the shape will be drawn if the object has a <code>color</code> property set.</p>
+
+<p>Lastly, to demonstrate how to draw images, it will draw an image if the <code>image</code> property is set (based on the width and height properties - these need to be set even if the object type itself isn’t block)</p>
+
+<p>The full method is shown below:</p>
+
+<script src="https://gist.github.com/4163471.js?file=gistfile1.js"></script>
+
+<p>We get the current position and rotation by calling <code>body.GetPosition()</code> and <code>body.GetAngle()</code>.</p>
+
+<p>Circle shapes are simply drawn as a 360 degree arc path and then filled. Polygon shapes draw a path using the same points as the shape definition. Blocks just use the <code>fillRect</code> method to draw a rectangle.</p>
+
+<p>See example 2 for some more shapes all falling together, rendered by the above rendering code.</p>
+
+<p><a href="/assets/article//box2dweb/example2.html">View example 2</a></p>
+
+<h2 id="picking-and-moving">Picking and Moving</h2>
+
+<p>Depending on the genre of game you are building, you may want to add in the ability to directly interact with your game object via the mouse or touch. In order to achieve this you must first be able to determine the object at a specific pixel position on your canvas.</p>
+
+<p>Box2D natively supports a way to query bodies’ bounding boxes given a world position. Given the returned body you could then loop over each of the bodies fixtures and match the position against the exact shapes. Luckily Box2DWeb has wrapped this functionality up in a single method call: <code>QueryPoint()</code>.</p>
+
+<p>Given a vector location in world coordinates, the <code>QueryPoint()</code> method will execute a callback for each fixture that matches.</p>
+
+<p>As a first pass, let’s add in the ability to click on an object and have it impart an impulse onto the object. With Box2D there are three ways you can get an dynamic object moving: set its velocity, apply a force or apply an impulse. One thing you should not do is just try to set a dynamic object’s position, as this effectively breaks the simulation and can cause unexpected effects with objects behaving badly. If you really need you move an object to a position, you can call <code>body.SetTransform</code>, but this method is undocumented in the Box2DFlash documentation, which should give you an idea of whether it’s a good practice or not.</p>
+
+<p>Among the three good options, applying a force or an impulse are essentially the same thing - the only difference is that the force takes into consideration the length of the time step to determine the impact on the object, while the impulse is independent of the length of the time step. Forces are good to use when you want consistent speed over a number of frames, while impulses are great as you can just set and forget them. You might use the former to keep a player running at a consistent speed while the latter works well for things like explosions.</p>
+
+<p>You set a force on an object with <code>ApplyForce(force,point)</code> and an impulse with <code>ApplyImpulse(impulse,point)</code>. Both <code>ApplyForce</code> and <code>ApplyImpulse</code> take a vector as the first argument that controls direction and strength. They also both take a second argument that defines the point where the force is applied. If you don’t want the object to torque (i.e. start to rotate), you can apply the force to an object’s center using <code>body.GetWorldCenter()</code>.</p>
+
+<p>Forces work well with situations where you want objects to behave realistically and do things like smoothly speed up from a standstill. A lot of times in games, however, you don’t necessarily want your player to have to slow down to a stop before changing direction. You can defy the laws of physics by directly setting the velocity on an object as opposed to applying forces and impulses. If you set the velocity each frame, you can get de-facto consistent speed that is useful in things like space shooters and platformers. The only thing to watch out for is that dynamic object-to-object interactions will be slightly out-of-whack when two objects of different masses that both have their velocity set interact.</p>
+
+<p>You can set linear and angular (rotational) velocity using <code>SetLinearVelocity(direction)</code> and <code>SetAngularVelocity(number)</code>. While you might be tempted to try to keep reseting the angular velocity to try to prevent a object from rotating, this won’t work well and you’re better off setting the <code>fixedRotation</code> property on the body definition or calling <code>SetFixedRotation(true)</code>.</p>
+
+<p>Starting with picking, let’s add a method to the top-level Physics object that will call a callback whenever an object is mousedown’d on or touched:</p>
+
+<script src="https://gist.github.com/4163476.js?file=gistfile1.js"></script>
+
+<p>This uses the native addEventListener syntax for portability sake, but if you’re using jQuery you can substitute <code>$.fn.on</code> to make the function more compact.</p>
+
+<p>To test this method out to apply a vertical impulse, we’ll add the following to the init method:</p>
+
+<script src="https://gist.github.com/4163674.js?file=gistfile1.js"></script>
+
+<p>You can see this in action on <a href="/assets/article//box2dweb/example3.html">Example 3</a>  Clicking on an object will launch it up and to the right. If you want to visually see the differences between <code>ApplyImpulse</code>, <code>ApplyForce</code> and <code>SetLinearVelocity</code>, try swapping the call to <code>ApplyImpulse</code> out with the others to see the effect.</p>
+
+<p>You’ll notice the larger the object, the less effect the impulse has. This is because the Box2D assumes objects have a uniform density (controlled by the density property in the fixture definition) and so larger objects weigh more and need more force to move.</p>
+
+<p>In addition to the <code>QueryPoint</code>, Box2DWeb also provides a number of other method to query the world for objects, including by bounding box (<code>QueryAARB</code>), by arbitrary shape (<code>QueryShape</code>), and by querying for collisions along a line (<code>RayCast</code>). <code>RayCast</code> is particularly useful for doing things like visibility detection (can enemy A see the player?) and determining what bullets and shrapnel will hit.</p>
+
+<h2 id="listening-for-collisions">Listening for collisions</h2>
+
+<p>Depending on the game you are creating, simply being able to create and control discrete objects may be enough to get going, but if you want to add true physics-based gameplay (such as determining the strength of collisions and which objects are touching which, you’ll want to use Box2D’s contact listener functionality.</p>
+
+<p>Box2D provides four different callbacks you can listen for when collision occur. The first <code>BeginContact</code> occurs when contact is initiated between two objects. The second <code>EndContact</code> is triggered when two objects stop touching. The third callback <code>PreSolve</code>, is called on every collision, but before the collision is sent to the solver to resolve. All three of these only provide details on what two objects are in contact and normal details with what’s known as the contact manifold,  but don’t give us a strength-of-impact impulse.</p>
+
+<p>To get that detail, you’ll need to use the fourth callback, <code>PostSolve</code>, which is called whenever there is an impulse on a body caused by another body. As bodies are crashing into each other all the time, <code>PostSolve</code> will get called very frequently, so it’s important not to do too much processing each time the callback is triggered. Two bodies coming into contact with each other could each only get a single <code>BeginContact</code> and <code>EndContact</code> callback, but will mostly likely get a number of <code>PreSolve</code> and <code>PostSolve</code> callbacks.</p>
+
+<p>Two important words of warning: first, you should not, under any circumstance, add, change, or remove bodies during the collision callbacks as this will most likely disrupt Box2D’s collision resolution process. If you need to make changes to any aspects of the physics simulation as a result of one of these four callbacks, you should queue up what needs to be done and then make those changes after the step call. Secondly, the data structure for contact information is reused, so if you do queue up steps to change afterwards, you should make sure to copy the individual pieces of that structure out to separate objects.</p>
+
+<p>Because it provides the most interesting data, we’re going to use the <code>PostSolve</code> callback to highlight objects based on the strength of their most recent impact.</p>
+
+<p>Because the callback is global, we’ll need to reach into the object on contact and grab our wrapper object using <code>GetUserData()</code> if you want to have per-object collision reactions.</p>
+
+<p>For example, to add in a collision listener that calls a <code>contact</code> method on each body (if that method exists) you could extend the Physics wrapper as is shown below:</p>
+
+<script src="https://gist.github.com/4163480.js"> </script>
+
+<p>The above method can be extended to add listener support for <code>BeginContact</code> and <code>EndContact</code> by adding those callbacks to the <code>listener</code> object. <code>BeginContact</code> and <code>EndContact</code> both only take the <code>contact</code> object as a parameter.</p>
+
+<p>To extend a body with a contact callback, you could do something like this:</p>
+
+<script src="https://gist.github.com/4163483.js?file=gistfile1.js"></script>
+
+<p>Here the blue box will change it’s color based on the strength of the last impact. You can use this callback to determine when objects have received enough damage to be destroyed or explode.</p>
+
+<p>Take a look at <a href="/assets/article//box2dweb/example4.html">Example 4</a> to see this code in action. The contact callback has been added to the box that is originally blue, and the add-an-impulse with a click behavior from Example 3 is still in there so you can see how collisions trigger.</p>
+
+<h2 id="adding-joints">Adding Joints</h2>
+
+<p>The last main piece of Box2D that we haven’t talked about yet is joints. Joints allow you to constrain bodies in one or more dimensions to another body or another point</p>
+
+<p>Box2D supports a number of different joints, with descriptions paraphrased from the Box2D manual:</p>
+
+<ol>
+  <li>Distance Joints - the distance between two points on two bodies will stay constant</li>
+  <li>Revolute Joints - a joint that forces two bodies to share a common anchor point, acting like a hinge. You can constrain this joint to limit the angles between the two objects as well as turn on a motor to drive rotation.</li>
+  <li>Prismatic Joint - allows for movement between two objects along a single axis. You can limit constrain the joint to limit the minimum and maximum distance as well as turn on a motor to drive translation.</li>
+  <li>Pulley Joint - used to create an idealized pulley, which connects two bodies. As one body goes up, the other goes down.</li>
+  <li>Gear joint - a joint that combines two of any combination of revolute and prismatic joints and acts like an idealized gear. You can control the ratio of rotation or translation.</li>
+  <li>Mouse Joint - used to connect a single body to a changeable destination point. Primarily used for “soft” drag and drop of objects.</li>
+</ol>
+
+<h3 id="mouse-joints">Mouse Joints</h3>
+
+<p>Joints are easiest to see work when you can manipulate the bodies directly, so to start to play around with them the first thing to do is set up a Mouse Joint to allow you to drag objects around the screen (using mouse joints in a testbed is the most common use for this type of joint)</p>
+
+<p>Mouse joints are created by first creating a joint definition object of the correct type (in this case <code>Box2D.Dynamics.Joints.b2MouseJointDef</code>), then setting the affected bodies, <code>bodyA</code> and <code>bodyB</code>, and then setting any additional tuning parameters to control the strength and effect of the joint. Finally <code>world.CreateJoint</code> is called to create an actual joint from the definition.</p>
+
+<p>For simplicity’s sake, the code below uses only the <code>mousedown</code>, <code>mousemove</code> and <code>mouseup</code> events. To add in touch support, you could add in <code>touchstart</code>, <code>touchmove</code> and <code>touchend</code> events. Adding support for multiple touches would allow you to drag multiple objects around the page at once (see <a href="http://buildnewgames.com/mobile-game-primer/">Mobile Game Primer</a> for how to do multi-touch)</p>
+
+<p>To add in object drag-and-drop, the following code does the trick:</p>
+
+<script src="https://gist.github.com/4163486.js"> </script>
+
+<p>Most of this is relatively straightforward, but one piece that might need some explaining is the <code>self.world.GetGroundBody()</code> spot. Box2D by default creates an empty body with no fixtures in it that it calls the Ground Body. In this case, the MouseJoint attaches the first body to the Ground body, but that body isn’t actually used for anything.</p>
+
+<p>For the other joints, all of which do act on two bodies, the ground body is useful when you need a static body to connect to (remember static bodies won’t move) This pinions one end of the joint to prevent it from moving at all. You don’t need to use the ground body, you could use any other static body, but the ground body is nice because it’s always there and has no fixtures so you don’t need to worry about collisions.</p>
+
+<p>You can see from the code above that each time the mouse is depressed, we look for a body at the point. If we find one, the object is saved for future use. Then, the first time the mouse is moved, it creates a new mouse joint. On that and every subsequent <code>mousemove</code> event, we update the target of the joint to be the new location of the mouse, which will move the object towards the mouse if possible (the object will not move through static or dynamic objects, and will exert a force only upto the <code>maxForce</code> parameter.) Finally, when the mouse is released, the joint is destroyed.</p>
+
+<p>Take a look at <a href="/assets/article//box2dweb/example5.html">Example 5</a> and try dragging objects around with your mouse.</p>
+
+<h3 id="distance-joints">Distance Joints</h3>
+
+<p>Distance joints, as mentioned above, enforce a set distance between to points on two bodies. The joint doesn’t, however, limit rotation in any way. You can hook up any types of bodies, but the joint will only move dynamic bodies.</p>
+
+<p>With the exception of the <code>MouseJoint</code> above and the <code>GearJoint</code>, described at the end of this section, most joints are created by calling an <code>Initialize</code> method on the Joint definition and passing in some initial parameters.</p>
+
+<p>To create a distance joint, you need to pass in the two affected bodies to <code>Initialize</code> and then two 2D vectors defining the anchor locations (in world coordinates) for both bodies.</p>
+
+<p>For example:</p>
+
+<script src="https://gist.github.com/4163495.js"> </script>
+
+<p>This will anchor two boxes at their center (see the distance joint example in <a href="/assets/article//box2dweb/example6.html">Example 6</a>).</p>
+
+<p>Additionally you can set properties on the joint definition for <code>dampingRatio</code> and <code>frequencyHz</code>, which control, respectively, how efficiently distance is realigned and the response frequency. These allow you to turn distance joints into soft springs by lowering the damping ratio and upping the response frequency. (See the second distance example to watch this in action).</p>
+
+<p>Once a joint is created, if you want to draw the joint on screen (or just need additional information about the joint) you can query the joint itself using <code>GetAnchor1()</code> and <code>GetAnchor2()</code> to return 2D vectors is world coordinates.</p>
+
+<h3 id="revolute-joints">Revolute Joints</h3>
+
+<p>Revolute joints connect two bodies together at a single point, but allow rotation around that point. If you connect two dynamic bodies together, it will act as if there is a hinge between those bodies at that point. If you connect to a static body, the dynamic body will rotate around that point.</p>
+
+<p>The <code>Initialize</code> method takes the two bodies and a third parameter defining the hinge location in world coordinates.</p>
+
+<p>For example:</p>
+
+<script src="https://gist.github.com/4163499.js"> </script>
+
+<p>This creates two boxes hinged at one corner (See the Revolute joint example in <a href="/assets/article//box2dweb/example6.html">Example 6</a></p>
+
+<p>Revolute joints also support setting a limit on rotation and optionally turning on a motor to drive torque around the joint. See the <a href="http://www.box2dflash.org/docs/2.0.2/reference/Box2D/Dynamics/Joints/b2RevoluteJointDef.html">Flash Documentation</a> for the additional options on the <code>b2RevoluteJointDef</code> class.</p>
+
+<h3 id="prismatic-joints">Prismatic Joints</h3>
+
+<p>Prismatic Joints act like a frictionless piston between two bodies. Creating one is similar to creating a distance joint: you specify two bodies and then two anchor points, as shown below:</p>
+
+<script src="https://gist.github.com/4163597.js?file=gistfile1.js"></script>
+
+<p>The example above also turns on a upper and lower bounds limit using <code>enableLimit</code> and setting the <code>lowerTranslation</code> and <code>upperTranslation</code>.</p>
+
+<p>Like the <code>RevoluteJoint</code> you can turn on a motor to drive motion along the joint’s axis. See the <a href="http://www.box2dflash.org/docs/2.0.2/reference/Box2D/Dynamics/Joints/b2PrismaticJointDef.html">Box2DWeb Documentation</a> for more details on the options that enable motor movement.</p>
+
+<h3 id="pulley-joints">Pulley Joints</h3>
+
+<p>The pulley joint behaves exactly as you might expect: it connects two bodies together in a method that mimics a pulley. In general you’ll want to connect either two dynamic bodies or a dynamic and kinematic body, otherwise the pulley won’t do much.</p>
+
+<p>Initializing a pulley joint is slightly more complicated as you need to provide four points in addition to the two bodies: two static anchor points that represent the top of the pulley for each body and then the anchor point on each body. As a final parameter to <code>Initialize</code> you need to provide a movement ratio. To have both boxes move the same distance you and use a ratio of 1. To have body1 move twice as far as body2, use a ratio of 2.</p>
+
+<p>Here’s an example that creates a pulley between two boxes:</p>
+
+<script src="https://gist.github.com/4163655.js?file=gistfile1.js"></script>
+
+<p>Pulley joints run into problems when the distance between the pulley anchor and object is reduced to 0, so you should put some other static object in the way to prevent this from happening. In the pulley example in <a href="/assets/article//box2dweb/example6.html">Example 6</a> The static anchors are blocked by the static body at the top of the page.</p>
+
+<h3 id="gear-joints">Gear Joints</h3>
+
+<p>The final joint supported by Box2DWeb is the Gear joint. Gear joints take any combination of two Revolute or Prismatic joints and create a joint linking their motion.</p>
+
+<p>The Revolute or Prismatic joints you use must both have a static body as their first body (this is a good place to use the ground body). You can also set a <code>ratio</code> property to control the movement ratio between bodies.</p>
+
+<p>The Gear joint definition doesn’t have an <code>Initialize</code> method to get things going, so you need to set up the bodies and joints yourself on the properties of the joint definition.</p>
+
+<p>To set up a simple gear between two rotating boxes, you would first create the initial two Revolute joints, and then add them to a new Gear joint, as shown below:</p>
+
+<script src="https://gist.github.com/4163667.js?file=gistfile1.js"></script>
+
+<p>If you need to destroy the joints, make sure you destroy the Gear joint first before either of the sub joints or the simulation could go haywire.</p>
+
+<h3 id="joint-playground">Joint Playground</h3>
+
+<p>The example used to this point has been modified to demonstrate some simple joints between two boxes. You can press any key on the keyboard to switch between joint types and use the mouse to manipulate bodies. See <a href="/assets/article//box2dweb/example6.html">Example 6</a>.</p>
+
+<h2 id="wrapping-up">Wrapping Up</h2>
+
+<p>This article went over the details of getting started with Box2DWeb, a JavaScript port of the popular Box2D 2D physics library. It covered setup, rendering, picking, collisions, impulses, and joints. Hopefully this is enough of an introduction to Box2DWeb to get you started building your own physics-based simulations and games. If you want to dig further, there’s no substituion for the <a href="http://www.box2dflash.org/docs/2.0.2/reference/">Box2DFlash Reference Docs</a> and the <a href="http://www.box2d.org/manual.html">Original C++ Box2D Reference Materials</a>. Now go and simulate some bodies!</p>
+</div>
+  
+  
+  <section class="author-meta">
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Pascal Rettig</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-11-28T12:00:00+00:00" pubdate data-updated="true">Nov 28<span>th</span>, 2012</time>
+      in 
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/engines/'>Engines</a>
+  
+</span>
+
+.
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://buildnewgames.com/box2dweb/" data-via="buildnewgames" data-counturl="http://buildnewgames.com/box2dweb/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="350" data-show-faces="false"></div>
+  
+  <a href="http://www.reddit.com/submit" onclick="window.location = 'http://www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false"> <img src="http://www.reddit.com/static/spreddit7.gif" alt="submit to reddit" border="0" /> </a>
+  
+  <iframe frameborder="no" scrolling="no" height="28px" width="100px" src="http://hnlike.com/upvote.php?link=http://buildnewgames.com/box2dweb/&title=Making Games with Box2dWeb">iframes not supported by your browser</iframe>
+  
+</div>
+
+    
+    <!--
+      <p>
+      
+        <a class="basic-alignment left" href="/particle-systems/" title="Previous Post: Particle Systems From the Ground Up">&laquo; Particle Systems From the Ground Up</a>
+      
+      
+        <a class="basic-alignment right" href="/lighting/" title="Next Post: Introduction to Lighting in Games">Introduction to Lighting in Games &raquo;</a>
+      
+      </p>
+    -->
+  </section>
+
+  <section id="comments">
+    <h3>Comments</h3>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+  <aside class="related-articles">
+
+    
+
+    
+      
+        
+      
+        
+          
+            
+    <h2>related articles</h2>
+
+    <ul>
+          
+          <li>
+            <a href="/simulating-natural-systems/">Simulating Natural Systems in a Web Browser</a>
+            <span class="byline">by Vince Allen</span>
+          </li>
+        
+      
+        
+      
+        
+          
+          <li>
+            <a href="/vector-field-collision-avoidance/">Vector Field Obstacle Avoidance</a>
+            <span class="byline">by Alexander Sutherland</span>
+          </li>
+        
+      
+        
+          
+          <li>
+            <a href="/introduction-to-crafty/">An introduction to the Crafty game engine</a>
+            <span class="byline">by Darren Torpey</span>
+          </li>
+        
+      
+        
+      
+        
+          
+          <li>
+            <a href="/game-engine-comparison/">JavaScript Game Engine Comparison</a>
+            <span class="byline">by Matt Greer</span>
+          </li>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+          
+          <li>
+            <a href="/gamephysics/">How Physics Engines Work</a>
+            <span class="byline">by Burak Kanber</span>
+          </li>
+        
+      
+        
+          
+          <li>
+            <a href="/2d-platformer-character-movement/">Deft and intuitive player character movement in a 2D platformer</a>
+            <span class="byline">by Mary Rose Cook</span>
+          </li>
+        
+      
+        
+          
+          <li>
+            <a href="/broad-phase-collision-detection/">Broad Phase Collision Detection Using Spatial Partitioning</a>
+            <span class="byline">by Andrew Petersen</span>
+          </li>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+          
+          <li>
+            <a href="/physics-engines-comparison/">JavaScript Physics Engines Comparison</a>
+            <span class="byline">by Chandler Prall</span>
+          </li>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+      
+    </ul>
+      
+
+    
+
+      
+        
+          
+            
+    <h2>more stuff</h2>
+
+    <ul>
+          
+          <li>
+            <a href="/webgl-threejs/">Creating a 3D game with Three.js and WebGL</a>
+            <span class="byline">by Nikhil Suresh</span>
+          </li>
+        
+      
+        
+      
+        
+          
+          <li>
+            <a href="/making-games-fun/">Making Games Fun</a>
+            <span class="byline">by Burak Kanber</span>
+          </li>
+        
+      
+        
+      
+        
+      
+      
+    </ul>
+      
+
+    <a href="/">Home</a>
+  </aside>
+</article>
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = 'buildnewgames';
+    
+      
+      // var disqus_developer = 1;
+      var disqus_identifier = 'http://buildnewgames.com/box2dweb/';
+      var disqus_url = 'http://buildnewgames.com/box2dweb/';
+      var disqus_script = 'embed.js';
+    
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+    </section>
+  
+
+
+  
+
+  <footer class="medium">
+    Edited and operated by <a href="http://bocoup.com">Bocoup</a>.
+  </footer>
+
+  <footer class="small">
+    <p>
+      Edited and operated by <a href="http://bocoup.com">Bocoup</a>
+    </p>
+  </footer>
+
+  <script type="text/javascript">
+
+    // GA stuffs
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-1464992-54']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+</body>
+</html>

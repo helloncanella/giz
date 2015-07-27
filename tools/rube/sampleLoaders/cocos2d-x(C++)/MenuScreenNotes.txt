@@ -1,0 +1,18 @@
+How to use the ButtonRUBELayer class
+====================================
+Please look at the MenuScreenRUBELayer class for an example of how to extend ButtonRUBELayer.
+You need to:
+1.  Extend ButtonRUBELayer and implement the 'scene' and 'getFilename' functions.
+2.  In the constructor, register mappings for the buttons you want to use.
+
+The ButtonRUBELayer class will look for fixtures in the scene with the custom string property
+"selectorButton". This is used as follows:
+
+ - "selectorButton"
+   Specifies a selector (function name) of the layer to call when the button is pressed.
+   The method signature should return void and take no parameters, for example:
+        void onButtonPress();
+   If the named selector does not exist, nothing will happen. Look for messages in the debug log
+   saying "Failed to find selector for ..." when the layer is loaded.
+
+

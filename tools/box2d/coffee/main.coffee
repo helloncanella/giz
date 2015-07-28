@@ -17,46 +17,39 @@ do ->
     @context = $('#b2dCanvas')[0].getContext('2d')
     @scale = scale or 20
     @dtRemaining = 0
-    @stepAmount = 1 / 60
+    @stepAmount = 1/60
     return
 
-  physics = undefined  
-  count=0
-  canvas = $('#b2dCanvas')[0]
-  stage = new createjs.Stage(canvas)
-  txt = new createjs.Text("text on the canvas... 0!", "36px Arial", "#FFF")
-  txt.x=100
-  txt.y=100
 
-  stage.addChild(txt) 
+  physics = undefined  
 
   init = ->
 
-
-       
-    
-
-
     physics = window.physics = new Physics(document.getElementById('b2dCanvas'))
+            
     physics.debug()
+
     new Body(physics,
       type: 'static'
       x: 0
       y: 0
       height: 25
       width: 0.5)
+
     new Body(physics,
       type: 'static'
       x: 51
       y: 0
       height: 25
       width: 0.5)
+
     new Body(physics,
       type: 'static'
       x: 0
       y: 0
       height: 0.5
       width: 60)
+
     new Body(physics,
       type: 'static'
       x: 0
@@ -64,20 +57,44 @@ do ->
       height: 0.5
       width: 60)
    
-    new Body(physics,
-      x: 10
-      y: 3
-      angle:Math.PI/4)
+    i=0
+    bodies = new Array()
+    while i<3
+      bodies[i] = new Body(physics, x:20+i*10, y:10,angle:Math.PI/4.25)
+      i++
+    
+    allBodies = physics.bodiesList()
 
-    new Body(physics,
-      type:'kinematic'
-      x: 10
-      y: 15
-      angle:Math.PI/4
-      angularVelocity:15)
+    console.log physics.world.GetGravity();      
 
+    allBodies[0].ApplyForce(new b2Vec2(0,-physics.world.GetGravity().y*allBodies[0].GetMass()), allBodies[0].GetWorldCenter())
+
+    $(window).keypress((event) ->
+      key=String.fromCharCode(event.keyCode)
+            
+      switch key
+        #when '1' then allBodies[0].ApplyForce(new b2Vec2(0,-physics.world.GetGravity().y*allBodies[0].GetMass()), allBodies[0].GetWorldCenter()) 
+        when '2' then allBodies[1].ApplyImpulse(new b2Vec2(-1000,0), allBodies[1].GetWorldCenter()) 
+        when '3' then allBodies[2].SetPositionAndAngle(new b2Vec2(10,20), Math.PI/4.25)
+        
+        when 'd' then console.log -allBodies[0].GetMass(), physics.world.GetGravity(), allBodies[0].ApplyForce(-allBodies[0].GetMass()*physics.world.GetGravity(),allBodies[0].GetWorldCenter())
+    )
+ 
+    
     requestAnimationFrame gameLoop
     return
+
+  Physics::bodiesList = ->
+    list = new Array() 
+    
+    i=0
+    list[i]=obj= @world.GetBodyList()
+    
+    while obj
+      i++
+      list[i] = obj = obj.GetNext()
+
+    return list  
 
   Physics::debug = ->
     @debugDraw = new b2DebugDraw
@@ -100,6 +117,7 @@ do ->
 
   Body = 
   window.Body = (physics, details) ->
+    
     @details = details = details or {}
     @definition = new b2BodyDef
     for k of @definitionDefaults
@@ -117,6 +135,7 @@ do ->
 
 
     @body = physics.world.CreateBody(@definition)
+
     @fixtureDef = new b2FixtureDef
     for l of @fixtureDefaults
       @fixtureDef[l] = details[l] or @fixtureDefaults[l]
@@ -128,6 +147,9 @@ do ->
       when 'polygon'
         @fixtureDef.shape = new b2PolygonShape
         @fixtureDef.shape.SetAsArray details.points, details.points.length
+      when 'edge'
+        @fixtureDef.shape = new b2PolygonShape
+        @fixtureDef.shape.SetAsEdge details.points[0], details.points[1]
       else
         details.width = details.width or @defaults.width
         details.height = details.height or @defaults.height
@@ -135,7 +157,9 @@ do ->
         @fixtureDef.shape.SetAsBox details.width, details.height
         break
     @body.CreateFixture @fixtureDef
+
     return
+
 
   Body::defaults =
     shape: 'block'
@@ -154,23 +178,29 @@ do ->
     awake: true
     bullet: false
     fixedRotation: false
-  
+   
   lastFrame = (new Date).getTime()
+  
+   
+
 
   window.gameLoop = ->
-
 
     tm = (new Date).getTime()
     requestAnimationFrame gameLoop
     dt = (tm - lastFrame) / 1000
     if dt > 1 / 15
       dt = 1 / 15
-    physics.step dt
+    physics.step dt 
     lastFrame = tm
 
 
+
   window.addEventListener 'load', init
+  
   return
+
+
 
 
 do ->

@@ -1,8 +1,6 @@
 (function() {
-  var handleTick;
-
   (function() {
-    var Body, Physics, b2Body, b2BodyDef, b2CircleShape, b2DebugDraw, b2Fixture, b2FixtureDef, b2MassData, b2PolygonShape, b2Vec2, b2World, canvas, count, init, lastFrame, physics, stage, txt;
+    var Body, Physics, b2Body, b2BodyDef, b2CircleShape, b2DebugDraw, b2Fixture, b2FixtureDef, b2MassData, b2PolygonShape, b2Vec2, b2World, init, lastFrame, physics;
     b2Vec2 = Box2D.Common.Math.b2Vec2;
     b2BodyDef = Box2D.Dynamics.b2BodyDef;
     b2Body = Box2D.Dynamics.b2Body;
@@ -23,14 +21,8 @@
       this.stepAmount = 1 / 60;
     };
     physics = void 0;
-    count = 0;
-    canvas = $('#b2dCanvas')[0];
-    stage = new createjs.Stage(canvas);
-    txt = new createjs.Text("text on the canvas... 0!", "36px Arial", "#FFF");
-    txt.x = 100;
-    txt.y = 100;
-    stage.addChild(txt);
     init = function() {
+      var allBodies, bodies, i;
       physics = window.physics = new Physics(document.getElementById('b2dCanvas'));
       physics.debug();
       new Body(physics, {
@@ -61,19 +53,43 @@
         height: 0.5,
         width: 60
       });
-      new Body(physics, {
-        x: 10,
-        y: 3,
-        angle: Math.PI / 4
-      });
-      new Body(physics, {
-        type: 'kinematic',
-        x: 10,
-        y: 15,
-        angle: Math.PI / 4,
-        angularVelocity: 15
+      i = 0;
+      bodies = new Array();
+      while (i < 3) {
+        bodies[i] = new Body(physics, {
+          x: 20 + i * 10,
+          y: 10,
+          angle: Math.PI / 4.25
+        });
+        i++;
+      }
+      allBodies = physics.bodiesList();
+      console.log(physics.world.GetGravity());
+      allBodies[0].ApplyForce(new b2Vec2(0, -physics.world.GetGravity().y * allBodies[0].GetMass()), allBodies[0].GetWorldCenter());
+      $(window).keypress(function(event) {
+        var key;
+        key = String.fromCharCode(event.keyCode);
+        switch (key) {
+          case '2':
+            return allBodies[1].ApplyImpulse(new b2Vec2(-1000, 0), allBodies[1].GetWorldCenter());
+          case '3':
+            return allBodies[2].SetPositionAndAngle(new b2Vec2(10, 20), Math.PI / 4.25);
+          case 'd':
+            return console.log(-allBodies[0].GetMass(), physics.world.GetGravity(), allBodies[0].ApplyForce(-allBodies[0].GetMass() * physics.world.GetGravity(), allBodies[0].GetWorldCenter()));
+        }
       });
       requestAnimationFrame(gameLoop);
+    };
+    Physics.prototype.bodiesList = function() {
+      var i, list, obj;
+      list = new Array();
+      i = 0;
+      list[i] = obj = this.world.GetBodyList();
+      while (obj) {
+        i++;
+        list[i] = obj = obj.GetNext();
+      }
+      return list;
     };
     Physics.prototype.debug = function() {
       this.debugDraw = new b2DebugDraw;
@@ -129,6 +145,10 @@
           this.fixtureDef.shape = new b2PolygonShape;
           this.fixtureDef.shape.SetAsArray(details.points, details.points.length);
           break;
+        case 'edge':
+          this.fixtureDef.shape = new b2PolygonShape;
+          this.fixtureDef.shape.SetAsEdge(details.points[0], details.points[1]);
+          break;
         default:
           details.width = details.width || this.defaults.width;
           details.height = details.height || this.defaults.height;
@@ -172,15 +192,6 @@
     };
     window.addEventListener('load', init);
   })();
-
-  createjs.Ticker.addEventListener("tick", handleTick);
-
-  handleTick = function(event) {
-    console.log('olá');
-    count++;
-    txt.text = "text on canvas" + count;
-    stage.update(event);
-  };
 
   (function() {
     var lastTime, vendors, x;

@@ -1,6 +1,6 @@
 (function() {
   (function() {
-    var Body, Physics, b2Body, b2BodyDef, b2CircleShape, b2DebugDraw, b2Fixture, b2FixtureDef, b2MassData, b2PolygonShape, b2Vec2, b2World, init, lastFrame, physics;
+    var Body, Physics, b2Body, b2BodyDef, b2CircleShape, b2DebugDraw, b2Fixture, b2FixtureDef, b2MassData, b2PolygonShape, b2Vec2, b2World, init, lastFrame, moveState, physics;
     b2Vec2 = Box2D.Common.Math.b2Vec2;
     b2BodyDef = Box2D.Dynamics.b2BodyDef;
     b2Body = Box2D.Dynamics.b2Body;
@@ -14,6 +14,7 @@
     Physics = window.Physics = function(element, scale) {
       var gravity;
       gravity = new b2Vec2(0, 9.8);
+      console.log(this);
       this.world = new b2World(gravity, true);
       this.context = $('#b2dCanvas')[0].getContext('2d');
       this.scale = scale || 20;
@@ -21,9 +22,10 @@
       this.stepAmount = 1 / 60;
     };
     physics = void 0;
+    moveState = void 0;
     init = function() {
-      var allBodies, bodies, i;
       physics = window.physics = new Physics(document.getElementById('b2dCanvas'));
+      physics.setControl();
       physics.debug();
       new Body(physics, {
         type: 'static',
@@ -53,32 +55,50 @@
         height: 0.5,
         width: 60
       });
-      i = 0;
-      bodies = new Array();
-      while (i < 3) {
-        bodies[i] = new Body(physics, {
-          x: 20 + i * 10,
-          y: 10,
-          angle: Math.PI / 4.25
-        });
-        i++;
-      }
-      allBodies = physics.bodiesList();
-      console.log(physics.world.GetGravity());
-      allBodies[0].ApplyForce(new b2Vec2(0, -physics.world.GetGravity().y * allBodies[0].GetMass()), allBodies[0].GetWorldCenter());
-      $(window).keypress(function(event) {
-        var key;
-        key = String.fromCharCode(event.keyCode);
-        switch (key) {
-          case '2':
-            return allBodies[1].ApplyImpulse(new b2Vec2(-1000, 0), allBodies[1].GetWorldCenter());
-          case '3':
-            return allBodies[2].SetPositionAndAngle(new b2Vec2(10, 20), Math.PI / 4.25);
-          case 'd':
-            return console.log(-allBodies[0].GetMass(), physics.world.GetGravity(), allBodies[0].ApplyForce(-allBodies[0].GetMass() * physics.world.GetGravity(), allBodies[0].GetWorldCenter()));
-        }
+      new Body(physics, {
+        x: 10,
+        y: 10,
+        angle: 0
       });
       requestAnimationFrame(gameLoop);
+    };
+    Physics.prototype.setControl = function() {
+      var self;
+      self = this;
+      this.direction = {
+        STOP: 0,
+        LEFT: 1,
+        RIGHT: 2
+      };
+      this.moveState = void 0;
+      return $(window).keypress(function(event) {
+        var key;
+        key = String.fromCharCode(event.keyCode);
+        console.log(self);
+        switch (key) {
+          case '4':
+            return self.moveState = self.direction.LEFT;
+          case '5':
+            return self.moveState = self.direction.STOP;
+          case '6':
+            return self.moveState = self.direction.RIGHT;
+        }
+      });
+    };
+    Physics.prototype.move = function(body) {
+      var vel;
+      vel = body.GetLinearVelocity();
+      switch (this.moveState) {
+        case this.direction.LEFT:
+          vel.x = -15;
+          break;
+        case this.direction.STOP:
+          vel.x = 0;
+          break;
+        case this.direction.RIGHT:
+          vel.x = 15;
+      }
+      return body.SetLinearVelocity(vel);
     };
     Physics.prototype.bodiesList = function() {
       var i, list, obj;
@@ -101,6 +121,9 @@
       this.world.SetDebugDraw(this.debugDraw);
     };
     Physics.prototype.step = function(dt) {
+      var body;
+      body = this.bodiesList()[0];
+      this.move(body);
       this.dtRemaining += dt;
       while (this.dtRemaining > this.stepAmount) {
         this.dtRemaining -= this.stepAmount;

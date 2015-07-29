@@ -13,6 +13,8 @@ do ->
   Physics = 
   window.Physics = (element, scale) ->
     gravity = new b2Vec2(0, 9.8)
+    console.log this
+    
     @world = new b2World(gravity, true)
     @context = $('#b2dCanvas')[0].getContext('2d')
     @scale = scale or 20
@@ -22,11 +24,14 @@ do ->
 
 
   physics = undefined  
+  moveState = undefined
 
   init = ->
 
     physics = window.physics = new Physics(document.getElementById('b2dCanvas'))
-            
+    
+    physics.setControl()
+
     physics.debug()
 
     new Body(physics,
@@ -57,32 +62,43 @@ do ->
       height: 0.5
       width: 60)
    
-    i=0
-    bodies = new Array()
-    while i<3
-      bodies[i] = new Body(physics, x:20+i*10, y:10,angle:Math.PI/4.25)
-      i++
-    
-    allBodies = physics.bodiesList()
-
-    console.log physics.world.GetGravity();      
-
-    allBodies[0].ApplyForce(new b2Vec2(0,-physics.world.GetGravity().y*allBodies[0].GetMass()), allBodies[0].GetWorldCenter())
-
-    $(window).keypress((event) ->
-      key=String.fromCharCode(event.keyCode)
-            
-      switch key
-        #when '1' then allBodies[0].ApplyForce(new b2Vec2(0,-physics.world.GetGravity().y*allBodies[0].GetMass()), allBodies[0].GetWorldCenter()) 
-        when '2' then allBodies[1].ApplyImpulse(new b2Vec2(-1000,0), allBodies[1].GetWorldCenter()) 
-        when '3' then allBodies[2].SetPositionAndAngle(new b2Vec2(10,20), Math.PI/4.25)
-        
-        when 'd' then console.log -allBodies[0].GetMass(), physics.world.GetGravity(), allBodies[0].ApplyForce(-allBodies[0].GetMass()*physics.world.GetGravity(),allBodies[0].GetWorldCenter())
-    )
- 
+    new Body(physics, x:10, y:10,angle:0)
+      
     
     requestAnimationFrame gameLoop
     return
+
+  Physics::setControl = ->
+    self = this    
+
+    @direction = 
+      STOP: 0
+      LEFT: 1
+      RIGHT: 2 
+        
+
+    @moveState=undefined
+
+    $(window).keypress((event) ->
+      key = String.fromCharCode(event.keyCode)     
+     
+      console.log self
+
+      switch key
+        when '4' then self.moveState = self.direction.LEFT
+        when '5' then self.moveState = self.direction.STOP
+        when '6' then self.moveState = self.direction.RIGHT
+    )
+        
+
+  Physics::move = (body)->
+    vel = body.GetLinearVelocity()
+    switch @moveState
+      when @direction.LEFT then vel.x=-15    
+      when @direction.STOP then vel.x=0    
+      when @direction.RIGHT then vel.x=15    
+    
+    body.SetLinearVelocity(vel)
 
   Physics::bodiesList = ->
     list = new Array() 
@@ -107,6 +123,10 @@ do ->
     return
 
   Physics::step = (dt) ->
+    
+    body = @bodiesList()[0]
+    @move(body)
+
     @dtRemaining += dt
     while @dtRemaining > @stepAmount
       @dtRemaining -= @stepAmount
@@ -181,7 +201,6 @@ do ->
    
   lastFrame = (new Date).getTime()
   
-   
 
 
   window.gameLoop = ->

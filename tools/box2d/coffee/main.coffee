@@ -12,23 +12,24 @@ do ->
   
   Physics = 
   window.Physics = (element, scale) ->
-    gravity = new b2Vec2(0, 9.8)
-    console.log this
+    gravity = new b2Vec2(0, 0)
+    
     
     @world = new b2World(gravity, true)
-    @context = $('#b2dCanvas')[0].getContext('2d')
+    console.log @world
+    @context = $('#debug')[0].getContext('2d')
     @scale = scale or 20
     @dtRemaining = 0
     @stepAmount = 1/60
     return
 
-
+  
   physics = undefined  
   moveState = undefined
 
   init = ->
 
-    physics = window.physics = new Physics(document.getElementById('b2dCanvas'))
+    physics = window.physics = new Physics(document.getElementById('debug'))
     
     physics.setControl()
 
@@ -48,23 +49,51 @@ do ->
       height: 25
       width: 0.5)
 
-    new Body(physics,
-      type: 'static'
-      x: 0
-      y: 0
-      height: 0.5
-      width: 60)
+    # new Body(physics,
+    #   type: 'static'
+    #   x: 0
+    #   y: 0
+    #   height: 0.5
+    #   width: 60)
 
-    new Body(physics,
-      type: 'static'
-      x: 0
-      y: 25
-      height: 0.5
-      width: 60)
+    # new Body(physics,
+    #   type: 'static'
+    #   x: 0
+    #   y: 25
+    #   height: 0.5
+    #   width: 60)
    
-    new Body(physics, x:10, y:10,angle:0)
-      
+    #new Body(physics, x:10, y:10,angle:0)
     
+    vertices = new Array()
+    
+    i=0
+    while i<6
+      angle=-i/6.0*2*Math.PI
+      vertices[i]= new b2Vec2(Math.sin(angle),Math.cos(angle))
+      i++
+
+    vertices[0]=new b2Vec2(0,4) 
+    
+    # vertices[0]=new b2Vec2(0,0)
+    # vertices[1]=new b2Vec2(10,0)
+    
+
+    new Body(physics, x:100/physics.scale, y:15, angle:0, shape:'polygon', points: vertices)
+
+    console.log 100/physics.scale
+ 
+    stage = new createjs.Stage("art")
+    circle = new createjs.Shape()
+    circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 5)
+    circle.x = 100
+    circle.y = 300
+    stage.addChild(circle)
+
+    console.log circle
+
+    stage.update()
+
     requestAnimationFrame gameLoop
     return
 
@@ -74,31 +103,79 @@ do ->
     @direction = 
       STOP: 0
       LEFT: 1
-      RIGHT: 2 
-        
+      RIGHT: 2
+      UP:3
+      DOWN:4
+
 
     @moveState=undefined
+    @remaingJumpSteps=undefined
 
     $(window).keypress((event) ->
       key = String.fromCharCode(event.keyCode)     
      
-      console.log self
-
       switch key
         when '4' then self.moveState = self.direction.LEFT
         when '5' then self.moveState = self.direction.STOP
         when '6' then self.moveState = self.direction.RIGHT
+        when '8' then self.moveState = self.direction.UP
+        when '2' then self.moveState = self.direction.DOWN
+        when 'j' then self.remainingJumpSteps=6
+        when 'i'
+          body = self.bodiesList()[0]
+          impulse=body.GetMass()*10
+          body.ApplyImpulse(new b2Vec2(0,-impulse), body.GetWorldCenter())      
+ 
+      if(self.moveState) 
+        console.log self.moveState
+        body = self.bodiesList()[0]
+        self.move(body)
     )
-        
+    
+    $(window).mousedown((event)->
+      width=$('canvas').width()
+      height=$('canvas').height()
+
+      mouseX=event.pageX
+      mouseY=event.pageY
+
+      body=self.bodiesList()[0]
+
+      #console.log 'body', body
+
+      console.log body.GetAngle()
+
+      if mouseX<width and mouseY<height
+        toTarget=
+          x:mouseX/self.scale-body.GetPosition().x
+          y:mouseY/self.scale-body.GetPosition().y
+
+      angle=Math.atan2(toTarget.y,toTarget.x)
+      console.log angle
+      position=body.GetPosition()
+      
+
+      body.SetPositionAndAngle(position,angle-90*Math.PI/180)   
+
+    )    
 
   Physics::move = (body)->
     vel = body.GetLinearVelocity()
+    
     switch @moveState
       when @direction.LEFT then vel.x=-15    
-      when @direction.STOP then vel.x=0    
-      when @direction.RIGHT then vel.x=15    
+      when @direction.STOP then vel.x=0     
+      when @direction.RIGHT then vel.x=15
+      when @direction.UP then vel.y=-15
+      when @direction.DOWN then vel.y=15
     
     body.SetLinearVelocity(vel)
+
+    return
+
+  Physics::jump = (body)->
+    console.log body.GetWorldCenter()
+
 
   Physics::bodiesList = ->
     list = new Array() 
@@ -118,21 +195,30 @@ do ->
     @debugDraw.SetDrawScale @scale
     @debugDraw.SetFillAlpha 0.3
     @debugDraw.SetLineThickness 1.0
-    @debugDraw.SetFlags b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit
+    @debugDraw.SetFlags b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit
     @world.SetDebugDraw @debugDraw
     return
 
   Physics::step = (dt) ->
     
-    body = @bodiesList()[0]
-    @move(body)
-
+    body=@bodiesList()[0]
+    force = body.GetMass()*100/(1/60.0)
+    force/=6.0      
+    if(@remainingJumpSteps>0)
+      body.ApplyForce(new b2Vec2(0,-force), body.GetWorldCenter())
+      @remainingJumpSteps--
+        
     @dtRemaining += dt
     while @dtRemaining > @stepAmount
       @dtRemaining -= @stepAmount
       @world.Step @stepAmount, 10, 10
     if @debugDraw
       @world.DrawDebugData()
+
+    @world.ClearForces()
+
+    
+
     return
 
   Body = 
@@ -214,8 +300,10 @@ do ->
     lastFrame = tm
 
 
+  $(document).ready () ->
+    init()
 
-  window.addEventListener 'load', init
+  
   
   return
 

@@ -13,7 +13,7 @@
     b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
     Physics = window.Physics = function(element, scale) {
       var gravity;
-      gravity = new b2Vec2(0, 0);
+      gravity = new b2Vec2(0, 9.8);
       this.world = new b2World(gravity, true);
       console.log(this.world);
       this.context = $('#debug')[0].getContext('2d');
@@ -24,10 +24,11 @@
     physics = void 0;
     moveState = void 0;
     init = function() {
-      var angle, circle, i, stage, vertices;
+      var angle, bodyCenter, canvasPosition, i, vertices;
       physics = window.physics = new Physics(document.getElementById('debug'));
       physics.setControl();
       physics.debug();
+      console.log(this);
       new Body(physics, {
         type: 'static',
         x: 0,
@@ -42,6 +43,20 @@
         height: 25,
         width: 0.5
       });
+      new Body(physics, {
+        type: 'static',
+        x: 0,
+        y: 0,
+        height: 0.5,
+        width: 60
+      });
+      new Body(physics, {
+        type: 'static',
+        x: 0,
+        y: 25,
+        height: 0.5,
+        width: 60
+      });
       vertices = new Array();
       i = 0;
       while (i < 6) {
@@ -51,22 +66,41 @@
       }
       vertices[0] = new b2Vec2(0, 4);
       new Body(physics, {
-        x: 100 / physics.scale,
+        x: 20,
         y: 15,
         angle: 0,
-        shape: 'polygon',
-        points: vertices
+        shape: 'circle',
+        radius: 2.5
       });
-      console.log(100 / physics.scale);
-      stage = new createjs.Stage("art");
-      circle = new createjs.Shape();
-      circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 5);
-      circle.x = 100;
-      circle.y = 300;
-      stage.addChild(circle);
-      console.log(circle);
-      stage.update();
+      this.body = physics.bodiesList()[0];
+      this.stage = new createjs.Stage("art");
+      this.circle = new createjs.Shape();
+      this.circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 2.5 * physics.scale);
+      this.stage.addChild(circle);
+      bodyCenter = body.GetWorldCenter();
+      canvasPosition = transform(bodyCenter);
+      this.circle.x = canvasPosition.x;
+      this.circle.y = canvasPosition.y;
+      this.stage.update();
+      console.log('oi');
+      window.draw(this.body);
+      console.log('oi');
       requestAnimationFrame(gameLoop);
+    };
+    window.draw = function(body) {
+      var bodyCenter, canvasPosition;
+      bodyCenter = body.GetWorldCenter();
+      canvasPosition = transform(bodyCenter);
+      console.log(bodyCenter, canvasPosition);
+      return this.stage.update();
+    };
+    window.transform = function(bodyCenter) {
+      var canvas;
+      canvas = {
+        x: bodyCenter.x * physics.scale,
+        y: bodyCenter.y * physics.scale
+      };
+      return canvas;
     };
     Physics.prototype.setControl = function() {
       var self;
@@ -177,8 +211,8 @@
       this.debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
       this.world.SetDebugDraw(this.debugDraw);
     };
-    Physics.prototype.step = function(dt) {
-      var body, force;
+    Physics.prototype.step = function(stage, circle, dt) {
+      var body, bodyCenter, canvasPosition, force;
       body = this.bodiesList()[0];
       force = body.GetMass() * 100 / (1 / 60.0);
       force /= 6.0;
@@ -194,6 +228,11 @@
       if (this.debugDraw) {
         this.world.DrawDebugData();
       }
+      bodyCenter = body.GetWorldCenter();
+      canvasPosition = transform(bodyCenter);
+      circle.x = canvasPosition.x;
+      circle.y = canvasPosition.y;
+      stage.update();
       this.world.ClearForces();
     };
     Body = window.Body = function(physics, details) {
@@ -268,13 +307,13 @@
     window.gameLoop = function() {
       var dt, tm;
       tm = (new Date).getTime();
-      requestAnimationFrame(gameLoop);
       dt = (tm - lastFrame) / 1000;
       if (dt > 1 / 15) {
         dt = 1 / 15;
       }
-      physics.step(dt);
-      return lastFrame = tm;
+      physics.step(this.stage, this.circle, dt);
+      lastFrame = tm;
+      return requestAnimationFrame(gameLoop);
     };
     $(document).ready(function() {
       return init();

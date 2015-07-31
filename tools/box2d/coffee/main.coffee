@@ -10,9 +10,10 @@ do ->
   b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
   b2DebugDraw = Box2D.Dynamics.b2DebugDraw
   
+
   Physics = 
   window.Physics = (element, scale) ->
-    gravity = new b2Vec2(0, 0)
+    gravity = new b2Vec2(0, 9.8)
     
     
     @world = new b2World(gravity, true)
@@ -35,6 +36,8 @@ do ->
 
     physics.debug()
 
+    console.log this
+
     new Body(physics,
       type: 'static'
       x: 0
@@ -49,19 +52,19 @@ do ->
       height: 25
       width: 0.5)
 
-    # new Body(physics,
-    #   type: 'static'
-    #   x: 0
-    #   y: 0
-    #   height: 0.5
-    #   width: 60)
+    new Body(physics,
+      type: 'static'
+      x: 0
+      y: 0
+      height: 0.5
+      width: 60)
 
-    # new Body(physics,
-    #   type: 'static'
-    #   x: 0
-    #   y: 25
-    #   height: 0.5
-    #   width: 60)
+    new Body(physics,
+      type: 'static'
+      x: 0
+      y: 25
+      height: 0.5
+      width: 60)
    
     #new Body(physics, x:10, y:10,angle:0)
     
@@ -79,23 +82,51 @@ do ->
     # vertices[1]=new b2Vec2(10,0)
     
 
-    new Body(physics, x:100/physics.scale, y:15, angle:0, shape:'polygon', points: vertices)
+    new Body(physics, x:20, y:15, angle:0, shape:'circle', radius:2.5)
+    
+    @body=physics.bodiesList()[0]
 
-    console.log 100/physics.scale
- 
-    stage = new createjs.Stage("art")
-    circle = new createjs.Shape()
-    circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 5)
-    circle.x = 100
-    circle.y = 300
-    stage.addChild(circle)
+    @stage = new createjs.Stage("art")
+    @circle = new createjs.Shape()
 
-    console.log circle
+    @circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 2.5*physics.scale)
 
-    stage.update()
+    @stage.addChild(circle)
+    
+    bodyCenter=body.GetWorldCenter()
+    canvasPosition = transform(bodyCenter)
+
+    @circle.x = canvasPosition.x
+    @circle.y = canvasPosition.y
+
+    @stage.update()
+    
+    console.log 'oi'
+
+    window.draw(@body)
+    console.log 'oi'
+
+
+    
 
     requestAnimationFrame gameLoop
     return
+
+  window.draw = (body) ->
+    bodyCenter=body.GetWorldCenter()
+    canvasPosition = transform(bodyCenter)
+    console.log bodyCenter, canvasPosition
+
+    @stage.update() 
+
+  window.transform = (bodyCenter) ->
+    canvas=
+      x:bodyCenter.x*physics.scale
+      y:bodyCenter.y*physics.scale
+
+    
+
+    return canvas  
 
   Physics::setControl = ->
     self = this    
@@ -199,7 +230,7 @@ do ->
     @world.SetDebugDraw @debugDraw
     return
 
-  Physics::step = (dt) ->
+  Physics::step = (stage,circle, dt) ->
     
     body=@bodiesList()[0]
     force = body.GetMass()*100/(1/60.0)
@@ -214,6 +245,14 @@ do ->
       @world.Step @stepAmount, 10, 10
     if @debugDraw
       @world.DrawDebugData()
+
+    bodyCenter=body.GetWorldCenter()
+    canvasPosition = transform(bodyCenter)
+
+    circle.x = canvasPosition.x
+    circle.y = canvasPosition.y
+
+    stage.update()
 
     @world.ClearForces()
 
@@ -291,14 +330,18 @@ do ->
 
   window.gameLoop = ->
 
+
+    
     tm = (new Date).getTime()
-    requestAnimationFrame gameLoop
+
+
     dt = (tm - lastFrame) / 1000
     if dt > 1 / 15
       dt = 1 / 15
-    physics.step dt 
+    physics.step @stage, @circle, dt 
     lastFrame = tm
 
+    requestAnimationFrame gameLoop
 
   $(document).ready () ->
     init()

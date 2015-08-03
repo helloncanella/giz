@@ -1,6 +1,6 @@
 (function() {
   (function() {
-    var Body, Physics, b2Body, b2BodyDef, b2CircleShape, b2DebugDraw, b2Fixture, b2FixtureDef, b2MassData, b2PolygonShape, b2Vec2, b2World, init, lastFrame, physics;
+    var Body, Physics, b2Body, b2BodyDef, b2CircleShape, b2ContactListener, b2DebugDraw, b2Fixture, b2FixtureDef, b2MassData, b2PolygonShape, b2Vec2, b2World, init, lastFrame, physics;
     b2Vec2 = Box2D.Common.Math.b2Vec2;
     b2BodyDef = Box2D.Dynamics.b2BodyDef;
     b2Body = Box2D.Dynamics.b2Body;
@@ -11,18 +11,19 @@
     b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
     b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
     b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
+    b2ContactListener = Box2D.Dynamics.b2ContactListener;
     Physics = window.Physics = function(element, scale) {
       var gravity;
-      gravity = new b2Vec2(0, 9.8);
+      gravity = new b2Vec2(0, 0);
       this.world = new b2World(gravity, true);
-      this.context = $('#b2dCanvas')[0].getContext('2d');
+      this.context = document.getElementById('b2dCanvas').getContext('2d');
       this.scale = scale || 20;
       this.dtRemaining = 0;
       this.stepAmount = 1 / 60;
     };
     physics = void 0;
     init = function() {
-      var allBodies, bodies, i;
+      var allBodies, bodies, body, i, move;
       physics = window.physics = new Physics(document.getElementById('b2dCanvas'));
       physics.debug();
       new Body(physics, {
@@ -64,21 +65,55 @@
         i++;
       }
       allBodies = physics.bodiesList();
-      console.log(physics.world.GetGravity());
-      allBodies[0].ApplyForce(new b2Vec2(0, -physics.world.GetGravity().y * allBodies[0].GetMass()), allBodies[0].GetWorldCenter());
-      $(window).keypress(function(event) {
-        var key;
-        key = String.fromCharCode(event.keyCode);
-        switch (key) {
-          case '2':
-            return allBodies[1].ApplyImpulse(new b2Vec2(-1000, 0), allBodies[1].GetWorldCenter());
-          case '3':
-            return allBodies[2].SetPositionAndAngle(new b2Vec2(10, 20), Math.PI / 4.25);
-          case 'd':
-            return console.log(-allBodies[0].GetMass(), physics.world.GetGravity(), allBodies[0].ApplyForce(-allBodies[0].GetMass() * physics.world.GetGravity(), allBodies[0].GetWorldCenter()));
+      body = allBodies[0];
+      move = function(moveState) {
+        switch (moveState) {
+          case 'UP':
+            return body.SetLinearVelocity(new b2Vec2(0, -50));
+          case 'DOWN':
+            return body.SetLinearVelocity(new b2Vec2(0, 50));
+          case 'LEFT':
+            return body.SetLinearVelocity(new b2Vec2(-50, 0));
+          case 'RIGHT':
+            return body.SetLinearVelocity(new b2Vec2(50, 0));
         }
+      };
+      window.addEventListener("keypress", function(event) {
+        var direction, key, moveState;
+        key = String.fromCharCode(event.keyCode);
+        direction = {
+          LEFT: 'LEFT',
+          RIGHT: 'RIGHT',
+          UP: 'UP',
+          DOWN: 'DOWN'
+        };
+        switch (key) {
+          case '8':
+            moveState = direction.UP;
+            break;
+          case '2':
+            moveState = direction.DOWN;
+            break;
+          case '4':
+            moveState = direction.LEFT;
+            break;
+          case '6':
+            moveState = direction.RIGHT;
+        }
+        return move(moveState);
       });
       requestAnimationFrame(gameLoop);
+    };
+    Physics.prototype.getContacts = function() {
+      var contact, contacts, i;
+      contacts = new Array();
+      contacts[0] = this.world.GetContactList();
+      i = 1;
+      while (contact) {
+        contact[i] = contact = contact.GetContactList();
+        i++;
+      }
+      return contacts;
     };
     Physics.prototype.bodiesList = function() {
       var i, list, obj;
@@ -101,7 +136,16 @@
       this.world.SetDebugDraw(this.debugDraw);
     };
     Physics.prototype.step = function(dt) {
+      var contacts;
       this.dtRemaining += dt;
+      contacts = physics.getContacts();
+      if (contacts[0] === null) {
+        this.j = 0;
+      } else {
+        this.j++;
+        console.log(this.j, contacts);
+        contacts = null;
+      }
       while (this.dtRemaining > this.stepAmount) {
         this.dtRemaining -= this.stepAmount;
         this.world.Step(this.stepAmount, 10, 10);
@@ -188,7 +232,8 @@
         dt = 1 / 15;
       }
       physics.step(dt);
-      return lastFrame = tm;
+      lastFrame = tm;
+      return physics.world.ClearForces();
     };
     window.addEventListener('load', init);
   })();

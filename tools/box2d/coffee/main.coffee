@@ -9,8 +9,8 @@ do ->
   b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
   b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
   b2DebugDraw = Box2D.Dynamics.b2DebugDraw
-  
-  Physics = 
+
+  Physics =
   window.Physics = (element, scale) ->
     gravity = new b2Vec2(0, 9.8)
     @world = new b2World(gravity, true)
@@ -21,12 +21,12 @@ do ->
     return
 
 
-  physics = undefined  
+  physics = undefined
 
   init = ->
 
     physics = window.physics = new Physics(document.getElementById('b2dCanvas'))
-            
+
     physics.debug()
 
     new Body(physics,
@@ -56,45 +56,57 @@ do ->
       y: 25
       height: 0.5
       width: 60)
-   
+
     i=0
     bodies = new Array()
     while i<3
       bodies[i] = new Body(physics, x:20+i*10, y:10,angle:Math.PI/4.25)
       i++
-    
+
     allBodies = physics.bodiesList()
 
-    console.log physics.world.GetGravity();      
+    body=allBodies[0]
 
-    allBodies[0].ApplyForce(new b2Vec2(0,-physics.world.GetGravity().y*allBodies[0].GetMass()), allBodies[0].GetWorldCenter())
+    move = (moveState)  ->
+      switch moveState
+          when 'UP' then body.SetLinearVelocity(new b2Vec2(0,-25))
+          when 'DOWN'  then body.SetLinearVelocity(new b2Vec2(0,25))
+          when 'LEFT' then body.SetLinearVelocity(new b2Vec2(-25,0))
+          when 'RIGHT' then body.SetLinearVelocity(new b2Vec2(25,0))
 
-    $(window).keypress((event) ->
+    window.addEventListener("keypress", (event) ->
       key=String.fromCharCode(event.keyCode)
-            
+
+      direction=
+        LEFT:'LEFT'
+        RIGHT:'RIGHT'
+        UP:'UP'
+        DOWN:'DOWN'
+
       switch key
-        #when '1' then allBodies[0].ApplyForce(new b2Vec2(0,-physics.world.GetGravity().y*allBodies[0].GetMass()), allBodies[0].GetWorldCenter()) 
-        when '2' then allBodies[1].ApplyImpulse(new b2Vec2(-1000,0), allBodies[1].GetWorldCenter()) 
-        when '3' then allBodies[2].SetPositionAndAngle(new b2Vec2(10,20), Math.PI/4.25)
-        
-        when 'd' then console.log -allBodies[0].GetMass(), physics.world.GetGravity(), allBodies[0].ApplyForce(-allBodies[0].GetMass()*physics.world.GetGravity(),allBodies[0].GetWorldCenter())
+        when '8' then moveState=direction.UP
+        when '2' then moveState=direction.DOWN
+        when '4' then moveState=direction.LEFT
+        when '6' then moveState=direction.RIGHT
+
+      move(moveState)
     )
- 
-    
+
+
     requestAnimationFrame gameLoop
     return
 
   Physics::bodiesList = ->
-    list = new Array() 
-    
+    list = new Array()
+
     i=0
     list[i]=obj= @world.GetBodyList()
-    
+
     while obj
       i++
       list[i] = obj = obj.GetNext()
 
-    return list  
+    return list
 
   Physics::debug = ->
     @debugDraw = new b2DebugDraw
@@ -115,9 +127,9 @@ do ->
       @world.DrawDebugData()
     return
 
-  Body = 
+  Body =
   window.Body = (physics, details) ->
-    
+
     @details = details = details or {}
     @definition = new b2BodyDef
     for k of @definitionDefaults
@@ -125,11 +137,11 @@ do ->
     @definition.position = new b2Vec2(details.x or 0, details.y or 0)
     @definition.linearVelocity = new b2Vec2(details.vx or 0, details.vy or 0)
     @definition.userData = this
-    
+
     switch details.type
       when 'static'
         @definition.type = b2Body.b2_staticBody
-      when 'kinematic'  
+      when 'kinematic'
         @definition.type = b2Body.b2_kinematicBody
       else @definition.type = b2Body.b2_dynamicBody
 
@@ -178,10 +190,10 @@ do ->
     awake: true
     bullet: false
     fixedRotation: false
-   
+
   lastFrame = (new Date).getTime()
-  
-   
+
+
 
 
   window.gameLoop = ->
@@ -191,13 +203,13 @@ do ->
     dt = (tm - lastFrame) / 1000
     if dt > 1 / 15
       dt = 1 / 15
-    physics.step dt 
+    physics.step dt
     lastFrame = tm
 
 
 
   window.addEventListener 'load', init
-  
+
   return
 
 

@@ -1,4 +1,5 @@
 do ->
+
   b2Vec2 = Box2D.Common.Math.b2Vec2
   b2BodyDef = Box2D.Dynamics.b2BodyDef
   b2Body = Box2D.Dynamics.b2Body
@@ -11,17 +12,28 @@ do ->
   b2DebugDraw = Box2D.Dynamics.b2DebugDraw
   b2ContactListener = Box2D.Dynamics.b2ContactListener
 
+  myContactListener = new b2ContactListener()
+
+  console.log myContactListener
+
+  b2ContactListener::BeginContact = (contact) ->
+    console.log('start', contact)
+
+  b2ContactListener::EndContact = (contact) ->
+    console.log('end', contact)
+
   Physics =
   window.Physics = (element, scale) ->
     gravity = new b2Vec2(0, 0)
     @world = new b2World(gravity, true)
+    @world.SetContactListener(myContactListener)
     @context = document.getElementById('b2dCanvas').getContext('2d')
     @scale = scale or 20
     @dtRemaining = 0
     @stepAmount = 1/60
     return
 
-  physics = undefined 
+  physics = undefined
 
   init = ->
 
@@ -33,6 +45,7 @@ do ->
       type: 'static'
       x: 0
       y: 0
+      label:'wall'
       height: 25
       width: 0.5)
 
@@ -40,6 +53,7 @@ do ->
       type: 'static'
       x: 51
       y: 0
+      label:'wall'
       height: 25
       width: 0.5)
 
@@ -47,6 +61,7 @@ do ->
       type: 'static'
       x: 0
       y: 0
+      label:'wall'
       height: 0.5
       width: 60)
 
@@ -54,13 +69,14 @@ do ->
       type: 'static'
       x: 0
       y: 25
+      label:'wall'
       height: 0.5
       width: 60)
 
     i=0
     bodies = new Array()
     while i<3
-      bodies[i] = new Body(physics, x:20+i*10, y:10,angle:Math.PI/4.25)
+      bodies[i] = new Body(physics, x:20+i*10, y:10, label:'body '+i, angle:Math.PI/4.25)
       i++
 
     allBodies = physics.bodiesList()
@@ -112,7 +128,6 @@ do ->
 
     return contacts
 
-
   Physics::bodiesList = ->
     list = new Array()
 
@@ -153,7 +168,9 @@ do ->
       @counter=0
     else
       @counter++
-      console.log(@counter, contacts)
+      dataA = contacts[0].GetFixtureA().GetBody().GetUserData()
+      dataB = contacts[0].GetFixtureB().GetBody().GetUserData()
+      console.log(@counter, contacts, dataA, dataB )
       contacts=null
 
 
@@ -177,6 +194,8 @@ do ->
 
 
     @body = physics.world.CreateBody(@definition)
+
+    @body.SetUserData(@details.label) #setting label
 
     @fixtureDef = new b2FixtureDef
     for l of @fixtureDefaults
@@ -208,6 +227,7 @@ do ->
     width: 2
     height: 2
     radius: 1
+    label:"none"
   Body::fixtureDefaults =
     density: 2
     friction: 1

@@ -88,11 +88,13 @@ do ->
       height: 0.5
       width: 60)
 
-    i=0
-    bodies = new Array()
-    while i<3
-      bodies[i] = new Body(physics, x:20+i*10, y:10,angle:Math.PI/4.25, shape:'circle', radius:2)
-      i++
+    link = new Body(physics, x:5, y:10, width:1, height:0.25)
+
+    for index in [1...15]
+      console.log index
+
+
+
 
     allBodies = physics.bodiesList()
 

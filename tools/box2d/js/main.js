@@ -41,7 +41,7 @@
   };
   physics = void 0;
   init = function() {
-    var allBodies, bodies, body, i, move;
+    var allBodies, body, index, j, link, move;
     physics = window.physics = new Physics(document.getElementById('b2dCanvas'));
     physics.debug();
     new Body(physics, {
@@ -72,17 +72,14 @@
       height: 0.5,
       width: 60
     });
-    i = 0;
-    bodies = new Array();
-    while (i < 3) {
-      bodies[i] = new Body(physics, {
-        x: 20 + i * 10,
-        y: 10,
-        angle: Math.PI / 4.25,
-        shape: 'circle',
-        radius: 2
-      });
-      i++;
+    link = new Body(physics, {
+      x: 5,
+      y: 10,
+      width: 1,
+      height: 0.25
+    });
+    for (index = j = 1; j < 15; index = ++j) {
+      console.log(index);
     }
     allBodies = physics.bodiesList();
     new Joint(physics, {

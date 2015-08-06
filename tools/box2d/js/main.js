@@ -74,37 +74,46 @@
     });
     i = 0;
     bodies = new Array();
-    while (i < 3) {
-      bodies[i] = new Body(physics, {
-        x: 20 + i * 10,
-        y: 10,
-        angle: Math.PI / 4.25,
-        shape: 'circle',
-        radius: 2
-      });
-      i++;
-    }
+    bodies[0] = new Body(physics, {
+      x: 20,
+      y: 20,
+      angle: 0,
+      shape: 'square',
+      density: 1
+    });
+    bodies[1] = new Body(physics, {
+      x: 30,
+      y: 20,
+      angle: 0,
+      shape: 'square',
+      width: 0.5,
+      height: 0.5,
+      density: 0.5
+    });
     allBodies = physics.bodiesList();
     new Joint(physics, {
-      type: 'distance',
-      bodyA: allBodies[0],
-      bodyB: allBodies[1]
+      kind: 'revolute',
+      bodyA: allBodies[1],
+      bodyB: allBodies[0],
+      collideConnected: false,
+      enableMotor: true,
+      maxMotorTorque: 50000,
+      motorSpeed: 0 * Math.PI / 180,
+      localAnchorA: new b2Vec2(2, -2),
+      localAnchorB: new b2Vec2(-0.5, 0.5)
     });
-    body = allBodies[0];
+    body = allBodies[1];
     move = function(moveState) {
       switch (moveState) {
-        case 'UP':
-          return body.SetLinearVelocity(new b2Vec2(0, -25));
-        case 'DOWN':
-          return body.SetLinearVelocity(new b2Vec2(0, 25));
         case 'LEFT':
-          return body.SetLinearVelocity(new b2Vec2(-25, 0));
+          return body.SetLinearVelocity(new b2Vec2(-30, 0));
         case 'RIGHT':
-          return body.SetLinearVelocity(new b2Vec2(25, 0));
+          return body.SetLinearVelocity(new b2Vec2(30, 0));
       }
     };
     window.addEventListener("keypress", function(event) {
       var direction, key, moveState;
+      console.log(body.GetWorldCenter());
       key = String.fromCharCode(event.keyCode);
       direction = {
         LEFT: 'LEFT',
@@ -214,7 +223,7 @@
     radius: 1
   };
   Body.prototype.fixtureDefaults = {
-    density: 2,
+    density: 1,
     friction: 1,
     restitution: 0.2
   };
@@ -229,17 +238,49 @@
   };
   lastFrame = (new Date).getTime();
   Joint = window.Joint = function(physics, jointDetails) {
-    var anchorA, anchorB, bodyA, bodyB, jointDef, jointType;
+    var anchorA, anchorB, bodyA, bodyB, jointDef, jointType, k, worldAxis;
     bodyA = jointDetails.bodyA;
     bodyB = jointDetails.bodyB;
-    anchorA = bodyA.GetWorldCenter();
-    anchorB = bodyB.GetWorldCenter();
-    jointType = jointDetails.type;
+    anchorA = jointDetails.anchorA || null;
+    anchorB = jointDetails.anchorB || null;
+    jointType = jointDetails.kind;
     switch (jointType) {
       case 'distance':
         jointDef = new b2DistanceJointDef();
-        jointDef.Initialize(bodyA, bodyB, anchorA, anchorB);
+        break;
+      case 'revolute':
+        jointDef = new b2RevoluteJointDef();
+        console.log(jointDef);
+        break;
+      case 'prismatic':
+        jointDef = new b2PrismaticJointDef();
+        worldAxis = jointDetails.worldAxis;
+        jointDef.Initialize(bodyA, bodyB, anchorA, worldAxis);
+        break;
+      case 'line':
+        jointDef = new b2LineJointDef();
+        break;
+      case 'weld':
+        jointDef = new b2WeldJointDef();
+        break;
+      case 'pulley':
+        jointDef = new b2PulleyJointDef();
+        break;
+      case 'friction':
+        jointDef = new b2FrictionJointDef();
+        break;
+      case 'gear':
+        jointDef = new b2GearJointDef();
+        break;
+      case 'mouse':
+        jointDef = new b2MouseJointDef();
     }
+    for (k in jointDetails) {
+      if (jointDef.hasOwnProperty(k)) {
+        jointDef[k] = jointDetails[k];
+      }
+    }
+    console.log(jointDef);
     physics.world.CreateJoint(jointDef);
   };
   window.gameLoop = function() {
@@ -251,7 +292,7 @@
       dt = 1 / 15;
     }
     physics.step(dt);
-    return lastFrame = tm;
+    lastFrame = tm;
   };
   window.addEventListener('load', init);
 })();

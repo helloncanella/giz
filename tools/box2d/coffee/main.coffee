@@ -89,28 +89,51 @@ do ->
       width: 60)
 
     i=0
+
     bodies = new Array()
-    while i<3
-      bodies[i] = new Body(physics, x:20+i*10, y:10,angle:Math.PI/4.25, shape:'circle', radius:2)
-      i++
+    bodies[0] = new Body(physics, x:20, y:20,angle:0, shape:'square', density:1)
+    bodies[1] = new Body(physics, x:30, y:20,angle:0, shape:'square', width:0.5, height: 0.5, density:0.5)
+    # bodies[2] = new Body(physics, x:35, y:20,angle:0, shape:'circle', radius:1)
+
+
 
     allBodies = physics.bodiesList()
 
     new Joint(physics,
-      type:'distance'
-      bodyA: allBodies[0]
-      bodyB: allBodies[1]
+      kind: 'revolute'
+      bodyA: allBodies[1]
+      bodyB: allBodies[0]
+      collideConnected: false
+      # enableLimit:true
+      # lowerAngle: -720*Math.PI/180
+      # upperAngle: 720*Math.PI/180
+      enableMotor:true
+      maxMotorTorque:50000
+      motorSpeed:0*Math.PI/180
+      localAnchorA: new b2Vec2(2,-2)
+      localAnchorB: new b2Vec2(-0.5,0.5)
     )
 
-    body=allBodies[0]
+    # new Joint(physics,
+    #   kind: 'revolute'
+    #   bodyA: allBodies[2]
+    #   bodyB: allBodies[0]
+    #   collideConect: true
+    #   localAnchorA: new b2Vec2(-2,2)
+    # )
+
+
+
+    body=allBodies[1]
     move = (moveState)  ->
       switch moveState
-          when 'UP' then body.SetLinearVelocity(new b2Vec2(0,-25))
-          when 'DOWN'  then body.SetLinearVelocity(new b2Vec2(0,25))
-          when 'LEFT' then body.SetLinearVelocity(new b2Vec2(-25,0))
-          when 'RIGHT' then body.SetLinearVelocity(new b2Vec2(25,0))
+          when 'LEFT'
+            body.SetLinearVelocity(new b2Vec2(-30,0))
+          when 'RIGHT'
+            body.SetLinearVelocity(new b2Vec2(30,0))
 
     window.addEventListener("keypress", (event) ->
+      console.log body.GetWorldCenter()
       key=String.fromCharCode(event.keyCode)
 
       direction=
@@ -161,6 +184,7 @@ do ->
       @world.Step @stepAmount, 10, 10
     if @debugDraw
       @world.DrawDebugData()
+
     return
 
   Body =
@@ -215,7 +239,7 @@ do ->
     height: 2
     radius: 1
   Body::fixtureDefaults =
-    density: 2
+    density: 1
     friction: 1
     restitution: 0.2
   Body::definitionDefaults =
@@ -235,15 +259,45 @@ do ->
 
     bodyA = jointDetails.bodyA
     bodyB = jointDetails.bodyB
-    anchorA = bodyA.GetWorldCenter()
-    anchorB = bodyB.GetWorldCenter()
-
-    jointType = jointDetails.type
+    anchorA = jointDetails.anchorA or null
+    anchorB = jointDetails.anchorB or null
+    jointType = jointDetails.kind
 
     switch jointType
       when 'distance'
         jointDef = new b2DistanceJointDef()
-        jointDef.Initialize(bodyA, bodyB, anchorA, anchorB)
+
+      when 'revolute'
+        jointDef = new b2RevoluteJointDef()
+        console.log jointDef
+
+      when 'prismatic'
+        jointDef = new b2PrismaticJointDef()
+        worldAxis=jointDetails.worldAxis
+        jointDef.Initialize(bodyA, bodyB, anchorA, worldAxis)
+      when 'line'
+        jointDef = new b2LineJointDef()
+      when 'weld'
+        jointDef = new b2WeldJointDef()
+      when 'pulley'
+        jointDef = new b2PulleyJointDef()
+      when 'friction'
+        jointDef = new b2FrictionJointDef()
+      when 'gear'
+        jointDef = new b2GearJointDef()
+      when 'mouse'
+        jointDef = new b2MouseJointDef()
+
+
+
+
+
+
+    #the property will assigned to jointDef just it exists in that object
+    for k of jointDetails when jointDef.hasOwnProperty(k)
+      jointDef[k]=jointDetails[k]
+
+    console.log jointDef
 
     physics.world.CreateJoint(jointDef)
 
@@ -259,7 +313,7 @@ do ->
       dt = 1 / 15
     physics.step dt
     lastFrame = tm
-
+    return
 
 
   window.addEventListener 'load', init

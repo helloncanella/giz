@@ -41,7 +41,7 @@
   };
   physics = void 0;
   init = function() {
-    var allBodies, body, index, j, link, move;
+    var allBodies, body, circle, floor, index, j, joint, link, move, newLink;
     physics = window.physics = new Physics(document.getElementById('b2dCanvas'));
     physics.debug();
     new Body(physics, {
@@ -61,14 +61,14 @@
     new Body(physics, {
       type: 'static',
       x: 0,
-      y: 0,
+      y: 25,
       height: 0.5,
       width: 60
     });
-    new Body(physics, {
+    floor = new Body(physics, {
       type: 'static',
       x: 0,
-      y: 25,
+      y: 0,
       height: 0.5,
       width: 60
     });
@@ -76,28 +76,54 @@
       x: 5,
       y: 10,
       width: 1,
-      height: 0.25
+      height: .25,
+      density: 0.5
     });
-    for (index = j = 1; j < 15; index = ++j) {
-      console.log(index);
+    joint = new Joint(physics, {
+      kind: 'revolute',
+      bodyA: floor.body,
+      bodyB: link.body,
+      localAnchorA: new b2Vec2(22, 0),
+      localAnchorB: new b2Vec2(-1, 0)
+    });
+    for (index = j = 1; j < 10; index = ++j) {
+      newLink = new Body(physics, {
+        x: 5,
+        y: 10,
+        width: 1,
+        height: .25,
+        density: 0.5
+      });
+      joint = new Joint(physics, {
+        kind: 'revolute',
+        bodyA: link.body,
+        bodyB: newLink.body,
+        localAnchorA: new b2Vec2(1, 0),
+        localAnchorB: new b2Vec2(-1, 0)
+      });
+      link = newLink;
     }
-    allBodies = physics.bodiesList();
-    new Joint(physics, {
-      type: 'distance',
-      bodyA: allBodies[0],
-      bodyB: allBodies[1]
+    circle = new Body(physics, {
+      x: 5,
+      y: 10,
+      shape: 'circle',
+      radius: 1.8
     });
+    joint = new Joint(physics, {
+      kind: 'revolute',
+      bodyA: circle.body,
+      bodyB: link.body,
+      localAnchorA: new b2Vec2(0, 0),
+      localAnchorB: new b2Vec2(1, 0)
+    });
+    allBodies = physics.bodiesList();
     body = allBodies[0];
     move = function(moveState) {
       switch (moveState) {
-        case 'UP':
-          return body.SetLinearVelocity(new b2Vec2(0, -25));
-        case 'DOWN':
-          return body.SetLinearVelocity(new b2Vec2(0, 25));
         case 'LEFT':
-          return body.SetLinearVelocity(new b2Vec2(-25, 0));
+          return body.ApplyImpulse(new b2Vec2(-50, 0), body.GetWorldCenter());
         case 'RIGHT':
-          return body.SetLinearVelocity(new b2Vec2(25, 0));
+          return body.ApplyImpulse(new b2Vec2(50, 0), body.GetWorldCenter());
       }
     };
     window.addEventListener("keypress", function(event) {
@@ -226,17 +252,49 @@
   };
   lastFrame = (new Date).getTime();
   Joint = window.Joint = function(physics, jointDetails) {
-    var anchorA, anchorB, bodyA, bodyB, jointDef, jointType;
+    var anchorA, anchorB, bodyA, bodyB, jointDef, jointType, k, worldAxis;
     bodyA = jointDetails.bodyA;
     bodyB = jointDetails.bodyB;
-    anchorA = bodyA.GetWorldCenter();
-    anchorB = bodyB.GetWorldCenter();
-    jointType = jointDetails.type;
+    anchorA = jointDetails.anchorA || null;
+    anchorB = jointDetails.anchorB || null;
+    jointType = jointDetails.kind;
     switch (jointType) {
       case 'distance':
         jointDef = new b2DistanceJointDef();
-        jointDef.Initialize(bodyA, bodyB, anchorA, anchorB);
+        break;
+      case 'revolute':
+        jointDef = new b2RevoluteJointDef();
+        console.log(anchorA);
+        break;
+      case 'prismatic':
+        jointDef = new b2PrismaticJointDef();
+        worldAxis = jointDetails.worldAxis;
+        jointDef.Initialize(bodyA, bodyB, anchorA, worldAxis);
+        break;
+      case 'line':
+        jointDef = new b2LineJointDef();
+        break;
+      case 'weld':
+        jointDef = new b2WeldJointDef();
+        break;
+      case 'pulley':
+        jointDef = new b2PulleyJointDef();
+        break;
+      case 'friction':
+        jointDef = new b2FrictionJointDef();
+        break;
+      case 'gear':
+        jointDef = new b2GearJointDef();
+        break;
+      case 'mouse':
+        jointDef = new b2MouseJointDef();
     }
+    for (k in jointDetails) {
+      if (jointDef.hasOwnProperty(k)) {
+        jointDef[k] = jointDetails[k];
+      }
+    }
+    console.log(jointDef);
     physics.world.CreateJoint(jointDef);
   };
   window.gameLoop = function() {

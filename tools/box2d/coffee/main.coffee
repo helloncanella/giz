@@ -90,23 +90,15 @@ do ->
 
     i=0
     bodies = new Array()
-    while i<3
+    while i<1
       bodies[i] = new Body(physics, x:20+i*10, y:10,angle:Math.PI/4.25, shape:'circle', radius:2)
       i++
 
     allBodies = physics.bodiesList()
-
-    new Joint(physics,
-      type:'distance'
-      bodyA: allBodies[0]
-      bodyB: allBodies[1]
-    )
-
     body=allBodies[0]
+
     move = (moveState)  ->
       switch moveState
-          when 'UP' then body.SetLinearVelocity(new b2Vec2(0,-25))
-          when 'DOWN'  then body.SetLinearVelocity(new b2Vec2(0,25))
           when 'LEFT' then body.SetLinearVelocity(new b2Vec2(-25,0))
           when 'RIGHT' then body.SetLinearVelocity(new b2Vec2(25,0))
 
@@ -232,18 +224,37 @@ do ->
 
   Joint =
   window.Joint = (physics, jointDetails) ->
-
     bodyA = jointDetails.bodyA
     bodyB = jointDetails.bodyB
-    anchorA = bodyA.GetWorldCenter()
-    anchorB = bodyB.GetWorldCenter()
-
-    jointType = jointDetails.type
+    anchorA = jointDetails.anchorA or null
+    anchorB = jointDetails.anchorB or null
+    jointType = jointDetails.kind
 
     switch jointType
       when 'distance'
         jointDef = new b2DistanceJointDef()
-        jointDef.Initialize(bodyA, bodyB, anchorA, anchorB)
+      when 'revolute'
+        jointDef = new b2RevoluteJointDef()
+      when 'prismatic'
+        jointDef = new b2PrismaticJointDef()
+        worldAxis=jointDetails.worldAxis
+        jointDef.Initialize(bodyA, bodyB, anchorA, worldAxis)
+      when 'line'
+        jointDef = new b2LineJointDef()
+      when 'weld'
+        jointDef = new b2WeldJointDef()
+      when 'pulley'
+        jointDef = new b2PulleyJointDef()
+      when 'friction'
+        jointDef = new b2FrictionJointDef()
+      when 'gear'
+        jointDef = new b2GearJointDef()
+      when 'mouse'
+        jointDef = new b2MouseJointDef()
+
+    #the property will assigned to jointDef just it exists in that object
+    for k of jointDetails when jointDef.hasOwnProperty(k)
+      jointDef[k]=jointDetails[k]
 
     physics.world.CreateJoint(jointDef)
 
@@ -251,7 +262,6 @@ do ->
 
 
   window.gameLoop = ->
-
     tm = (new Date).getTime()
     requestAnimationFrame gameLoop
     dt = (tm - lastFrame) / 1000

@@ -74,7 +74,7 @@
     });
     i = 0;
     bodies = new Array();
-    while (i < 3) {
+    while (i < 1) {
       bodies[i] = new Body(physics, {
         x: 20 + i * 10,
         y: 10,
@@ -85,18 +85,9 @@
       i++;
     }
     allBodies = physics.bodiesList();
-    new Joint(physics, {
-      type: 'distance',
-      bodyA: allBodies[0],
-      bodyB: allBodies[1]
-    });
     body = allBodies[0];
     move = function(moveState) {
       switch (moveState) {
-        case 'UP':
-          return body.SetLinearVelocity(new b2Vec2(0, -25));
-        case 'DOWN':
-          return body.SetLinearVelocity(new b2Vec2(0, 25));
         case 'LEFT':
           return body.SetLinearVelocity(new b2Vec2(-25, 0));
         case 'RIGHT':
@@ -229,16 +220,46 @@
   };
   lastFrame = (new Date).getTime();
   Joint = window.Joint = function(physics, jointDetails) {
-    var anchorA, anchorB, bodyA, bodyB, jointDef, jointType;
+    var anchorA, anchorB, bodyA, bodyB, jointDef, jointType, k, worldAxis;
     bodyA = jointDetails.bodyA;
     bodyB = jointDetails.bodyB;
-    anchorA = bodyA.GetWorldCenter();
-    anchorB = bodyB.GetWorldCenter();
-    jointType = jointDetails.type;
+    anchorA = jointDetails.anchorA || null;
+    anchorB = jointDetails.anchorB || null;
+    jointType = jointDetails.kind;
     switch (jointType) {
       case 'distance':
         jointDef = new b2DistanceJointDef();
-        jointDef.Initialize(bodyA, bodyB, anchorA, anchorB);
+        break;
+      case 'revolute':
+        jointDef = new b2RevoluteJointDef();
+        break;
+      case 'prismatic':
+        jointDef = new b2PrismaticJointDef();
+        worldAxis = jointDetails.worldAxis;
+        jointDef.Initialize(bodyA, bodyB, anchorA, worldAxis);
+        break;
+      case 'line':
+        jointDef = new b2LineJointDef();
+        break;
+      case 'weld':
+        jointDef = new b2WeldJointDef();
+        break;
+      case 'pulley':
+        jointDef = new b2PulleyJointDef();
+        break;
+      case 'friction':
+        jointDef = new b2FrictionJointDef();
+        break;
+      case 'gear':
+        jointDef = new b2GearJointDef();
+        break;
+      case 'mouse':
+        jointDef = new b2MouseJointDef();
+    }
+    for (k in jointDetails) {
+      if (jointDef.hasOwnProperty(k)) {
+        jointDef[k] = jointDetails[k];
+      }
     }
     physics.world.CreateJoint(jointDef);
   };

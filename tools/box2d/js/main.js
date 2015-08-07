@@ -41,7 +41,7 @@
   };
   physics = void 0;
   init = function() {
-    var allBodies, bodies, body, i, move;
+    var allBodies, body, joint, m_bodyA, m_bodyB, move;
     physics = window.physics = new Physics(document.getElementById('b2dCanvas'));
     physics.debug();
     new Body(physics, {
@@ -72,18 +72,26 @@
       height: 0.5,
       width: 60
     });
-    i = 0;
-    bodies = new Array();
-    while (i < 1) {
-      bodies[i] = new Body(physics, {
-        x: 20 + i * 10,
-        y: 10,
-        angle: Math.PI / 4.25,
-        shape: 'circle',
-        radius: 2
-      });
-      i++;
-    }
+    m_bodyA = new Body(physics, {
+      x: 10,
+      y: 20,
+      width: 5,
+      height: 3
+    }).body;
+    m_bodyB = new Body(physics, {
+      x: 17.5,
+      y: 20,
+      width: 1,
+      height: 4
+    }).body;
+    joint = new Joint(physics, {
+      kind: 'revolute',
+      bodyA: m_bodyA,
+      bodyB: m_bodyB,
+      m_localAchorA: new b2Vec2(6, 3),
+      m_localAchorB: new b2Vec2(-1, -4)
+    });
+    console.log(joint);
     allBodies = physics.bodiesList();
     body = allBodies[0];
     move = function(moveState) {
@@ -220,7 +228,7 @@
   };
   lastFrame = (new Date).getTime();
   Joint = window.Joint = function(physics, jointDetails) {
-    var anchorA, anchorB, bodyA, bodyB, jointDef, jointType, k, worldAxis;
+    var anchorA, anchorB, bodyA, bodyB, jointDef, jointType, k, localAnchorA, localAnchorB, localAxisA;
     bodyA = jointDetails.bodyA;
     bodyB = jointDetails.bodyB;
     anchorA = jointDetails.anchorA || null;
@@ -235,8 +243,15 @@
         break;
       case 'prismatic':
         jointDef = new b2PrismaticJointDef();
-        worldAxis = jointDetails.worldAxis;
-        jointDef.Initialize(bodyA, bodyB, anchorA, worldAxis);
+        localAxisA = jointDetails.localAxisA || null;
+        localAnchorA = jointDetails.localAnchorA || null;
+        localAnchorB = jointDetails.localAnchorB || null;
+        if (localAxisA) {
+          jointDetails.localAxisA = localAxisA.Normalize();
+        }
+        if (localAnchorA || localAnchorB) {
+          jointDetails.m_localAnchor2 = new b2Vec2(0, 1);
+        }
         break;
       case 'line':
         jointDef = new b2LineJointDef();
@@ -261,7 +276,7 @@
         jointDef[k] = jointDetails[k];
       }
     }
-    physics.world.CreateJoint(jointDef);
+    this.b2Joint = physics.world.CreateJoint(jointDef);
   };
   window.gameLoop = function() {
     var dt, tm;

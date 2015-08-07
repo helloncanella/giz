@@ -88,11 +88,21 @@ do ->
       height: 0.5
       width: 60)
 
-    i=0
-    bodies = new Array()
-    while i<1
-      bodies[i] = new Body(physics, x:20+i*10, y:10,angle:Math.PI/4.25, shape:'circle', radius:2)
-      i++
+
+    #forklift
+    m_bodyA = new Body(physics, x:10, y:20, width: 5, height:3).body
+    m_bodyB = new Body(physics, x:17.5, y:20, width: 1, height:4).body
+
+    joint = new Joint(physics,
+                      kind:'revolute'
+                      bodyA: m_bodyA
+                      bodyB: m_bodyB
+                      m_localAchorA: new b2Vec2(6,3)
+                      m_localAchorB: new b2Vec2(-1,-4)
+                      #localAxisA: new b2Vec2(0,1)
+                      )
+
+    console.log joint
 
     allBodies = physics.bodiesList()
     body=allBodies[0]
@@ -237,8 +247,14 @@ do ->
         jointDef = new b2RevoluteJointDef()
       when 'prismatic'
         jointDef = new b2PrismaticJointDef()
-        worldAxis=jointDetails.worldAxis
-        jointDef.Initialize(bodyA, bodyB, anchorA, worldAxis)
+        localAxisA = jointDetails.localAxisA or null
+        localAnchorA= jointDetails.localAnchorA or null
+        localAnchorB= jointDetails.localAnchorB or null
+
+        if localAxisA
+          jointDetails.localAxisA = localAxisA.Normalize()
+        if localAnchorA or localAnchorB
+          jointDetails.m_localAnchor2 = new b2Vec2(0,1)
       when 'line'
         jointDef = new b2LineJointDef()
       when 'weld'
@@ -256,7 +272,7 @@ do ->
     for k of jointDetails when jointDef.hasOwnProperty(k)
       jointDef[k]=jointDetails[k]
 
-    physics.world.CreateJoint(jointDef)
+    @b2Joint = physics.world.CreateJoint(jointDef)
 
     return
 

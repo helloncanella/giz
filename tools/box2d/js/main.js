@@ -41,7 +41,7 @@
   };
   physics = void 0;
   init = function() {
-    var allBodies, body, joint, m_bodyA, m_bodyB, move;
+    var allBodies, joint1, m_bodyA, m_bodyB, m_wheel1, m_wheel2, move, wheelJoint1, wheelJoint2;
     physics = window.physics = new Physics(document.getElementById('b2dCanvas'));
     physics.debug();
     new Body(physics, {
@@ -76,7 +76,8 @@
       x: 10,
       y: 20,
       width: 5,
-      height: 3
+      height: 3,
+      density: 1000
     }).body;
     m_bodyB = new Body(physics, {
       x: 17.5,
@@ -84,26 +85,61 @@
       width: 1,
       height: 4
     }).body;
-    joint = new Joint(physics, {
-      kind: 'revolute',
+    m_wheel1 = new Body(physics, {
+      x: 17.5,
+      y: 20,
+      shape: 'circle',
+      radius: 2,
+      density: 20
+    }).body;
+    m_wheel2 = new Body(physics, {
+      x: 17.5,
+      y: 20,
+      shape: 'circle',
+      radius: 2,
+      density: 20
+    }).body;
+    joint1 = new Joint(physics, {
+      kind: 'prismatic',
       bodyA: m_bodyA,
       bodyB: m_bodyB,
-      m_localAchorA: new b2Vec2(6, 3),
-      m_localAchorB: new b2Vec2(-1, -4)
+      localAnchorA: new b2Vec2(6, 2),
+      localAnchorB: new b2Vec2(-1, 3),
+      collideConnected: true,
+      localAxisA: new b2Vec2(0, 1),
+      enableLimit: true,
+      lowerTranslation: -25,
+      upperTranslation: -3
     });
-    console.log(joint);
+    wheelJoint1 = new Joint(physics, {
+      kind: 'revolute',
+      bodyA: m_bodyA,
+      bodyB: m_wheel1,
+      localAnchorA: new b2Vec2(5, 3),
+      localAnchorB: new b2Vec2(0, 0)
+    });
+    wheelJoint2 = new Joint(physics, {
+      kind: 'revolute',
+      bodyA: m_bodyA,
+      bodyB: m_wheel2,
+      localAnchorA: new b2Vec2(-5, 3),
+      localAnchorB: new b2Vec2(0, 0)
+    });
     allBodies = physics.bodiesList();
-    body = allBodies[0];
-    move = function(moveState) {
+    move = function(body, moveState) {
       switch (moveState) {
         case 'LEFT':
-          return body.SetLinearVelocity(new b2Vec2(-25, 0));
+          return body.SetLinearVelocity(new b2Vec2(-10, 0));
         case 'RIGHT':
-          return body.SetLinearVelocity(new b2Vec2(25, 0));
+          return body.SetLinearVelocity(new b2Vec2(10, 0));
+        case 'UP':
+          return body.SetLinearVelocity(new b2Vec2(0, -10));
+        case 'DOWN':
+          return body.SetLinearVelocity(new b2Vec2(0, 10));
       }
     };
     window.addEventListener("keypress", function(event) {
-      var direction, key, moveState;
+      var body, direction, key, moveState;
       key = String.fromCharCode(event.keyCode);
       direction = {
         LEFT: 'LEFT',
@@ -114,17 +150,21 @@
       switch (key) {
         case '8':
           moveState = direction.UP;
+          body = allBodies[2];
           break;
         case '2':
           moveState = direction.DOWN;
+          body = allBodies[2];
           break;
         case '4':
           moveState = direction.LEFT;
+          body = allBodies[3];
           break;
         case '6':
           moveState = direction.RIGHT;
+          body = allBodies[3];
       }
-      return move(moveState);
+      return move(body, moveState);
     });
     requestAnimationFrame(gameLoop);
   };
@@ -228,7 +268,7 @@
   };
   lastFrame = (new Date).getTime();
   Joint = window.Joint = function(physics, jointDetails) {
-    var anchorA, anchorB, bodyA, bodyB, jointDef, jointType, k, localAnchorA, localAnchorB, localAxisA;
+    var anchorA, anchorB, bodyA, bodyB, jointDef, jointType, k, localAnchorA, localAnchorB, localAxisA, normal;
     bodyA = jointDetails.bodyA;
     bodyB = jointDetails.bodyB;
     anchorA = jointDetails.anchorA || null;
@@ -247,10 +287,9 @@
         localAnchorA = jointDetails.localAnchorA || null;
         localAnchorB = jointDetails.localAnchorB || null;
         if (localAxisA) {
-          jointDetails.localAxisA = localAxisA.Normalize();
-        }
-        if (localAnchorA || localAnchorB) {
-          jointDetails.m_localAnchor2 = new b2Vec2(0, 1);
+          normal = localAxisA.Normalize();
+          jointDetails.localAxisA.x = localAxisA.x / normal;
+          jointDetails.localAxisA.y = localAxisA.y / normal;
         }
         break;
       case 'line':
@@ -276,6 +315,7 @@
         jointDef[k] = jointDetails[k];
       }
     }
+    console.log(jointDef);
     this.b2Joint = physics.world.CreateJoint(jointDef);
   };
   window.gameLoop = function() {

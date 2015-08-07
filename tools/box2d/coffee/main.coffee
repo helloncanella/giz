@@ -52,6 +52,7 @@ do ->
     return
 
 
+
   physics = undefined
 
   init = ->
@@ -88,29 +89,52 @@ do ->
       height: 0.5
       width: 60)
 
-
     #forklift
-    m_bodyA = new Body(physics, x:10, y:20, width: 5, height:3).body
+    m_bodyA = new Body(physics, x:10, y:20, width: 5, height:3, density:1000).body
     m_bodyB = new Body(physics, x:17.5, y:20, width: 1, height:4).body
+    m_wheel1= new Body(physics, x:17.5, y:20, shape:'circle', radius:2, density:20).body
+    m_wheel2= new Body(physics, x:17.5, y:20, shape:'circle', radius:2, density:20).body
 
-    joint = new Joint(physics,
-                      kind:'revolute'
+
+    joint1 = new Joint(physics,
+                      kind:'prismatic'
                       bodyA: m_bodyA
                       bodyB: m_bodyB
-                      m_localAchorA: new b2Vec2(6,3)
-                      m_localAchorB: new b2Vec2(-1,-4)
-                      #localAxisA: new b2Vec2(0,1)
+                      localAnchorA: new b2Vec2(6,2)
+                      localAnchorB: new b2Vec2(-1,3)
+                      collideConnected: true
+                      localAxisA: new b2Vec2(0,1)
+                      enableLimit:true
+                      lowerTranslation:-25
+                      upperTranslation:-3
+                      # enableMotor:true
+                      # maxMotorForce:350
+                      # motorSpeed:-5000000
                       )
+    wheelJoint1 = new Joint(physics,
+                            kind:'revolute'
+                            bodyA: m_bodyA
+                            bodyB: m_wheel1
+                            localAnchorA: new b2Vec2(5,3)
+                            localAnchorB: new b2Vec2(0,0)
+                            )
 
-    console.log joint
+    wheelJoint2 = new Joint(physics,
+                            kind:'revolute'
+                            bodyA: m_bodyA
+                            bodyB: m_wheel2
+                            localAnchorA: new b2Vec2(-5,3)
+                            localAnchorB: new b2Vec2(0,0)
+                            )
 
     allBodies = physics.bodiesList()
-    body=allBodies[0]
-
-    move = (moveState)  ->
+    move = (body, moveState)  ->
       switch moveState
-          when 'LEFT' then body.SetLinearVelocity(new b2Vec2(-25,0))
-          when 'RIGHT' then body.SetLinearVelocity(new b2Vec2(25,0))
+          when 'LEFT' then body.SetLinearVelocity(new b2Vec2(-10,0))
+          when 'RIGHT' then body.SetLinearVelocity(new b2Vec2(10,0))
+          when 'UP' then body.SetLinearVelocity(new b2Vec2(0,-10))
+          when 'DOWN' then body.SetLinearVelocity(new b2Vec2(0,10))
+
 
     window.addEventListener("keypress", (event) ->
       key=String.fromCharCode(event.keyCode)
@@ -122,12 +146,20 @@ do ->
         DOWN:'DOWN'
 
       switch key
-        when '8' then moveState=direction.UP
-        when '2' then moveState=direction.DOWN
-        when '4' then moveState=direction.LEFT
-        when '6' then moveState=direction.RIGHT
+        when '8'
+          moveState=direction.UP
+          body=allBodies[2] #XXX
+        when '2'
+          moveState=direction.DOWN
+          body=allBodies[2] #XXX
+        when '4'
+          moveState=direction.LEFT
+          body=allBodies[3] #XXX
+        when '6'
+          moveState=direction.RIGHT
+          body=allBodies[3] #XXX
 
-      move(moveState)
+      move(body, moveState)
     )
 
 
@@ -250,11 +282,10 @@ do ->
         localAxisA = jointDetails.localAxisA or null
         localAnchorA= jointDetails.localAnchorA or null
         localAnchorB= jointDetails.localAnchorB or null
-
         if localAxisA
-          jointDetails.localAxisA = localAxisA.Normalize()
-        if localAnchorA or localAnchorB
-          jointDetails.m_localAnchor2 = new b2Vec2(0,1)
+          normal = localAxisA.Normalize()
+          jointDetails.localAxisA.x = localAxisA.x/normal
+          jointDetails.localAxisA.y = localAxisA.y/normal
       when 'line'
         jointDef = new b2LineJointDef()
       when 'weld'
@@ -271,6 +302,8 @@ do ->
     #the property will assigned to jointDef just it exists in that object
     for k of jointDetails when jointDef.hasOwnProperty(k)
       jointDef[k]=jointDetails[k]
+
+    console.log jointDef
 
     @b2Joint = physics.world.CreateJoint(jointDef)
 

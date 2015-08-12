@@ -41,8 +41,9 @@
   };
   physics = void 0;
   init = function() {
-    var allBodies, bodies, body, i, move;
+    var allBodies, bodies, body, gear, groundBody, i, move, prismatic, revolute, world, worldAxis;
     physics = window.physics = new Physics(document.getElementById('b2dCanvas'));
+    console.log('groundBody', physics.world.GetGroundBody());
     physics.debug();
     new Body(physics, {
       type: 'static',
@@ -74,8 +75,9 @@
     });
     i = 0;
     bodies = new Array();
-    while (i < 1) {
+    while (i < 2) {
       bodies[i] = new Body(physics, {
+        mass: 15,
         x: 20 + i * 10,
         y: 10,
         angle: Math.PI / 4.25,
@@ -84,14 +86,59 @@
       });
       i++;
     }
+    world = physics.world;
+    console.log(world);
+    groundBody = world.GetGroundBody();
+    groundBody.SetPositionAndAngle(new b2Vec2(10, 15), 0);
+    console.log('oi');
+    console.log(new b2PrismaticJointDef());
     allBodies = physics.bodiesList();
     body = allBodies[0];
+    revolute = new Joint(physics, {
+      kind: 'revolute',
+      bodyA: groundBody,
+      bodyB: allBodies[1],
+      collideConnected: true,
+      enableLimit: false,
+      enableMotor: true,
+      lowerAngle: -0.5 * Math.PI,
+      upperAngle: 0.25 * Math.PI,
+      maxTorque: 13213,
+      motorSpeed: 12
+    });
+    worldAxis = new b2Vec2(0, 1);
+    prismatic = new Joint(physics, {
+      kind: 'prismatic',
+      bodyA: groundBody,
+      bodyB: allBodies[0],
+      collideConnected: true,
+      worldAxis: worldAxis,
+      motorSpeed: 123546,
+      enableLimit: true,
+      enableMotor: true,
+      maxMotorForce: -100,
+      lowerTranslation: -5,
+      upperTranslation: 10
+    });
+    gear = new Joint(physics, {
+      kind: 'gear',
+      joint1: revolute,
+      joint2: prismatic,
+      bodyA: allBodies[1],
+      bodyB: allBodies[0],
+      ratio: 1,
+      collideConnected: true
+    });
     move = function(moveState) {
       switch (moveState) {
         case 'LEFT':
           return body.SetLinearVelocity(new b2Vec2(-25, 0));
         case 'RIGHT':
           return body.SetLinearVelocity(new b2Vec2(25, 0));
+        case 'UP':
+          return body.SetLinearVelocity(new b2Vec2(0, -25));
+        case 'DOWN':
+          return body.SetLinearVelocity(new b2Vec2(0, 25));
       }
     };
     window.addEventListener("keypress", function(event) {
@@ -236,7 +283,6 @@
       case 'prismatic':
         jointDef = new b2PrismaticJointDef();
         worldAxis = jointDetails.worldAxis;
-        jointDef.Initialize(bodyA, bodyB, anchorA, worldAxis);
         break;
       case 'line':
         jointDef = new b2LineJointDef();
@@ -261,7 +307,8 @@
         jointDef[k] = jointDetails[k];
       }
     }
-    physics.world.CreateJoint(jointDef);
+    console.log(jointDef);
+    return physics.world.CreateJoint(jointDef);
   };
   window.gameLoop = function() {
     var dt, tm;

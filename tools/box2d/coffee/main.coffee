@@ -58,6 +58,8 @@ do ->
 
     physics = window.physics = new Physics(document.getElementById('b2dCanvas'))
 
+    console.log 'groundBody', physics.world.GetGroundBody()
+
     physics.debug()
 
     new Body(physics,
@@ -90,17 +92,73 @@ do ->
 
     i=0
     bodies = new Array()
-    while i<1
-      bodies[i] = new Body(physics, x:20+i*10, y:10,angle:Math.PI/4.25, shape:'circle', radius:2)
+    while i<2
+      bodies[i] = new Body(physics, mass:15 ,x:20+i*10, y:10,angle:Math.PI/4.25, shape:'circle', radius:2)
       i++
 
+    world = physics.world
+    console.log world
+    groundBody = world.GetGroundBody()
+    groundBody.SetPositionAndAngle(new b2Vec2(10,15),0)
+
+    console.log 'oi'
+    console.log new b2PrismaticJointDef()
+
     allBodies = physics.bodiesList()
+
     body=allBodies[0]
 
-    move = (moveState)  ->
+
+    revolute = new Joint(physics,
+                      kind:'revolute'
+                      bodyA:groundBody
+                      bodyB:allBodies[1]
+                      collideConnected: true
+                      enableLimit:false
+                      enableMotor:true
+                      lowerAngle:-0.5*Math.PI
+                      upperAngle:0.25*Math.PI
+                      maxTorque:13213
+                      motorSpeed:12
+                      )
+
+
+    worldAxis = new b2Vec2(0,1)
+
+    prismatic = new Joint(physics,
+                      kind:'prismatic'
+                      bodyA:groundBody
+                      bodyB:allBodies[0]
+                      collideConnected: true
+                      worldAxis: worldAxis
+                      motorSpeed:123546
+                      enableLimit:true
+                      enableMotor:true
+                      maxMotorForce:-100
+                      lowerTranslation:-5
+                      upperTranslation:10
+                      )
+
+
+    gear = new Joint(physics,
+                    kind:'gear'
+                    joint1:revolute
+                    joint2:prismatic
+                    bodyA:allBodies[1]
+                    bodyB:allBodies[0]
+                    ratio:1
+                    collideConnected:true
+                    )
+
+
+    # console.log 'joint', joint
+
+    move = (moveState) ->
       switch moveState
-          when 'LEFT' then body.SetLinearVelocity(new b2Vec2(-25,0))
-          when 'RIGHT' then body.SetLinearVelocity(new b2Vec2(25,0))
+        when 'LEFT' then body.SetLinearVelocity(new b2Vec2(-25,0))
+        when 'RIGHT' then body.SetLinearVelocity(new b2Vec2(25,0))
+        when 'UP' then body.SetLinearVelocity(new b2Vec2(0,-25))
+        when 'DOWN' then body.SetLinearVelocity(new b2Vec2(0,25))
 
     window.addEventListener("keypress", (event) ->
       key=String.fromCharCode(event.keyCode)
@@ -238,7 +296,6 @@ do ->
       when 'prismatic'
         jointDef = new b2PrismaticJointDef()
         worldAxis=jointDetails.worldAxis
-        jointDef.Initialize(bodyA, bodyB, anchorA, worldAxis)
       when 'line'
         jointDef = new b2LineJointDef()
       when 'weld'
@@ -256,9 +313,9 @@ do ->
     for k of jointDetails when jointDef.hasOwnProperty(k)
       jointDef[k]=jointDetails[k]
 
-    physics.world.CreateJoint(jointDef)
+    console.log jointDef
 
-    return
+    return physics.world.CreateJoint(jointDef)
 
 
   window.gameLoop = ->

@@ -1,0 +1,234 @@
+[33mcommit 7136bc4d06768f7273c931fb2727e4efe1a1f42d[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Thu Aug 13 13:11:51 2015 -0300
+
+    myscript explored
+
+[33mcommit 06c39d5b2f93299892b9d81b74d9227a8f2b2790[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Wed Aug 12 20:43:53 2015 -0300
+
+    I'm gonna to explore myscript in its branch
+
+[33mcommit 3809b332de31942ee6844b466405389b8a9ec319[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Wed Aug 12 15:48:54 2015 -0300
+
+    mouse tracker set up
+
+[33mcommit efd65ee63322397ad1b10fdc24afec89947f792d[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Wed Aug 12 11:28:07 2015 -0300
+
+    worker learned
+
+[33mcommit 4ba1a0fc3525ee7e396439406ec08d8d9c69921a[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Wed Aug 12 01:52:30 2015 -0300
+
+    dedicated worker learned
+
+[33mcommit 3d522161398f3daa84150792151a9c78b5be4ea4[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Tue Aug 11 23:21:23 2015 -0300
+
+    starting worker
+
+[33mcommit 9f5dede6f78dc5a52ee3b794bf171751d7d1f11b[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Fri Aug 7 19:26:30 2015 -0300
+
+    test
+
+[33mcommit c4ffa356be0e40c32542e2399ce3fba0f3ac7fd2[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Fri Aug 7 00:49:33 2015 -0300
+
+    removed 'seven' in the index.html
+
+[33mcommit a90b809a27f7d73d280d4af12c79fd47f5455899[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Thu Aug 6 21:35:03 2015 -0300
+
+    standard redesigned
+
+[33mcommit bf7d998f6342fd15468202c4966a0546ddbce3ba[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Thu Aug 6 21:19:36 2015 -0300
+
+    Live Reload's script added
+
+[33mcommit 3a2c709ae8c91b9472b27df4f821fb14d196f6ad[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Wed Aug 5 17:06:13 2015 -0300
+
+    distance joint learned and joint's preamble established
+
+[33mcommit 83a2e8cbd5e4d7a921ff869e0b518e1a81c42d5d[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Wed Aug 5 14:11:05 2015 -0300
+
+    RUBE added on main branch
+
+[33mcommit 3b03d3102529a4cd8436172bfeb0d442de50cee4[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Tue Jul 28 04:39:24 2015 -0300
+
+    box2d established
+
+[33mcommit 836855e2a51858a1fe82123b95115c96313c863f[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Mon Jul 27 16:47:31 2015 -0300
+
+    file's structure chaged and iforce's folder removed
+
+[33mcommit f6f66268d13f3d13751641d29e8621ba6bcd27ac[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Mon Jul 27 16:45:31 2015 -0300
+
+    file's structure changed
+
+[33mcommit 93c3e7b193a4db740eb6565ab7b27f116cfc603d[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Mon Jul 27 16:43:23 2015 -0300
+
+    important changes in the file structure
+
+[33mcommit e31b4ab53f24abf10f9f11dea9e0a94dd4772ad7[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Fri Jul 24 00:35:45 2015 -0300
+
+    resetting the project
+
+[33mcommit 56b821bd7562fc2ad6b39b31c144d53edf022069[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Wed May 27 17:31:41 2015 -0300
+
+    Limits drawn, but it isn't working properly yet
+
+[33mcommit 883724e1a6447b6e7c532ef12a5c3535e9ed279f[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Wed May 27 15:18:43 2015 -0300
+
+    code for edge written, but it needs to be fixed
+
+[33mcommit 92a0bed4eb59cf3919f98545733cfc78574228e3[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Sat May 23 05:19:07 2015 -0300
+
+    it's working
+
+[33mcommit c508f42e0a7fb67719751dfb51588199d3244018[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Fri May 22 02:58:23 2015 -0300
+
+    Square and Circles completed
+
+[33mcommit edb307434177f2abac63b575b5cf609ac82caf94[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Thu May 21 13:29:15 2015 -0300
+
+    Udate function written (to be FIXED)
+
+[33mcommit 0fe6a48611d13953e25c521bc0d4bad179d7c65c[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Wed May 20 18:58:56 2015 -0300
+
+    Problem with keydown event solved
+
+[33mcommit 0f74e336649ec63511d332421a5694ec42512d6c[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Wed May 20 03:17:19 2015 -0300
+
+    Last commit of Night - May/19th
+
+[33mcommit 55c9a6fe34fe6b7d96e2777b75f89da7872c8d70[m
+Author: Hellon Canella <helloncanella@gmail.com>
+Date:   Mon May 18 02:56:29 2015 -0300
+
+    Third Stage
+
+[33mcommit 7c90021c7fb8d9e59aa3a14d5a770ec03fb1356c[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Sun May 17 04:09:36 2015 -0300
+
+    Third Stage
+
+[33mcommit 0158dbe0a0204c3051a8df6d231f570fc3a2f01a[m
+Merge: fa917ec 29287dd
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Sat May 16 21:27:24 2015 -0300
+
+    Merge branch 'box2d'
+
+[33mcommit fa917ecec331e0d9868089bfa1e76f625336ae81[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Sat May 16 21:26:59 2015 -0300
+
+    Second Stage
+
+[33mcommit 29287dd99a8ba83175d2db8cf3c3a612384db281[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Sat May 16 21:24:48 2015 -0300
+
+    Second Stage
+
+[33mcommit c78be9e3e97bf67c88013223837030687b276cb5[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Mon Apr 20 16:05:38 2015 -0300
+
+    bring draft to life
+
+[33mcommit 95210ae95b8d8bbd03b459755959286f609b3085[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Sun Apr 19 22:14:52 2015 -0300
+
+    pre-protype created
+
+[33mcommit 338cb2fc34a6bae7e19f27a216f6124db48a5e56[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Sun Apr 19 20:31:41 2015 -0300
+
+    Creation of blackboard subjected to loading of images
+
+[33mcommit 91cd3a80f53cc794fd28e4f1ec78f0c72146611e[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Sun Apr 19 16:38:41 2015 -0300
+
+    Fixing problems after study on codepen.io
+
+[33mcommit 7b080c2753a79289c0e6c969c75d8bf64f31afec[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Sat Apr 18 23:58:41 2015 -0300
+
+    draw with chalk
+
+[33mcommit ae66d58f9d8af0f2a25e09f39671c4668689fd4a[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Sat Apr 18 19:56:16 2015 -0300
+
+    blackboard pattern created
+
+[33mcommit c45a61fb4e9cc18782947fa97606650e7d366243[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Sat Apr 18 15:02:29 2015 -0300
+
+    Creating blackboard
+
+[33mcommit 900b79cede0f664886e2950ddcb68900a7ab2a49[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Fri Apr 17 22:11:35 2015 -0300
+
+    Objects failling
+
+[33mcommit 5c815e056acbdb7a8d11c0a20adc42706de58dd3[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Fri Apr 17 14:19:26 2015 -0300
+
+    Adding README.md
+
+[33mcommit f9928fa3eb290a1703410af063c02c3efcf4c0f8[m
+Author: Hellon Canella Machado <helloncanella@gmail.com>
+Date:   Fri Apr 17 14:01:46 2015 -0300
+
+    Setting World

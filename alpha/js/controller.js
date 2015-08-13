@@ -1,9 +1,5 @@
-var canvas, tracker;
+var canvas, canvasTag;
 
-canvas = $('canvas');
+canvasTag = $('canvas')[0];
 
-tracker = new Tracker();
-
-tracker.setMouseTracker(canvas);
-
-canvas = new Canvas(canvas);
+canvas = new Canvas(canvasTag);

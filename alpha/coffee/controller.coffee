@@ -1,6 +1,2 @@
-canvas = $('canvas')
-
-tracker = new Tracker()
-tracker.setMouseTracker(canvas)
-
-canvas = new Canvas(canvas)
+canvasTag = $('canvas')[0]
+canvas = new Canvas(canvasTag)

@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <title>Shape - Getting started</title>
+    <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 </head>
 
 <body>
@@ -54,12 +55,16 @@
          */
         var shapeRecognizer = new MyScript.ShapeRecognizer();
 
+        var strokeBundler;
+
         function doRecognition() {
 
             if (!inkManager.isEmpty()) {
                 shapeRecognizer.doSimpleRecognition(applicationKey, instanceId, inkManager.getStrokes(), hmacKey).then(
                         function (data) {
                             shapeRenderer.clear(resultContext);
+                            console.log('inkManager',inkManager);
+                            // console.log('inkManager.getStrokes()',inkManager.getStrokes());
                             console.log('data.getShapeDocument().getSegments()',data.getShapeDocument().getSegments());
                             shapeRenderer.drawRecognitionResult(inkManager.getStrokes(), data.getShapeDocument(), resultContext);
                         }
@@ -74,12 +79,14 @@
          */
         canvas.addEventListener('pointerdown', function (event) {
             if (!pointerId) {
+                strokeBundler = new Array();
                 pointerId = event.pointerId;
                 event.preventDefault();
                 // Start ink rendering
-                shapeRenderer.drawStart(event.offsetX, event.offsetY);
+                // shapeRenderer.drawStart(event.offsetX, event.offsetY);
                 // Start ink capture
-                inkManager.startInkCapture(event.offsetX, event.offsetY);
+                strokeBundler.push({x:event.offsetX,y:event.offsetY});
+                // inkManager.startInkCapture(event.offsetX, event.offsetY);
             }
         }, false);
 
@@ -90,9 +97,10 @@
             if (pointerId === event.pointerId) {
                 event.preventDefault();
                 // Continue ink rendering
-                shapeRenderer.drawContinue(event.offsetX, event.offsetY, context);
+                // shapeRenderer.drawContinue(event.offsetX, event.offsetY, context);
                 // Continue ink capture
-                inkManager.continueInkCapture(event.offsetX, event.offsetY);
+                strokeBundler.push({x:event.offsetX,y:event.offsetY});
+                // inkManager.continueInkCapture(event.offsetX, event.offsetY);
             }
         }, false);
 
@@ -103,31 +111,36 @@
             if (pointerId === event.pointerId) {
                 event.preventDefault();
                 // Stop ink rendering
-                shapeRenderer.drawEnd(event.offsetX, event.offsetY, context);
+                // shapeRenderer.drawEnd(event.offsetX, event.offsetY, context);
                 // Stop ink capture
-                inkManager.endInkCapture();
+                console.log('strokeBundler',strokeBundler);
+                console.log('strokeBundler[0]',strokeBundler[0])
+                // inkManager.endInkCapture();
                 // Send recognition request
                 pointerId = undefined;
+
+                var first = 0;
+                var last = strokeBundler.length-1;
+                var component=new Array();
+                for(index=0;index<=last;index++){
+                  component[index]=strokeBundler[index]
+                  if (index==first) {
+                    console.log('start');
+                    inkManager.startInkCapture(component[index].x, component[index].y);
+                  } else if (index==last) {
+                    console.log('end');
+                    inkManager.endInkCapture();
+                  }else{
+                    console.log('continue');
+                    inkManager.continueInkCapture(component[index].x, component[index].y);
+                  }
+
+                }
                 // Send recognition request
                 doRecognition();
             }
         }, false);
 
-        /*
-         * On pointer leave: Continue ink rendering and ink capture.
-         */
-        canvas.addEventListener('pointerleave', function (event) {
-            if (pointerId === event.pointerId) {
-                event.preventDefault();
-                // Stop ink rendering
-                shapeRenderer.drawEnd(event.offsetX, event.offsetY, context);
-                // Stop ink capture
-                inkManager.endInkCapture();
-                pointerId = undefined;
-                // Send recognition request
-                doRecognition();
-            }
-        }, false);
 
     })();
 </script>

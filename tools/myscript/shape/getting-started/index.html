@@ -60,6 +60,7 @@
                 shapeRecognizer.doSimpleRecognition(applicationKey, instanceId, inkManager.getStrokes(), hmacKey).then(
                         function (data) {
                             shapeRenderer.clear(resultContext);
+                            console.log("inkManager",inkManager);
                             console.log('data.getShapeDocument().getSegments()',data.getShapeDocument().getSegments());
                             shapeRenderer.drawRecognitionResult(inkManager.getStrokes(), data.getShapeDocument(), resultContext);
                         }

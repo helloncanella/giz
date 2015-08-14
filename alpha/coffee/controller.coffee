@@ -13,10 +13,6 @@ if window.Worker
     myscriptResult = e.data
     console.log myscriptResult
 
-
-
-
-
 else
   $( 'canvas').remove()
   $('body').append "<h1> Your browser doesn't support our application. </h1> <p>Try one more modern, like chrome or firefox, for example.</p>"

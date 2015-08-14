@@ -11,11 +11,11 @@ self.onmessage = function(e) {
   var myscriptRequest, strokeBundler;
   strokeBundler = e.data;
   myscriptRequest = new self.myscriptRequest(strokeBundler);
-  myscriptRequest.doRecognition();
-  console.log(myscriptRequest.doRecognition());
-  return setTimeout(function() {
-    return console.log(myscriptRequest.result);
-  }, 700);
+  return myscriptRequest.doRecognition().then(function(data) {
+    var result;
+    result = myscriptRequest.result = data;
+    return postMessage(result);
+  });
 };
 
 myscriptRequest = (function() {
@@ -53,15 +53,10 @@ myscriptRequest = (function() {
   };
 
   myscriptRequest.prototype.doRecognition = function() {
-    var self;
-    self = this;
     if (!this.inkManager.isEmpty()) {
-      this.shapeRecognizer.doSimpleRecognition(this.applicationKey, this.instanceId, this.inkManager.getStrokes(), this.hmacKey).then(function(data) {
-        return self.result = data.getShapeDocument();
-      });
-    }
-    while (!self.result) {
-      return self.result;
+      return this.shapeRecognizer.doSimpleRecognition(this.applicationKey, this.instanceId, this.inkManager.getStrokes(), this.hmacKey);
+    } else {
+      throw console.error("problem with the Myscript's recognition");
     }
   };
 

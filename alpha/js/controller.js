@@ -1,4 +1,4 @@
-var canvas, canvasTag, myscriptWorker;
+var canvas, canvasTag, myscriptResult, myscriptWorker;
 
 if (window.Worker) {
   canvasTag = $('canvas')[0];
@@ -9,10 +9,10 @@ if (window.Worker) {
     strokeBundler = canvas.getStrokeBundler();
     return myscriptWorker.postMessage(strokeBundler);
   });
+  myscriptResult = void 0;
   myscriptWorker.onmessage = function(e) {
-    var result;
-    result = JSON.parse(e.data);
-    return console.log(result);
+    myscriptResult = e.data;
+    return console.log(myscriptResult);
   };
 } else {
   $('canvas').remove();

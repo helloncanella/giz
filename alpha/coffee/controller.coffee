@@ -8,9 +8,10 @@ if window.Worker
     strokeBundler = canvas.getStrokeBundler()
     myscriptWorker.postMessage(strokeBundler)
 
+  myscriptResult= undefined
   myscriptWorker.onmessage = (e) ->
-    result = JSON.parse(e.data)
-    console.log result
+    myscriptResult = e.data
+    console.log myscriptResult
 
 
 

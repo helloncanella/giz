@@ -8,13 +8,12 @@ for dependecy in myscriptDependecies
 self.onmessage = (e)->
   strokeBundler = e.data
   myscriptRequest = new self.myscriptRequest(strokeBundler)
-  # result = JSON.stringify()) #transforming the result in a string
-  myscriptRequest.doRecognition()
-  console.log myscriptRequest.doRecognition()
-  setTimeout(()->
-    console.log myscriptRequest.result
-  , 700)
-  # postMessage(result)
+
+  myscriptRequest.doRecognition().then((data) ->
+    result = myscriptRequest.result = data
+    postMessage(result) #sending the myscript result to the main thread (controller.js)
+  )
+
 
 class myscriptRequest
 
@@ -39,9 +38,7 @@ class myscriptRequest
       counter++
 
   doRecognition: ->
-    self = this
     if (!@inkManager.isEmpty())
-      @shapeRecognizer.doSimpleRecognition(@applicationKey, @instanceId, @inkManager.getStrokes(), @hmacKey).then (data) ->
-        self.result = data.getShapeDocument()
-    while(!self.result)
-      return self.result
+      return @shapeRecognizer.doSimpleRecognition(@applicationKey, @instanceId, @inkManager.getStrokes(), @hmacKey)
+    else
+      throw console.error("problem with the Myscript's recognition")

@@ -1,10 +1,16 @@
 class Canvas
   constructor: (@canvasTag)->
     @setBlackboard()
+    @strokeBundler = new Array()
+
+  getStrokeBundler: ->
+    toSend = @strokeBundler
+    @strokeBundler = new Array() #cleaning the bundler
+    return toSend
 
   setBlackboard:->
     old=undefined
-    size = undefined
+    size = 10
     self = this
 
     stage = new createjs.Stage(@canvasTag.id)
@@ -18,7 +24,6 @@ class Canvas
 
     stage.on 'stagemousedown', (event) ->
       self.isMouseDown = true
-      size=10
 
     stage.on 'stagemousemove', (event) ->
       if old and self.isMouseDown
@@ -27,6 +32,7 @@ class Canvas
           .moveTo(old.x, old.y)
           .lineTo(event.stageX, event.stageY)
         stage.update()
+        self.strokeBundler.push({x:event.stageX,y:event.stageY})
       old =
         x: event.stageX
         y: event.stageY

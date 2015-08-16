@@ -2,8 +2,8 @@ var myscriptRequests;
 
 myscriptRequests = (function() {
   function myscriptRequests() {
-    this.applicationKey = 'a74d2cfe-c979-42b1-9afe-5203c68a490a';
-    this.hmacKey = '4d3be9ad-8f15-40e8-92d7-29af2d6ea0be';
+    this.applicationKey = '69f2600f-8620-40d4-9873-6ea2fab90729';
+    this.hmacKey = 'a0fd4fa7-ede1-4dd2-966a-8d826b6abf03';
     this.instanceId = void 0;
     this.inkManager = new MyScript.InkManager();
     this.shapeRecognizer = new MyScript.ShapeRecognizer();
@@ -42,6 +42,53 @@ myscriptRequests = (function() {
       return this.shapeRecognizer.doSimpleRecognition(this.applicationKey, this.instanceId, this.inkManager.getStrokes(), this.hmacKey);
     } else {
       throw console.error("problem with the Myscript's recognition");
+    }
+  };
+
+  myscriptRequests.prototype.decodeServerResult = function(serverResult) {
+    var arrayLength, constructor, i, len, mostProbableShape, nextPoint, primitive, primitivesList, resultedSegments, shape, startPoint, typeOfResult, typeOfShape, vertexesArray;
+    resultedSegments = serverResult.result.segments;
+    arrayLength = resultedSegments.length;
+    mostProbableShape = resultedSegments[arrayLength - 1].candidates[0];
+    console.log(mostProbableShape);
+    typeOfResult = constructor = mostProbableShape.constructor.name;
+    if (typeOfResult === 'ShapeNotRecognized') {
+      console.error('Shape not recognized');
+      return shape = null;
+    } else {
+      primitivesList = mostProbableShape.primitives;
+      typeOfShape = primitivesList[0].constructor.name;
+      for (i = 0, len = primitivesList.length; i < len; i++) {
+        primitive = primitivesList[i];
+        switch (typeOfShape) {
+          case 'ShapeEllipse':
+            shape = {
+              center: primitive.center,
+              maxRadius: primitive.maxRadius,
+              minRadius: primitive.maxRadius,
+              orientation: primitive.orientation,
+              startAngle: primitive.startAngle,
+              sweepAngle: primitive.sweepAngle
+            };
+            break;
+          case 'ShapeLine':
+            if (!startPoint) {
+              vertexesArray = new Array();
+              startPoint = primitive.firstPoint;
+              vertexesArray.push(startPoint);
+            }
+            nextPoint = primitive.lastPoint;
+            vertexesArray.push(nextPoint);
+            shape = {
+              vertexes: vertexesArray
+            };
+            break;
+          default:
+            shape = null;
+        }
+      }
+      shape.label = mostProbableShape.label;
+      return shape;
     }
   };
 

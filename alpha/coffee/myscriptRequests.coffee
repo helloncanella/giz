@@ -1,8 +1,8 @@
 class myscriptRequests
 
   constructor: () ->
-    @applicationKey = 'a74d2cfe-c979-42b1-9afe-5203c68a490a'
-    @hmacKey = '4d3be9ad-8f15-40e8-92d7-29af2d6ea0be'
+    @applicationKey = '69f2600f-8620-40d4-9873-6ea2fab90729'
+    @hmacKey = 'a0fd4fa7-ede1-4dd2-966a-8d826b6abf03'
     @instanceId = undefined
 
     @inkManager = new MyScript.InkManager()
@@ -23,6 +23,47 @@ class myscriptRequests
 
   doRecognition: ->
     if (!@inkManager.isEmpty())
-      return @shapeRecognizer.doSimpleRecognition(@applicationKey, @instanceId, @inkManager.getStrokes(), @hmacKey)
+      @shapeRecognizer.doSimpleRecognition(@applicationKey, @instanceId, @inkManager.getStrokes(), @hmacKey)
     else
       throw console.error("problem with the Myscript's recognition")
+
+  decodeServerResult: (serverResult) ->
+    #The result from myscript's server will be decoded
+    resultedSegments = serverResult.result.segments
+    arrayLength = resultedSegments.length
+    mostProbableShape = resultedSegments[arrayLength-1].candidates[0]
+    console.log mostProbableShape
+    typeOfResult = constructor = mostProbableShape.constructor.name
+
+    if typeOfResult is 'ShapeNotRecognized'
+      console.error  'Shape not recognized'
+      shape = null
+    else
+      primitivesList = mostProbableShape.primitives
+      typeOfShape = primitivesList[0].constructor.name
+
+      for primitive in primitivesList
+        switch typeOfShape
+          when 'ShapeEllipse'
+            shape =
+              center: primitive.center
+              maxRadius: primitive.maxRadius
+              minRadius: primitive.maxRadius
+              orientation: primitive.orientation
+              startAngle:  primitive.startAngle
+              sweepAngle:  primitive.sweepAngle
+
+          when 'ShapeLine'
+            if(!startPoint)
+              vertexesArray = new Array()
+              startPoint = primitive.firstPoint
+              vertexesArray.push(startPoint)
+            nextPoint  = primitive.lastPoint
+            vertexesArray.push(nextPoint)
+            shape = {vertexes: vertexesArray}
+          else
+            shape = null
+
+      shape.label = mostProbableShape.label
+
+      return shape

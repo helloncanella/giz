@@ -8,10 +8,9 @@ if window.Worker
     strokeBundler = canvas.getStrokeBundler()
     myscriptWorker.postMessage(strokeBundler)
 
-  myscriptResult= undefined
   myscriptWorker.onmessage = (e) ->
-    myscriptResult = e.data
-    console.log myscriptResult
+    shapeResult = e.data
+    console.log shapeResult
 
 else
   $( 'canvas').remove()

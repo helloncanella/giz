@@ -11,7 +11,10 @@ myscriptRequests  = new myscriptRequests()
 self.onmessage = (e)->
   strokeBundler = e.data
   self.myscriptRequests.receiveStrokeBundler(strokeBundler)
-  self.myscriptRequests.doRecognition().then((data) ->
-    result = self.myscriptRequests.result = data
-    postMessage(result) #sending the myscript result to the main thread (controller.js)
-  )
+  try
+    self.myscriptRequests.doRecognition().then (data) ->
+      serverResult = data
+      shape = self.myscriptRequests.decodeServerResult(data)
+      postMessage(shape)
+  catch err
+    alert err.message

@@ -12,12 +12,18 @@ for (i = 0, len = myscriptDependecies.length; i < len; i++) {
 myscriptRequests = new myscriptRequests();
 
 self.onmessage = function(e) {
-  var strokeBundler;
+  var err, strokeBundler;
   strokeBundler = e.data;
   self.myscriptRequests.receiveStrokeBundler(strokeBundler);
-  return self.myscriptRequests.doRecognition().then(function(data) {
-    var result;
-    result = self.myscriptRequests.result = data;
-    return postMessage(result);
-  });
+  try {
+    return self.myscriptRequests.doRecognition().then(function(data) {
+      var serverResult, shape;
+      serverResult = data;
+      shape = self.myscriptRequests.decodeServerResult(data);
+      return postMessage(shape);
+    });
+  } catch (_error) {
+    err = _error;
+    return alert(err.message);
+  }
 };

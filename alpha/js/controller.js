@@ -1,19 +1,23 @@
-var canvas, canvasTag, myscriptWorker;
+var box2dWorker, canvas, canvasTag, myscriptWorker, recognizedShape, strokeBundler;
 
 if (window.Worker) {
   canvasTag = $('canvas')[0];
   canvas = new Canvas(canvasTag);
   myscriptWorker = new Worker('js/myscriptWorker.js');
+  box2dWorker = new Worker('js/box2dWorker.js');
+  strokeBundler = void 0;
   $('canvas').mouseup(function(event) {
-    var strokeBundler;
     strokeBundler = canvas.getStrokeBundler();
     return myscriptWorker.postMessage(strokeBundler);
   });
+  recognizedShape = void 0;
   myscriptWorker.onmessage = function(e) {
-    var recognizedShape;
     recognizedShape = e.data;
-    console.log(recognizedShape);
-    return canvas.drawRecognizedShape(recognizedShape);
+    canvas.drawRecognizedShape(recognizedShape);
+    return box2dWorker.postMessage({
+      rawStroke: strokeBundler,
+      beautifulStroke: recognizedShape
+    });
   };
 } else {
   $('canvas').remove();

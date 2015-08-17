@@ -3,15 +3,18 @@ if window.Worker
   canvas = new Canvas(canvasTag)
 
   myscriptWorker = new Worker('js/myscriptWorker.js')
+  box2dWorker = new Worker('js/box2dWorker.js')
 
+  strokeBundler = undefined
   $('canvas').mouseup (event)->
     strokeBundler = canvas.getStrokeBundler()
     myscriptWorker.postMessage(strokeBundler)
 
+  recognizedShape = undefined
   myscriptWorker.onmessage = (e) ->
     recognizedShape = e.data
-    console.log recognizedShape
     canvas.drawRecognizedShape(recognizedShape)
+    box2dWorker.postMessage({rawStroke:strokeBundler, beautifulStroke:recognizedShape})
 
 else
   $( 'canvas').remove()

@@ -2,8 +2,8 @@ var myscriptRequests;
 
 myscriptRequests = (function() {
   function myscriptRequests() {
-    this.applicationKey = '69f2600f-8620-40d4-9873-6ea2fab90729';
-    this.hmacKey = 'a0fd4fa7-ede1-4dd2-966a-8d826b6abf03';
+    this.applicationKey = '63e2c95e-2122-458e-8c4b-9055d42d357f';
+    this.hmacKey = '75b47acb-b553-4a9e-878b-f96639e1f7dc';
     this.instanceId = void 0;
     this.inkManager = new MyScript.InkManager();
     this.shapeRecognizer = new MyScript.ShapeRecognizer();
@@ -63,9 +63,10 @@ myscriptRequests = (function() {
         switch (typeOfShape) {
           case 'ShapeEllipse':
             shape = {
+              label: 'ellipseArc',
               center: primitive.center,
               maxRadius: primitive.maxRadius,
-              minRadius: primitive.maxRadius,
+              minRadius: primitive.minRadius,
               orientation: primitive.orientation,
               startAngle: primitive.startAngle,
               sweepAngle: primitive.sweepAngle
@@ -80,14 +81,14 @@ myscriptRequests = (function() {
             nextPoint = primitive.lastPoint;
             vertexesArray.push(nextPoint);
             shape = {
-              vertexes: vertexesArray
+              vertexes: vertexesArray,
+              label: 'polyline'
             };
             break;
           default:
             shape = null;
         }
       }
-      shape.label = mostProbableShape.label;
       return shape;
     }
   };

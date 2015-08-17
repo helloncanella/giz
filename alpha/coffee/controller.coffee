@@ -9,8 +9,9 @@ if window.Worker
     myscriptWorker.postMessage(strokeBundler)
 
   myscriptWorker.onmessage = (e) ->
-    shapeResult = e.data
-    console.log shapeResult
+    recognizedShape = e.data
+    console.log recognizedShape
+    canvas.drawRecognizedShape(recognizedShape)
 
 else
   $( 'canvas').remove()

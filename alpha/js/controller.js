@@ -10,9 +10,10 @@ if (window.Worker) {
     return myscriptWorker.postMessage(strokeBundler);
   });
   myscriptWorker.onmessage = function(e) {
-    var shapeResult;
-    shapeResult = e.data;
-    return console.log(shapeResult);
+    var recognizedShape;
+    recognizedShape = e.data;
+    console.log(recognizedShape);
+    return canvas.drawRecognizedShape(recognizedShape);
   };
 } else {
   $('canvas').remove();

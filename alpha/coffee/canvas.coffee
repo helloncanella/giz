@@ -80,9 +80,15 @@ class Canvas
           startAngle = recognizedShape.startAngle
           sweepAngle = recognizedShape.sweepAngle
           endAngle = startAngle + sweepAngle
+
+          if sweepAngle<=0
+            anticlockwise = true
+          else
+            anticlockwise = false
+
           beautifulDrawGraphics.beginStroke(self.color)
                               .setStrokeStyle(self.size, "round")
-                              .arc(center.x, center.y, radius, startAngle, endAngle,true)
+                              .arc(center.x, center.y, radius, startAngle, endAngle,anticlockwise)
           @stage.update()
         else
           return null

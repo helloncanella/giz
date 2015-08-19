@@ -10,11 +10,46 @@ if window.Worker
     strokeBundler = canvas.getStrokeBundler()
     myscriptWorker.postMessage(strokeBundler)
 
+  classifyStrokeAndSetId = (recognizedShape) ->
+    if !@strokeId
+      @strokeId=1
+    if recognizedShape
+      stroke=
+        uglyOrBeautiful:'beautiful'
+        measures:recognizedShape
+    else
+      stroke=
+        uglyOrBeautiful:'ugly'
+        measures:strokeBundler
+    stroke.id = @strokeId
+    @strokeId++
+    return stroke
+
   recognizedShape = undefined
   myscriptWorker.onmessage = (e) ->
     recognizedShape = e.data
     canvas.drawRecognizedShape(recognizedShape)
-    box2dWorker.postMessage({rawStroke:strokeBundler, beautifulStroke:recognizedShape})
+    strokeClassified = self.classifyStrokeAndSetId(recognizedShape)
+    box2dWorker.postMessage(strokeClassified)
+
+
+
+
+
+
+
+
+  # bodiesList = null
+  # box2dWorker.onmessage = (e) ->
+  #   bodiesList = e.data or null
+  #
+  # (updateCanvas = () ->
+  #   window.requestAnimationFrame(updateCanvas)
+  #   console.log bodiesList
+  # )()
+
+
+
 
 else
   $( 'canvas').remove()

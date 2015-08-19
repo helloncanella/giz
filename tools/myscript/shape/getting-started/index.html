@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <title>Shape - Getting started</title>
+    <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 </head>
 
 <body>
@@ -60,9 +61,22 @@
                 shapeRecognizer.doSimpleRecognition(applicationKey, instanceId, inkManager.getStrokes(), hmacKey).then(
                         function (data) {
                             shapeRenderer.clear(resultContext);
-                            console.log("inkManager",inkManager);
-                            console.log('data.getShapeDocument().getSegments()',data.getShapeDocument().getSegments());
-                            shapeRenderer.drawRecognitionResult(inkManager.getStrokes(), data.getShapeDocument(), resultContext);
+                            console.log('data',data);
+                            var results = data.result.segments
+                            var length = results.length
+                            var mostProbable = results[length-1].candidates[0]
+
+                            if(mostProbable){
+                              console.log(mostProbable);
+                              var constructor=mostProbable.primitives[0].constructor.name
+                              console.log('constructor',constructor);
+                              console.log('typeof', typeof constructor);
+                              shapeRenderer.drawRecognitionResult(inkManager.getStrokes(), data.getShapeDocument(), resultContext);
+                            }else{
+                              console.log(results)
+                              shapeRenderer.drawRecognitionResult(inkManager.getStrokes(), data.getShapeDocument(), resultContext);
+                            }
+
                         }
                 );
             } else {

@@ -52,7 +52,7 @@ Canvas = (function() {
   };
 
   Canvas.prototype.drawRecognizedShape = function(recognizedShape) {
-    var beautifulDraw, beautifulDrawGraphics, center, endAngle, i, label, len, newVertex, old, radius, results, self, startAngle, sweepAngle, vertexes;
+    var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, endAngle, i, label, len, newVertex, old, radius, results, self, startAngle, sweepAngle, vertexes;
     self = this;
     if (recognizedShape) {
       this.stage.removeChild(this.lastDraw);
@@ -84,7 +84,12 @@ Canvas = (function() {
           startAngle = recognizedShape.startAngle;
           sweepAngle = recognizedShape.sweepAngle;
           endAngle = startAngle + sweepAngle;
-          beautifulDrawGraphics.beginStroke(self.color).setStrokeStyle(self.size, "round").arc(center.x, center.y, radius, startAngle, endAngle, true);
+          if (sweepAngle <= 0) {
+            anticlockwise = true;
+          } else {
+            anticlockwise = false;
+          }
+          beautifulDrawGraphics.beginStroke(self.color).setStrokeStyle(self.size, "round").arc(center.x, center.y, radius, startAngle, endAngle, anticlockwise);
           return this.stage.update();
         default:
           return null;

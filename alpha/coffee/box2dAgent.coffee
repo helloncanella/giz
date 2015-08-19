@@ -10,7 +10,49 @@ class box2dAgent
 
 		console.log 'userData', @box2dEntity.definition.userData
 
-		@classifyStroke(stroke)
+		classifiedStroke = @classifyStroke(stroke)
+
+		switch classifiedStroke
+			when "polygon"
+				strokeVertices = stroke.measures.vertexes
+				bayazitDecomp = new bayazitDecomposer()
+				bayazitPolygons = bayazitDecomp.concanveToconvex(strokeVertices)
+
+				for polygon in bayazitPolygons
+					poly2tri = new poly2triDecomposer()
+					triangles = poly2tri.triangulate(polygon)
+					console.log triangles
+
+					if polygon.length>=8
+						if !toBeRemoved
+							toBeRemoved = new Array()
+						toBeRemoved.push(polygon)
+						triangulated = poly2triDecomposer.triangulate(polygon)
+
+						if triangulated
+							console.log 'triangulated',triangulated
+						else
+							console.log "not trianguleted", null
+
+
+		# switch classifiedStroke
+		#   when "polygon"
+		# 		if ok
+		# 			console.log 'caqui'
+		#
+		# 		polygonArray = new decomp.Polygon()
+		# 		polygonArray.vertices.concat(transformIntoArray(strokeVertices))
+		# 		console.log polygonArray.vertices
+		#
+		# 		transformIntoArray = (vertices) ->
+		# 			for vertex in vertices
+		# 				if !arrayOfVertices
+		# 					arrayOfVertices = new Array()
+		# 				arrayOfVertices.push([vertex.x,vertex.y])
+		# 			return arrayOfVertices
+
+		#   # when 'EDGE'
+		#   # when 'CIRCLE'
 
 		return this
 
@@ -26,10 +68,10 @@ class box2dAgent
 		label = stroke.measures.label
 		switch label
 			when 'polyline'
-				vertexes = stroke.measures.vertexes
-				length = vertexes.length
-				startPoint = vertexes[0]
-				lastPoint = vertexes[(length-1)]
+				vertices = stroke.measures.vertexes
+				length = vertices.length
+				startPoint = vertices[0]
+				lastPoint = vertices[(length-1)]
 				#conditions
 				weGotaPolyline= true
 				opened= (startPoint.x != lastPoint.x) and (startPoint.y != lastPoint.y)
@@ -49,8 +91,8 @@ class box2dAgent
 
 
 		if (weGotaEllipseArc or weGotaPolyline) and opened
-			console.log "EDGE"
+			return "edge"
 		if weGotaUglyStroke or ((weGotaPolyline or (weGotaEllipseArc and withDifferentRadius)) and closed)
-			console.log "POLYGON"
+			return "polygon"
 		if weGotaEllipseArc and withEqualRadius and closed
-			console.log "CIRCLE"
+			return "circle"

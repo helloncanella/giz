@@ -1,6 +1,6 @@
 var gravity, rate, world;
 
-importScripts('lib/box2dWeb.js', 'box2dPreamble.js', 'box2dAgent.js');
+importScripts('lib/box2dWeb.js', 'lib/bayazit.js', 'auxiliarClasses/bayazitDecomposer.js', 'auxiliarClasses/poly2triDecomposer.js', 'lib/poly2tri.js', 'box2dPreamble.js', 'box2dAgent.js');
 
 gravity = new b2Vec2(0, 10);
 

@@ -7,13 +7,38 @@ box2dAgent = (function() {
   }
 
   box2dAgent.prototype.transformTheGivenStrokeInABody = function(stroke) {
+    var bayazitDecomp, bayazitPolygons, classifiedStroke, i, len, poly2tri, polygon, strokeVertices, toBeRemoved, triangles, triangulated;
     this.box2dEntity.definition = new b2BodyDef;
     this.box2dEntity.definition.type = b2Body.b2_dynamicBody;
     this.box2dEntity.definition.userData = {
       id: stroke.id
     };
     console.log('userData', this.box2dEntity.definition.userData);
-    this.classifyStroke(stroke);
+    classifiedStroke = this.classifyStroke(stroke);
+    switch (classifiedStroke) {
+      case "polygon":
+        strokeVertices = stroke.measures.vertexes;
+        bayazitDecomp = new bayazitDecomposer();
+        bayazitPolygons = bayazitDecomp.concanveToconvex(strokeVertices);
+        for (i = 0, len = bayazitPolygons.length; i < len; i++) {
+          polygon = bayazitPolygons[i];
+          poly2tri = new poly2triDecomposer();
+          triangles = poly2tri.triangulate(polygon);
+          console.log(triangles);
+          if (polygon.length >= 8) {
+            if (!toBeRemoved) {
+              toBeRemoved = new Array();
+            }
+            toBeRemoved.push(polygon);
+            triangulated = poly2triDecomposer.triangulate(polygon);
+            if (triangulated) {
+              console.log('triangulated', triangulated);
+            } else {
+              console.log("not trianguleted", null);
+            }
+          }
+        }
+    }
     return this;
   };
 
@@ -27,14 +52,14 @@ box2dAgent = (function() {
   };
 
   box2dAgent.prototype.classifyStroke = function(stroke) {
-    var closed, label, lastPoint, length, maxRadius, minRadius, opened, startPoint, sweepAngle, vertexes, weGotaEllipseArc, weGotaPolyline, weGotaUglyStroke, withDifferentRadius, withEqualRadius;
+    var closed, label, lastPoint, length, maxRadius, minRadius, opened, startPoint, sweepAngle, vertices, weGotaEllipseArc, weGotaPolyline, weGotaUglyStroke, withDifferentRadius, withEqualRadius;
     label = stroke.measures.label;
     switch (label) {
       case 'polyline':
-        vertexes = stroke.measures.vertexes;
-        length = vertexes.length;
-        startPoint = vertexes[0];
-        lastPoint = vertexes[length - 1];
+        vertices = stroke.measures.vertexes;
+        length = vertices.length;
+        startPoint = vertices[0];
+        lastPoint = vertices[length - 1];
         weGotaPolyline = true;
         opened = (startPoint.x !== lastPoint.x) && (startPoint.y !== lastPoint.y);
         closed = !opened;
@@ -53,13 +78,13 @@ box2dAgent = (function() {
         weGotaUglyStroke = true;
     }
     if ((weGotaEllipseArc || weGotaPolyline) && opened) {
-      console.log("EDGE");
+      return "edge";
     }
     if (weGotaUglyStroke || ((weGotaPolyline || (weGotaEllipseArc && withDifferentRadius)) && closed)) {
-      console.log("POLYGON");
+      return "polygon";
     }
     if (weGotaEllipseArc && withEqualRadius && closed) {
-      return console.log("CIRCLE");
+      return "circle";
     }
   };
 

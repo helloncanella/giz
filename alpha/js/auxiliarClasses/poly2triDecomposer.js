@@ -3,15 +3,11 @@ var poly2triDecomposer;
 poly2triDecomposer = (function() {
   function poly2triDecomposer() {}
 
-  poly2triDecomposer.prototype.triangulate = function(polygon) {
-    var arrayOfTriangles, componentX, componentY, i, last, len, start, swctx, triangles, vertex, vertices;
-    console.log('polygon', polygon);
+  poly2triDecomposer.prototype.triangulateBayazitPolygon = function(polygon) {
+    var arrayOfTriangles, componentX, componentY, i, j, lastPoint, len, len1, ref, startPoint, swctx, triangle, vertex, vertices;
     vertices = polygon.vertices;
-    start = vertices[0];
-    last = vertices[vertices.length - 1];
-    if (start.x === last.x && start.y === last.y) {
-      vertices.splice(last);
-    }
+    startPoint = vertices[0];
+    lastPoint = vertices[vertices.length - 1];
     for (i = 0, len = vertices.length; i < len; i++) {
       vertex = vertices[i];
       if (!arrayOfTriangles) {
@@ -19,14 +15,19 @@ poly2triDecomposer = (function() {
       }
       componentX = vertex[0];
       componentY = vertex[1];
-      arrayOfTriangles.push(new poly2tri.Point(componentX, componentY));
+      if (vertex !== lastPoint) {
+        arrayOfTriangles.push(new poly2tri.Point(componentX, componentY));
+      }
     }
-    console.log(arrayOfTriangles);
     swctx = new poly2tri.SweepContext(arrayOfTriangles);
-    console.log('swctx', swctx);
     swctx.triangulate();
-    triangles = swctx.getTriangles();
-    return triangles;
+    this.triangles = swctx.getTriangles();
+    ref = this.triangles;
+    for (j = 0, len1 = ref.length; j < len1; j++) {
+      triangle = ref[j];
+      triangle.makeCCW();
+    }
+    return this.triangles;
   };
 
   return poly2triDecomposer;

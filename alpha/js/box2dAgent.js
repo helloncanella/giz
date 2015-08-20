@@ -7,13 +7,12 @@ box2dAgent = (function() {
   }
 
   box2dAgent.prototype.transformTheGivenStrokeInABody = function(stroke) {
-    var bayazitDecomp, bayazitPolygons, classifiedStroke, i, len, poly2tri, polygon, strokeVertices, toBeRemoved, triangles, triangulated;
+    var bayazitDecomp, bayazitPolygons, classifiedStroke, i, item, itensReadyToBox2d, j, k, l, len, len1, len2, len3, newPolygonArray, poly2triPolygon, polygon, strokeVertices, toBeAdded, toBeRemoved, triangulated, triangulatedPolygons;
     this.box2dEntity.definition = new b2BodyDef;
     this.box2dEntity.definition.type = b2Body.b2_dynamicBody;
     this.box2dEntity.definition.userData = {
       id: stroke.id
     };
-    console.log('userData', this.box2dEntity.definition.userData);
     classifiedStroke = this.classifyStroke(stroke);
     switch (classifiedStroke) {
       case "polygon":
@@ -22,29 +21,40 @@ box2dAgent = (function() {
         bayazitPolygons = bayazitDecomp.concanveToconvex(strokeVertices);
         for (i = 0, len = bayazitPolygons.length; i < len; i++) {
           polygon = bayazitPolygons[i];
-          poly2tri = new poly2triDecomposer();
-          triangles = poly2tri.triangulate(polygon);
-          console.log(triangles);
+          if (!toBeRemoved && !toBeAdded) {
+            toBeRemoved = new Array();
+            toBeAdded = new Array();
+          }
           if (polygon.length >= 8) {
-            if (!toBeRemoved) {
-              toBeRemoved = new Array();
-            }
             toBeRemoved.push(polygon);
-            triangulated = poly2triDecomposer.triangulate(polygon);
-            if (triangulated) {
-              console.log('triangulated', triangulated);
-            } else {
-              console.log("not trianguleted", null);
+            poly2triPolygon = new poly2triDecomposer();
+            triangulatedPolygons = poly2triPolygon.triangulateBayazitPolygon(polygon);
+            for (j = 0, len1 = triangulatedPolygons.length; j < len1; j++) {
+              triangulated = triangulatedPolygons[j];
+              toBeAdded.push(triangulated);
             }
           }
         }
+        for (k = 0, len2 = toBeRemoved.length; k < len2; k++) {
+          item = toBeRemoved[k];
+          bayazitPolygons.slice(item);
+        }
+        newPolygonArray = new Array().concat(bayazitPolygons, toBeAdded);
+        for (l = 0, len3 = newPolygonArray.length; l < len3; l++) {
+          item = newPolygonArray[l];
+          if (!itensReadyToBox2d) {
+            itensReadyToBox2d = new Array();
+          }
+          itensReadyToBox2d.push(item.transformResultToArrayFormat());
+        }
+        console.log(itensReadyToBox2d);
     }
     return this;
   };
 
   box2dAgent.prototype.insertTheTransformedBodyInTheWorld = function() {
     if (this.box2dEntity.definition) {
-      console.log('body');
+
     } else {
       console.error("There isn't any body defined");
     }

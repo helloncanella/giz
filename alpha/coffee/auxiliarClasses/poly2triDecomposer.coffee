@@ -1,24 +1,35 @@
 class poly2triDecomposer
-  triangulate: (polygon) ->
-    console.log 'polygon', polygon
+  triangulateBayazitPolygon: (polygon) ->
     vertices = polygon.vertices
-    start = vertices[0]
-    last = vertices[(vertices.length-1)]
-    if start.x == last.x && start.y == last.y
-      vertices.splice(last)
+    startPoint = vertices[0]
+    lastPoint = vertices[(vertices.length-1)]
 
     for vertex in vertices
       if !arrayOfTriangles
         arrayOfTriangles = new Array()
       componentX = vertex[0]
       componentY = vertex[1]
-      arrayOfTriangles.push(new poly2tri.Point(componentX,componentY))
+      if vertex != lastPoint
+        arrayOfTriangles.push(new poly2tri.Point(componentX,componentY))
 
-
-    console.log arrayOfTriangles
     swctx = new poly2tri.SweepContext(arrayOfTriangles)
-    console.log 'swctx',swctx
     swctx.triangulate();
-    triangles = swctx.getTriangles();
+    @triangles = swctx.getTriangles();
 
-    return triangles
+    for triangle in @triangles
+      triangle.makeCCW() #garantee that the points of polygon will be CCW
+
+    return @triangles
+
+  # transformResultToArrayFormat:()->
+  #   trianglesArray = new Array()
+  #   for element in @triangles
+  #     triangle = new Array()
+  #     points = element.points_
+  #     for point in points
+  #       vertex =
+  #         x:point.x
+  #         y:point.y
+  #       triangle.push(vertex)
+  #     trianglesArray.push(triangle)
+  #   return trianglesArray

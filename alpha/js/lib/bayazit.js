@@ -161,6 +161,28 @@ function Polygon(){
     this.vertices = [];
 }
 
+
+/**
+ * Transform coordinates of vertices to an array formats
+ * @method transformResultToArrayFormat
+ * @return {Array[Object]}
+ */
+Polygon.prototype.transformResultToArrayFormat = function(){
+    var vertices = this.vertices;
+    var polygonsArray = new Array();
+
+    for(index=0; index<vertices.length;index++){
+        var vertex = {
+            x: vertices[index][0],
+            y: vertices[index][1]
+        }
+        polygonsArray.push(vertex);
+    }
+    return polygonsArray
+}
+
+
+
 /**
  * Get a vertex at position i. It does not matter if i is out of bounds, this function will just cycle.
  * @method at

@@ -50,7 +50,6 @@ myscriptRequests = (function() {
     resultedSegments = serverResult.result.segments;
     arrayLength = resultedSegments.length;
     mostProbableShape = resultedSegments[arrayLength - 1].candidates[0];
-    console.log(mostProbableShape);
     typeOfResult = constructor = mostProbableShape.constructor.name;
     if (typeOfResult === 'ShapeNotRecognized') {
       console.error('Shape not recognized');

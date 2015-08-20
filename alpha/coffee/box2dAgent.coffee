@@ -8,57 +8,41 @@ class box2dAgent
 		@box2dEntity.definition.type = b2Body.b2_dynamicBody
 		@box2dEntity.definition.userData = {id:stroke.id}
 
-		console.log 'userData', @box2dEntity.definition.userData
-
 		classifiedStroke = @classifyStroke(stroke)
 
 		switch classifiedStroke
+
 			when "polygon"
 				strokeVertices = stroke.measures.vertexes
 				bayazitDecomp = new bayazitDecomposer()
 				bayazitPolygons = bayazitDecomp.concanveToconvex(strokeVertices)
 
 				for polygon in bayazitPolygons
-					poly2tri = new poly2triDecomposer()
-					triangles = poly2tri.triangulate(polygon)
-					console.log triangles
+					if !toBeRemoved and !toBeAdded
+						toBeRemoved = new Array()
+						toBeAdded = new Array()
 
+					#Convert using poly2tri in case of the bayazit polygon have more tha 8 sides (limit of box2d)
 					if polygon.length>=8
-						if !toBeRemoved
-							toBeRemoved = new Array()
 						toBeRemoved.push(polygon)
-						triangulated = poly2triDecomposer.triangulate(polygon)
+						poly2triPolygon = new poly2triDecomposer()
+						triangulatedPolygons = poly2triPolygon.triangulateBayazitPolygon(polygon)
+						for triangulated in triangulatedPolygons
+							toBeAdded.push(triangulated)
 
-						if triangulated
-							console.log 'triangulated',triangulated
-						else
-							console.log "not trianguleted", null
+				for item in toBeRemoved
+					bayazitPolygons.slice(item)
 
-
-		# switch classifiedStroke
-		#   when "polygon"
-		# 		if ok
-		# 			console.log 'caqui'
-		#
-		# 		polygonArray = new decomp.Polygon()
-		# 		polygonArray.vertices.concat(transformIntoArray(strokeVertices))
-		# 		console.log polygonArray.vertices
-		#
-		# 		transformIntoArray = (vertices) ->
-		# 			for vertex in vertices
-		# 				if !arrayOfVertices
-		# 					arrayOfVertices = new Array()
-		# 				arrayOfVertices.push([vertex.x,vertex.y])
-		# 			return arrayOfVertices
-
-		#   # when 'EDGE'
-		#   # when 'CIRCLE'
-
+				newPolygonArray = new Array().concat(bayazitPolygons,toBeAdded)
+				for item in newPolygonArray
+					if(!itensReadyToBox2d)
+						itensReadyToBox2d = new Array()
+					itensReadyToBox2d.push(item.transformResultToArrayFormat())
+				console.log itensReadyToBox2d	
 		return this
 
 	insertTheTransformedBodyInTheWorld: () ->
 		if @box2dEntity.definition
-			console.log 'body'
 		else
 		  console.error "There isn't any body defined"
 		return this

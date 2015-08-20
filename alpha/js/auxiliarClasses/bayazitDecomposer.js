@@ -4,17 +4,21 @@ bayazitDecomposer = (function() {
   function bayazitDecomposer() {}
 
   bayazitDecomposer.prototype.concanveToconvex = function(strokeVertices) {
-    var arrayOfVertices, bayazitPoligons, i, len, longerBayazitPolygons, polygonArray, quickBayazitPolygons, vertex;
+    var arrayOfVertices, i, j, len, len1, longerBayazitPolygons, polygon, polygonArray, ref, vertex;
     arrayOfVertices = this.transformIntoArray(strokeVertices);
     polygonArray = new decomp.Polygon();
     for (i = 0, len = arrayOfVertices.length; i < len; i++) {
       vertex = arrayOfVertices[i];
       polygonArray.vertices.push(vertex);
     }
-    quickBayazitPolygons = polygonArray.quickDecomp();
     longerBayazitPolygons = polygonArray.decomp();
-    bayazitPoligons = longerBayazitPolygons;
-    return bayazitPoligons;
+    this.bayazitPoligons = longerBayazitPolygons;
+    ref = this.bayazitPoligons;
+    for (j = 0, len1 = ref.length; j < len1; j++) {
+      polygon = ref[j];
+      polygon.makeCCW();
+    }
+    return this.bayazitPoligons;
   };
 
   bayazitDecomposer.prototype.transformIntoArray = function(vertices) {

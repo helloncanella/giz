@@ -11,7 +11,6 @@ rate = 1 / 60;
 self.onmessage = function(e) {
   var box2dAgentInstance, stroke;
   stroke = e.data;
-  console.log(e.data);
   box2dAgentInstance = new box2dAgent(world);
   return box2dAgentInstance.transformTheGivenStrokeInABody(stroke).insertTheTransformedBodyInTheWorld();
 };

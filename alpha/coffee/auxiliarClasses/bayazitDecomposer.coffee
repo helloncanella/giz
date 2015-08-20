@@ -4,17 +4,16 @@ class bayazitDecomposer
     arrayOfVertices = @transformIntoArray(strokeVertices)
     polygonArray = new decomp.Polygon()
 
-
     for vertex in arrayOfVertices
       polygonArray.vertices.push(vertex)
 
-    quickBayazitPolygons=polygonArray.quickDecomp()
     longerBayazitPolygons = polygonArray.decomp()
-    bayazitPoligons = longerBayazitPolygons
+    @bayazitPoligons = longerBayazitPolygons
 
+    for polygon in @bayazitPoligons
+      polygon.makeCCW()
 
-
-    return bayazitPoligons
+    return @bayazitPoligons
 
   transformIntoArray: (vertices) ->
     for vertex in vertices

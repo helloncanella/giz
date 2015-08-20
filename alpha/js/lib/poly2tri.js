@@ -4,12 +4,12 @@ module.exports={"version": "1.3.5"}
 /*
  * Poly2Tri Copyright (c) 2009-2014, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
- * 
+ *
  * poly2tri.js (JavaScript port) (c) 2009-2014, Poly2Tri Contributors
  * https://github.com/r3mi/poly2tri.js
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Distributed under the 3-clause BSD License, see LICENSE.txt
  */
 
@@ -22,7 +22,7 @@ module.exports={"version": "1.3.5"}
  * Note
  * ====
  * the structure of this JavaScript version of poly2tri intentionally follows
- * as closely as possible the structure of the reference C++ version, to make it 
+ * as closely as possible the structure of the reference C++ version, to make it
  * easier to keep the 2 versions in sync.
  */
 
@@ -220,12 +220,12 @@ module.exports = assert;
 /*
  * Poly2Tri Copyright (c) 2009-2014, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
- * 
+ *
  * poly2tri.js (JavaScript port) (c) 2009-2014, Poly2Tri Contributors
  * https://github.com/r3mi/poly2tri.js
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Distributed under the 3-clause BSD License, see LICENSE.txt
  */
 
@@ -236,7 +236,7 @@ module.exports = assert;
  * Note
  * ====
  * the structure of this JavaScript version of poly2tri intentionally follows
- * as closely as possible the structure of the reference C++ version, to make it 
+ * as closely as possible the structure of the reference C++ version, to make it
  * easier to keep the 2 versions in sync.
  */
 
@@ -468,7 +468,7 @@ Point.cross = function(a, b) {
 
 // -----------------------------------------------------------------"Point-Like"
 /*
- * The following functions operate on "Point" or any "Point like" object 
+ * The following functions operate on "Point" or any "Point like" object
  * with {x,y} (duck typing).
  */
 
@@ -497,12 +497,12 @@ module.exports = Point;
 /*
  * Poly2Tri Copyright (c) 2009-2014, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
- * 
+ *
  * poly2tri.js (JavaScript port) (c) 2009-2014, Poly2Tri Contributors
  * https://github.com/r3mi/poly2tri.js
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Distributed under the 3-clause BSD License, see LICENSE.txt
  */
 
@@ -552,7 +552,7 @@ module.exports = PointError;
 /*
  * Poly2Tri Copyright (c) 2009-2014, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
- * 
+ *
  * poly2tri.js (JavaScript port) (c) 2009-2014, Poly2Tri Contributors
  * https://github.com/r3mi/poly2tri.js
  *
@@ -671,12 +671,12 @@ exports.sweep = {Triangulate: sweep.triangulate};
 /*
  * Poly2Tri Copyright (c) 2009-2014, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
- * 
+ *
  * poly2tri.js (JavaScript port) (c) 2009-2014, Poly2Tri Contributors
  * https://github.com/r3mi/poly2tri.js
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Distributed under the 3-clause BSD License, see LICENSE.txt
  */
 
@@ -696,7 +696,7 @@ exports.sweep = {Triangulate: sweep.triangulate};
  * Note
  * ====
  * the structure of this JavaScript version of poly2tri intentionally follows
- * as closely as possible the structure of the reference C++ version, to make it 
+ * as closely as possible the structure of the reference C++ version, to make it
  * easier to keep the 2 versions in sync.
  */
 
@@ -1507,12 +1507,12 @@ exports.triangulate = triangulate;
 /*
  * Poly2Tri Copyright (c) 2009-2014, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
- * 
+ *
  * poly2tri.js (JavaScript port) (c) 2009-2014, Poly2Tri Contributors
  * https://github.com/r3mi/poly2tri.js
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Distributed under the 3-clause BSD License, see LICENSE.txt
  */
 
@@ -1525,7 +1525,7 @@ exports.triangulate = triangulate;
  * Note
  * ====
  * the structure of this JavaScript version of poly2tri intentionally follows
- * as closely as possible the structure of the reference C++ version, to make it 
+ * as closely as possible the structure of the reference C++ version, to make it
  * easier to keep the 2 versions in sync.
  */
 
@@ -1632,7 +1632,7 @@ var EdgeEvent = function() {
  */
 /**
  * Constructor for the triangulation context.
- * It accepts a simple polyline (with non repeating points), 
+ * It accepts a simple polyline (with non repeating points),
  * which defines the constrained edges.
  *
  * @example
@@ -1660,7 +1660,7 @@ var SweepContext = function(contour, options) {
     this.points_ = (options.cloneArrays ? contour.slice(0) : contour);
     this.edge_list = [];
 
-    // Bounding box of all points. Computed at the start of the triangulation, 
+    // Bounding box of all points. Computed at the start of the triangulation,
     // it is stored in case it is needed by the caller.
     this.pmin_ = this.pmax_ = null;
 
@@ -1837,8 +1837,8 @@ SweepContext.prototype.triangulate = function() {
 
 
 /**
- * Get the bounding box of the provided constraints (contour, holes and 
- * Steinter points). Warning : these values are not available if the triangulation 
+ * Get the bounding box of the provided constraints (contour, holes and
+ * Steinter points). Warning : these values are not available if the triangulation
  * has not been done yet.
  * @public
  * @returns {{min:Point,max:Point}} object with 'min' and 'max' Point
@@ -2050,12 +2050,12 @@ module.exports = SweepContext;
 /*
  * Poly2Tri Copyright (c) 2009-2014, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
- * 
+ *
  * poly2tri.js (JavaScript port) (c) 2009-2014, Poly2Tri Contributors
  * https://github.com/r3mi/poly2tri.js
  *
  * All rights reserved.
- * 
+ *
  * Distributed under the 3-clause BSD License, see LICENSE.txt
  */
 
@@ -2068,7 +2068,7 @@ module.exports = SweepContext;
  * Note
  * ====
  * the structure of this JavaScript version of poly2tri intentionally follows
- * as closely as possible the structure of the reference C++ version, to make it 
+ * as closely as possible the structure of the reference C++ version, to make it
  * easier to keep the 2 versions in sync.
  */
 
@@ -2331,6 +2331,56 @@ Triangle.prototype.pointCCW = function(p) {
 };
 
 /**
+ * make the vertices of triangle CCW
+ * by helloncanella - http://github.com/helloncanella
+ *
+ */
+Triangle.prototype.makeCCW = function(){
+  var points = this.points_;
+
+  var vectorA = {
+    x: points[1].x-points[0].x,
+    y: points[1].y-points[0].y
+  };
+  var vectorB = {
+    x: points[2].x-points[1].x,
+    y: points[2].y-points[1].y
+  };
+
+  var crossProduct = vectorA.x*vectorB.y - vectorA.y*vectorB.x;
+  
+
+  if(crossProduct<0){
+    var a = points[2];
+    points[2]=points[1];
+    points[1]=a
+  };
+};
+
+/**
+ * Transform coordinates of vertices to an array formats
+ * @method transformResultToArrayFormat
+ * @return {Array[Object]}
+ *
+ * by helloncanella - http://github.com/helloncanella
+ */
+Triangle.prototype.transformResultToArrayFormat = function(){
+    var points = this.points_;
+    var trianglesArray = new Array();
+    
+    for(var index=0; index<points.length; index++){
+        var vertex = {
+           x:points[index].x,
+           y:points[index].y     
+        }
+        trianglesArray.push(vertex);       
+    }
+
+    return trianglesArray
+
+}
+
+/**
  * Returns the neighbor clockwise to given point.
  * @private
  * @param {XY} p - point object with {x,y}
@@ -2517,7 +2567,7 @@ Triangle.prototype.legalize = function(opoint, npoint) {
 };
 
 /**
- * Returns the index of a point in the triangle. 
+ * Returns the index of a point in the triangle.
  * The point *must* be a reference to one of the triangle's vertices.
  * @private
  * @param {XY} p - point object with {x,y}
@@ -2594,7 +2644,7 @@ Triangle.prototype.markConstrainedEdgeByEdge = function(edge) {
  */
 Triangle.prototype.markConstrainedEdgeByPoints = function(p, q) {
     var points = this.points_;
-    // Here we are comparing point references, not values        
+    // Here we are comparing point references, not values
     if ((q === points[0] && p === points[1]) || (q === points[1] && p === points[0])) {
         this.constrained_edge[2] = true;
     } else if ((q === points[0] && p === points[2]) || (q === points[2] && p === points[0])) {
@@ -2613,12 +2663,12 @@ module.exports = Triangle;
 /*
  * Poly2Tri Copyright (c) 2009-2014, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
- * 
+ *
  * poly2tri.js (JavaScript port) (c) 2009-2014, Poly2Tri Contributors
  * https://github.com/r3mi/poly2tri.js
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Distributed under the 3-clause BSD License, see LICENSE.txt
  */
 
@@ -2724,12 +2774,12 @@ exports.isAngleObtuse = isAngleObtuse;
 /*
  * Poly2Tri Copyright (c) 2009-2014, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
- * 
+ *
  * poly2tri.js (JavaScript port) (c) 2009-2014, Poly2Tri Contributors
  * https://github.com/r3mi/poly2tri.js
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Distributed under the 3-clause BSD License, see LICENSE.txt
  */
 
@@ -2800,7 +2850,7 @@ function toString(p) {
  * @param {!XY} a - point object with {x,y}
  * @param {!XY} b - point object with {x,y}
  * @return {number} <code>&lt; 0</code> if <code>a &lt; b</code>,
- *         <code>&gt; 0</code> if <code>a &gt; b</code>, 
+ *         <code>&gt; 0</code> if <code>a &gt; b</code>,
  *         <code>0</code> otherwise.
  */
 function compare(a, b) {

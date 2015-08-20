@@ -6,7 +6,6 @@ rate = 1/60
 
 self.onmessage = (e) ->
   stroke = e.data
-  console.log  e.data
   box2dAgentInstance = new box2dAgent(world)
   box2dAgentInstance.transformTheGivenStrokeInABody(stroke)
                .insertTheTransformedBodyInTheWorld()

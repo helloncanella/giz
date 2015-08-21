@@ -1,4 +1,4 @@
-var gravity, rate, scale, world;
+var gravity, rate, scale, update, world;
 
 importScripts('lib/box2dWeb.js', 'lib/bayazit.js', 'auxiliarClasses/bayazitDecomposer.js', 'auxiliarClasses/poly2triDecomposer.js', 'lib/poly2tri.js', 'box2dPreamble.js', 'box2dAgent.js');
 
@@ -16,3 +16,19 @@ self.onmessage = function(e) {
   box2dAgentInstance = new box2dAgent(world, scale);
   return box2dAgentInstance.transformTheGivenStrokeInABody(stroke).insertTheTransformedBodyInTheWorld();
 };
+
+update = function() {
+  var body, position;
+  world.Step(rate, 10, 10);
+  body = world.GetBodyList();
+  if (body.GetUserData) {
+    position = {
+      x: body.GetPosition().x,
+      y: body.GetPosition().y
+    };
+    console.log(position);
+    return postMessage(position);
+  }
+};
+
+setInterval(update, 1000 * rate);

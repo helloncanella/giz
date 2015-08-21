@@ -10,15 +10,17 @@ self.onmessage = (e) ->
   box2dAgentInstance = new box2dAgent(world,scale)
   box2dAgentInstance.transformTheGivenStrokeInABody(stroke)
                     .insertTheTransformedBodyInTheWorld()
+                
+
+update =->
+  world.Step(rate,10,10)
+  body = world.GetBodyList()
 
 
-# update =->
-#   world.Step(rate,10,10)
-#   body = world.GetBodyList()
-#
-#   world.DrawDebugData()
-#
-#   if body.GetUserData
-#     postMessage({x:body.GetPosition().x,y:body.GetPosition().y})
-#
-# setInterval(update,1000*rate)
+  # world.DrawDebugData()
+  if body.GetUserData
+    position = {x:body.GetPosition().x,y:body.GetPosition().y}
+    console.log position
+    postMessage(position)
+
+setInterval(update,1000*rate)

@@ -46,14 +46,10 @@ class box2dAgent
 						itensReadyToBox2d = new Array()
 					itensReadyToBox2d.push(item.transformResultToArrayFormat())
 
-
-
 				centroid = @calculateCentroid(itensReadyToBox2d)
+
 				bodyDef.position = new b2Vec2(centroid.x,centroid.y)
-
-
-
-				@fixtureDefArray = new Array()
+				fixtureDefArray = @box2dEntity.fixtureDefArray = new Array()
 				for polygon in itensReadyToBox2d
 					fixture = new b2FixtureDef()
 					fixture.shape = new b2PolygonShape()
@@ -70,7 +66,7 @@ class box2dAgent
 						b2Vertices.splice(last,1)
 
 					fixture.shape.SetAsArray(b2Vertices,b2Vertices.length)
-					@fixtureDefArray.push(fixture)
+					fixtureDefArray.push(fixture)
 
 
 		console.log this
@@ -95,7 +91,13 @@ class box2dAgent
 	  return centroid
 
 	insertTheTransformedBodyInTheWorld: () ->
-		if @box2dEntity.definition
+		if @box2dEntity.fixtureDefArray
+			fixtureArray = @box2dEntity.fixtureDefArray
+			bodyDefinition = @box2dEntity.definition
+			body = @world.CreateBody(bodyDefinition)
+			for fixture in fixtureArray
+				body.CreateFixture(fixture)
+			console.log @world.GetBodyList()
 		else
 		  console.error "There isn't any body defined"
 		return this

@@ -8,7 +8,7 @@ box2dAgent = (function() {
   }
 
   box2dAgent.prototype.transformTheGivenStrokeInABody = function(stroke) {
-    var b2Vertices, bayazitDecomp, bayazitPolygons, bodyDef, centroid, classifiedStroke, fixture, i, index, item, itensReadyToBox2d, j, k, l, last, len, len1, len2, len3, len4, len5, localVertex, m, n, newPolygonArray, poly2triPolygon, polygon, scaledStroke, start, strokeVertices, toBeAdded, toBeRemoved, triangulated, triangulatedPolygons, vertex;
+    var b2Vertices, bayazitDecomp, bayazitPolygons, bodyDef, centroid, classifiedStroke, fixture, fixtureDefArray, i, index, item, itensReadyToBox2d, j, k, l, last, len, len1, len2, len3, len4, len5, localVertex, m, n, newPolygonArray, poly2triPolygon, polygon, scaledStroke, start, strokeVertices, toBeAdded, toBeRemoved, triangulated, triangulatedPolygons, vertex;
     scaledStroke = this.scaleStroke(stroke);
     bodyDef = this.box2dEntity.definition = new b2BodyDef;
     bodyDef.type = b2Body.b2_dynamicBody;
@@ -52,7 +52,7 @@ box2dAgent = (function() {
         }
         centroid = this.calculateCentroid(itensReadyToBox2d);
         bodyDef.position = new b2Vec2(centroid.x, centroid.y);
-        this.fixtureDefArray = new Array();
+        fixtureDefArray = this.box2dEntity.fixtureDefArray = new Array();
         for (m = 0, len4 = itensReadyToBox2d.length; m < len4; m++) {
           polygon = itensReadyToBox2d[m];
           fixture = new b2FixtureDef();
@@ -72,7 +72,7 @@ box2dAgent = (function() {
             b2Vertices.splice(last, 1);
           }
           fixture.shape.SetAsArray(b2Vertices, b2Vertices.length);
-          this.fixtureDefArray.push(fixture);
+          fixtureDefArray.push(fixture);
         }
     }
     console.log(this);
@@ -114,8 +114,16 @@ box2dAgent = (function() {
   };
 
   box2dAgent.prototype.insertTheTransformedBodyInTheWorld = function() {
-    if (this.box2dEntity.definition) {
-
+    var body, bodyDefinition, fixture, fixtureArray, i, len;
+    if (this.box2dEntity.fixtureDefArray) {
+      fixtureArray = this.box2dEntity.fixtureDefArray;
+      bodyDefinition = this.box2dEntity.definition;
+      body = this.world.CreateBody(bodyDefinition);
+      for (i = 0, len = fixtureArray.length; i < len; i++) {
+        fixture = fixtureArray[i];
+        body.CreateFixture(fixture);
+      }
+      console.log(this.world.GetBodyList());
     } else {
       console.error("There isn't any body defined");
     }

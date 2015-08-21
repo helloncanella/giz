@@ -52,7 +52,7 @@ Canvas = (function() {
   };
 
   Canvas.prototype.drawRecognizedShape = function(recognizedShape) {
-    var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, endAngle, i, label, len, newVertex, old, radius, results, self, startAngle, sweepAngle, vertexes;
+    var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, endAngle, i, label, len, newVertex, old, radius, results, self, startAngle, sweepAngle, vertices;
     self = this;
     if (recognizedShape) {
       this.stage.removeChild(this.lastDraw);
@@ -64,10 +64,10 @@ Canvas = (function() {
       label = recognizedShape.label;
       switch (label) {
         case 'polyline':
-          vertexes = recognizedShape.vertexes;
+          vertices = recognizedShape.vertices;
           results = [];
-          for (i = 0, len = vertexes.length; i < len; i++) {
-            newVertex = vertexes[i];
+          for (i = 0, len = vertices.length; i < len; i++) {
+            newVertex = vertices[i];
             if (!old) {
               old = newVertex;
               continue;

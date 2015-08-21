@@ -2,8 +2,8 @@ var myscriptRequests;
 
 myscriptRequests = (function() {
   function myscriptRequests() {
-    this.applicationKey = '15bd945b-44ef-4371-9c60-173b432de8dc';
-    this.hmacKey = '644e4c91-8cfb-47bc-87b5-15459d86e1de';
+    this.applicationKey = 'a74d2cfe-c979-42b1-9afe-5203c68a490a';
+    this.hmacKey = '4d3be9ad-8f15-40e8-92d7-29af2d6ea0be ';
     this.instanceId = void 0;
     this.inkManager = new MyScript.InkManager();
     this.shapeRecognizer = new MyScript.ShapeRecognizer();
@@ -46,7 +46,7 @@ myscriptRequests = (function() {
   };
 
   myscriptRequests.prototype.decodeServerResult = function(serverResult) {
-    var arrayLength, constructor, i, len, mostProbableShape, nextPoint, primitive, primitivesList, resultedSegments, shape, startPoint, typeOfResult, typeOfShape, vertexesArray;
+    var arrayLength, constructor, i, len, mostProbableShape, nextPoint, primitive, primitivesList, resultedSegments, shape, startPoint, typeOfResult, typeOfShape, verticesArray;
     resultedSegments = serverResult.result.segments;
     arrayLength = resultedSegments.length;
     mostProbableShape = resultedSegments[arrayLength - 1].candidates[0];
@@ -73,14 +73,14 @@ myscriptRequests = (function() {
             break;
           case 'ShapeLine':
             if (!startPoint) {
-              vertexesArray = new Array();
+              verticesArray = new Array();
               startPoint = primitive.firstPoint;
-              vertexesArray.push(startPoint);
+              verticesArray.push(startPoint);
             }
             nextPoint = primitive.lastPoint;
-            vertexesArray.push(nextPoint);
+            verticesArray.push(nextPoint);
             shape = {
-              vertexes: vertexesArray,
+              vertices: verticesArray,
               label: 'polyline'
             };
             break;

@@ -1,22 +1,24 @@
 var box2dAgent;
 
 box2dAgent = (function() {
-  function box2dAgent(world) {
+  function box2dAgent(world, scale) {
     this.world = world;
+    this.scale = scale;
     this.box2dEntity = new Object();
   }
 
   box2dAgent.prototype.transformTheGivenStrokeInABody = function(stroke) {
-    var bayazitDecomp, bayazitPolygons, classifiedStroke, i, item, itensReadyToBox2d, j, k, l, len, len1, len2, len3, newPolygonArray, poly2triPolygon, polygon, strokeVertices, toBeAdded, toBeRemoved, triangulated, triangulatedPolygons;
-    this.box2dEntity.definition = new b2BodyDef;
-    this.box2dEntity.definition.type = b2Body.b2_dynamicBody;
-    this.box2dEntity.definition.userData = {
+    var b2Vertices, bayazitDecomp, bayazitPolygons, bodyDef, centroid, classifiedStroke, fixture, i, index, item, itensReadyToBox2d, j, k, l, last, len, len1, len2, len3, len4, len5, localVertex, m, n, newPolygonArray, poly2triPolygon, polygon, scaledStroke, start, strokeVertices, toBeAdded, toBeRemoved, triangulated, triangulatedPolygons, vertex;
+    scaledStroke = this.scaleStroke(stroke);
+    bodyDef = this.box2dEntity.definition = new b2BodyDef;
+    bodyDef.type = b2Body.b2_dynamicBody;
+    bodyDef.userData = {
       id: stroke.id
     };
-    classifiedStroke = this.classifyStroke(stroke);
+    classifiedStroke = this.classifyStroke(scaledStroke);
     switch (classifiedStroke) {
       case "polygon":
-        strokeVertices = stroke.measures.vertexes;
+        strokeVertices = stroke.measures.vertices;
         bayazitDecomp = new bayazitDecomposer();
         bayazitPolygons = bayazitDecomp.concanveToconvex(strokeVertices);
         for (i = 0, len = bayazitPolygons.length; i < len; i++) {
@@ -25,7 +27,7 @@ box2dAgent = (function() {
             toBeRemoved = new Array();
             toBeAdded = new Array();
           }
-          if (polygon.length >= 8) {
+          if (polygon.vertices.length >= 8) {
             toBeRemoved.push(polygon);
             poly2triPolygon = new poly2triDecomposer();
             triangulatedPolygons = poly2triPolygon.triangulateBayazitPolygon(polygon);
@@ -37,7 +39,8 @@ box2dAgent = (function() {
         }
         for (k = 0, len2 = toBeRemoved.length; k < len2; k++) {
           item = toBeRemoved[k];
-          bayazitPolygons.slice(item);
+          index = bayazitPolygons.indexOf(item);
+          bayazitPolygons.splice(index, 1);
         }
         newPolygonArray = new Array().concat(bayazitPolygons, toBeAdded);
         for (l = 0, len3 = newPolygonArray.length; l < len3; l++) {
@@ -47,9 +50,67 @@ box2dAgent = (function() {
           }
           itensReadyToBox2d.push(item.transformResultToArrayFormat());
         }
-        console.log(itensReadyToBox2d);
+        centroid = this.calculateCentroid(itensReadyToBox2d);
+        bodyDef.position = new b2Vec2(centroid.x, centroid.y);
+        this.fixtureDefArray = new Array();
+        for (m = 0, len4 = itensReadyToBox2d.length; m < len4; m++) {
+          polygon = itensReadyToBox2d[m];
+          fixture = new b2FixtureDef();
+          fixture.shape = new b2PolygonShape();
+          b2Vertices = new Array();
+          for (n = 0, len5 = polygon.length; n < len5; n++) {
+            vertex = polygon[n];
+            localVertex = {
+              x: vertex.x - centroid.x,
+              y: vertex.y - centroid.y
+            };
+            b2Vertices.push(new b2Vec2(localVertex.x, localVertex.y));
+          }
+          start = 0;
+          last = b2Vertices.length - 1;
+          if (b2Vertices[start].x === b2Vertices[last].x && b2Vertices[start].y === b2Vertices[last].y) {
+            b2Vertices.splice(last, 1);
+          }
+          fixture.shape.SetAsArray(b2Vertices, b2Vertices.length);
+          this.fixtureDefArray.push(fixture);
+        }
     }
+    console.log(this);
     return this;
+  };
+
+  box2dAgent.prototype.scaleStroke = function(stroke) {
+    var i, len, vertex, vertices;
+    vertices = stroke.measures.vertices;
+    for (i = 0, len = vertices.length; i < len; i++) {
+      vertex = vertices[i];
+      vertex.x /= this.scale;
+      vertex.y /= this.scale;
+    }
+    return stroke;
+  };
+
+  box2dAgent.prototype.calculateCentroid = function(polygonsArray) {
+    var centroid, i, j, len, len1, pointsCounter, polygon, sum, vertex;
+    sum = {
+      x: 0,
+      y: 0
+    };
+    pointsCounter = 0;
+    for (i = 0, len = polygonsArray.length; i < len; i++) {
+      polygon = polygonsArray[i];
+      for (j = 0, len1 = polygon.length; j < len1; j++) {
+        vertex = polygon[j];
+        sum.x += vertex.x;
+        sum.y += vertex.y;
+        pointsCounter++;
+      }
+    }
+    centroid = {
+      x: sum.x / pointsCounter,
+      y: sum.y / pointsCounter
+    };
+    return centroid;
   };
 
   box2dAgent.prototype.insertTheTransformedBodyInTheWorld = function() {
@@ -66,7 +127,7 @@ box2dAgent = (function() {
     label = stroke.measures.label;
     switch (label) {
       case 'polyline':
-        vertices = stroke.measures.vertexes;
+        vertices = stroke.measures.vertices;
         length = vertices.length;
         startPoint = vertices[0];
         lastPoint = vertices[length - 1];

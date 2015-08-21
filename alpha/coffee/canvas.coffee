@@ -63,8 +63,8 @@ class Canvas
       label = recognizedShape.label
       switch label
         when 'polyline'
-          vertexes = recognizedShape.vertexes
-          for newVertex in vertexes
+          vertices = recognizedShape.vertices
+          for newVertex in vertices
             if !old
               old = newVertex
               continue

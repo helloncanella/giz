@@ -3,12 +3,13 @@ importScripts('lib/box2dWeb.js', 'lib/bayazit.js', 'auxiliarClasses/bayazitDecom
 gravity = new b2Vec2(0,10)
 world = new b2World(gravity,true)
 rate = 1/60
+scale = 30
 
 self.onmessage = (e) ->
   stroke = e.data
-  box2dAgentInstance = new box2dAgent(world)
+  box2dAgentInstance = new box2dAgent(world,scale)
   box2dAgentInstance.transformTheGivenStrokeInABody(stroke)
-               .insertTheTransformedBodyInTheWorld()
+                    .insertTheTransformedBodyInTheWorld()
 
 
 # update =->

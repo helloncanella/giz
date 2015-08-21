@@ -1,8 +1,8 @@
 class myscriptRequests
 
   constructor: () ->
-    @applicationKey = 'a74d2cfe-c979-42b1-9afe-5203c68a490a'
-    @hmacKey = '4d3be9ad-8f15-40e8-92d7-29af2d6ea0be '
+    @applicationKey = '15bd945b-44ef-4371-9c60-173b432de8dc'
+    @hmacKey = '644e4c91-8cfb-47bc-87b5-15459d86e1de'
     @instanceId = undefined
 
     @inkManager = new MyScript.InkManager()

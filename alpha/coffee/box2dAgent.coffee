@@ -4,6 +4,14 @@ class box2dAgent
 		@scale = scale
 		@box2dEntity = new Object()
 
+		# Temporary wall
+		groundDef = new b2BodyDef()
+		groundDef.position = new b2Vec2(0,24)
+		fixture = new b2FixtureDef()
+		shape = fixture.shape = new b2PolygonShape()
+		shape.SetAsBox(40,0.5)
+		@world.CreateBody(groundDef).CreateFixture(fixture)
+
 	transformTheGivenStrokeInABody: (stroke) ->
 
 		scaledStroke = @scaleStroke(stroke)
@@ -69,7 +77,6 @@ class box2dAgent
 					fixtureDefArray.push(fixture)
 
 
-		console.log this
 		return this
 
 	scaleStroke:(stroke) ->
@@ -96,11 +103,29 @@ class box2dAgent
 			bodyDefinition = @box2dEntity.definition
 			body = @world.CreateBody(bodyDefinition)
 			for fixture in fixtureArray
+				fixture.friction = 0.3
+				fixture.density = 1
 				body.CreateFixture(fixture)
-			console.log @world.GetBodyList()
 		else
 		  console.error "There isn't any body defined"
-		return this
+
+
+	getBodyList: () ->
+		bodyList = new Array()
+		currentBody = @world.GetBodyList()
+		while(currentBody)
+			if typeof currentBody.GetUserData()!='undefined' && currentBody.GetUserData()!=null
+				id = currentBody.GetUserData().id
+				bodyList[id] =
+					vx: currentBody.GetLinearVelocity().x
+					vy: currentBody.GetLinearVelocity().y
+					angularVelocity: currentBody.GetAngularVelocity()
+					centroid: currentBody.GetWorldCenter()
+					id: currentBody.GetUserData().id
+				# console.log 'bodyList[id]', bodyList[id]
+
+			currentBody = currentBody.m_next
+		return bodyList
 
 	classifyStroke: (stroke) ->
 		#verifying conditions

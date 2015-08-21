@@ -12,7 +12,7 @@ if window.Worker
 
   classifyStrokeAndSetId = (recognizedShape) ->
     if !@strokeId
-      @strokeId=1
+      @strokeId=0
     if recognizedShape
       stroke=
         uglyOrBeautiful:'beautiful'
@@ -28,13 +28,26 @@ if window.Worker
   recognizedShape = undefined
   myscriptWorker.onmessage = (e) ->
     recognizedShape = e.data
-    canvas.drawRecognizedShape(recognizedShape)
     strokeClassified = self.classifyStrokeAndSetId(recognizedShape)
+
+    # Draw recognizedShape
+    beauty = strokeClassified.uglyOrBeautiful
+    if beauty=='beautiful'
+      label = strokeClassified.measures.label
+      canvas.drawRecognizedShape(strokeClassified)
+
     box2dWorker.postMessage(strokeClassified)
 
+  information = undefined
+  box2dWorker.onmessage = (e) ->
+    information = e.data
 
 
-
+  (update = ()->
+    if information
+      canvas.updateDraw(information)
+    requestAnimationFrame(update)
+  )()
 
 
 
@@ -45,7 +58,6 @@ if window.Worker
   #
   # (updateCanvas = () ->
   #   window.requestAnimationFrame(updateCanvas)
-  #   console.log bodiesList
   # )()
 
 

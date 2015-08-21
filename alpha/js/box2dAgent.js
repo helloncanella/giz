@@ -2,9 +2,16 @@ var box2dAgent;
 
 box2dAgent = (function() {
   function box2dAgent(world, scale) {
+    var fixture, groundDef, shape;
     this.world = world;
     this.scale = scale;
     this.box2dEntity = new Object();
+    groundDef = new b2BodyDef();
+    groundDef.position = new b2Vec2(0, 24);
+    fixture = new b2FixtureDef();
+    shape = fixture.shape = new b2PolygonShape();
+    shape.SetAsBox(40, 0.5);
+    this.world.CreateBody(groundDef).CreateFixture(fixture);
   }
 
   box2dAgent.prototype.transformTheGivenStrokeInABody = function(stroke) {
@@ -75,7 +82,6 @@ box2dAgent = (function() {
           fixtureDefArray.push(fixture);
         }
     }
-    console.log(this);
     return this;
   };
 
@@ -114,20 +120,42 @@ box2dAgent = (function() {
   };
 
   box2dAgent.prototype.insertTheTransformedBodyInTheWorld = function() {
-    var body, bodyDefinition, fixture, fixtureArray, i, len;
+    var body, bodyDefinition, fixture, fixtureArray, i, len, results;
     if (this.box2dEntity.fixtureDefArray) {
       fixtureArray = this.box2dEntity.fixtureDefArray;
       bodyDefinition = this.box2dEntity.definition;
       body = this.world.CreateBody(bodyDefinition);
+      results = [];
       for (i = 0, len = fixtureArray.length; i < len; i++) {
         fixture = fixtureArray[i];
-        body.CreateFixture(fixture);
+        fixture.friction = 0.3;
+        fixture.density = 1;
+        results.push(body.CreateFixture(fixture));
       }
-      console.log(this.world.GetBodyList());
+      return results;
     } else {
-      console.error("There isn't any body defined");
+      return console.error("There isn't any body defined");
     }
-    return this;
+  };
+
+  box2dAgent.prototype.getBodyList = function() {
+    var bodyList, currentBody, id;
+    bodyList = new Array();
+    currentBody = this.world.GetBodyList();
+    while (currentBody) {
+      if (typeof currentBody.GetUserData() !== 'undefined' && currentBody.GetUserData() !== null) {
+        id = currentBody.GetUserData().id;
+        bodyList[id] = {
+          vx: currentBody.GetLinearVelocity().x,
+          vy: currentBody.GetLinearVelocity().y,
+          angularVelocity: currentBody.GetAngularVelocity(),
+          centroid: currentBody.GetWorldCenter(),
+          id: currentBody.GetUserData().id
+        };
+      }
+      currentBody = currentBody.m_next;
+    }
+    return bodyList;
   };
 
   box2dAgent.prototype.classifyStroke = function(stroke) {

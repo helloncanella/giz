@@ -51,8 +51,21 @@ Canvas = (function() {
     });
   };
 
+  Canvas.prototype.storeInTheStrokeList = function(stroke) {
+    if (!this.strokeList) {
+      this.strokeList = new Array();
+    }
+    return this.strokeList.push(stroke);
+  };
+
+  Canvas.prototype.removeFromTheStrokeList = function(stroke) {
+    var index;
+    index = this.strokeList.indexOf(stroke);
+    return this.strokeList.splice(index, 1);
+  };
+
   Canvas.prototype.drawRecognizedShape = function(recognizedShape) {
-    var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, endAngle, i, label, len, newVertex, old, radius, results, self, startAngle, sweepAngle, vertices;
+    var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, endAngle, i, label, len, newVertex, old, radius, self, startAngle, sweepAngle, vertices;
     self = this;
     if (recognizedShape) {
       this.stage.removeChild(this.lastDraw);
@@ -61,11 +74,11 @@ Canvas = (function() {
       beautifulDrawGraphics.beginStroke(self.color);
       this.stage.addChild(beautifulDraw);
       this.stage.update();
-      label = recognizedShape.label;
+      console.log(this.stage);
+      label = recognizedShape.measures.label;
       switch (label) {
         case 'polyline':
-          vertices = recognizedShape.vertices;
-          results = [];
+          vertices = recognizedShape.measures.vertices;
           for (i = 0, len = vertices.length; i < len; i++) {
             newVertex = vertices[i];
             if (!old) {
@@ -74,15 +87,14 @@ Canvas = (function() {
             }
             beautifulDrawGraphics.beginStroke(self.color).setStrokeStyle(self.size, "round").moveTo(old.x, old.y).lineTo(newVertex.x, newVertex.y);
             this.stage.update();
-            results.push(old = newVertex);
+            old = newVertex;
           }
-          return results;
-          break;
+          return this.stage.update();
         case 'ellipseArc':
-          center = recognizedShape.center;
-          radius = recognizedShape.minRadius;
-          startAngle = recognizedShape.startAngle;
-          sweepAngle = recognizedShape.sweepAngle;
+          center = recognizedShape.measures.center;
+          radius = recognizedShape.measures.minRadius;
+          startAngle = recognizedShape.measures.startAngle;
+          sweepAngle = recognizedShape.measures.sweepAngle;
           endAngle = startAngle + sweepAngle;
           if (sweepAngle <= 0) {
             anticlockwise = true;
@@ -95,6 +107,27 @@ Canvas = (function() {
           return null;
       }
     }
+  };
+
+  Canvas.prototype.updateDraw = function(bodyList) {
+    var bounds, child, i, index, len, ref, results;
+    index = 0;
+    ref = this.stage.children;
+    results = [];
+    for (i = 0, len = ref.length; i < len; i++) {
+      child = ref[i];
+      if (bodyList[index]) {
+        child.x = child.x + bodyList[index].vx * (1 / 60) * 30;
+        child.y = child.y + bodyList[index].vy * (1 / 60) * 30;
+        bounds = child.getBounds();
+        console.log('bounds', bounds);
+        index++;
+        results.push(this.stage.update());
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
   };
 
   return Canvas;

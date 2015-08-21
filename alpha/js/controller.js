@@ -44,11 +44,13 @@ if (window.Worker) {
   };
   information = void 0;
   box2dWorker.onmessage = function(e) {
-    return information = e.data;
+    information = e.data;
+    canvas.updateDraw(information);
+    return console.log('aqui');
   };
   (update = function() {
     if (information) {
-      canvas.updateDraw(information);
+      console.log('aqui');
     }
     return requestAnimationFrame(update);
   })();

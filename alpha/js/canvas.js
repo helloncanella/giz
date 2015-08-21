@@ -110,17 +110,16 @@ Canvas = (function() {
   };
 
   Canvas.prototype.updateDraw = function(bodyList) {
-    var bounds, child, i, index, len, ref, results;
+    var child, i, index, len, ref, results;
     index = 0;
     ref = this.stage.children;
     results = [];
     for (i = 0, len = ref.length; i < len; i++) {
       child = ref[i];
       if (bodyList[index]) {
+        console.log('aqui');
         child.x = child.x + bodyList[index].vx * (1 / 60) * 30;
         child.y = child.y + bodyList[index].vy * (1 / 60) * 30;
-        bounds = child.getBounds();
-        console.log('bounds', bounds);
         index++;
         results.push(this.stage.update());
       } else {

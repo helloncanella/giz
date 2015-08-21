@@ -2,8 +2,8 @@ var myscriptRequests;
 
 myscriptRequests = (function() {
   function myscriptRequests() {
-    this.applicationKey = '15bd945b-44ef-4371-9c60-173b432de8dc';
-    this.hmacKey = '644e4c91-8cfb-47bc-87b5-15459d86e1de';
+    this.applicationKey = '63e2c95e-2122-458e-8c4b-9055d42d357f';
+    this.hmacKey = '75b47acb-b553-4a9e-878b-f96639e1f7dc';
     this.instanceId = void 0;
     this.inkManager = new MyScript.InkManager();
     this.shapeRecognizer = new MyScript.ShapeRecognizer();

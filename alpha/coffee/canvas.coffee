@@ -111,10 +111,12 @@ class Canvas
     # console.log @stage
     for child in @stage.children
       if(bodyList[index])
+        console.log 'aqui'
         child.x = child.x + bodyList[index].vx*(1/60)*30
         child.y = child.y + bodyList[index].vy*(1/60)*30
-        bounds = child.getBounds()
-        console.log 'bounds', bounds
+        # child.regX = child.localToGlobal(bodyList[index].centroid.x*30,bodyList[index].centroid.y*30).x
+        # child.regY = child.localToGlobal(bodyList[index].centroid.x*30,bodyList[index].centroid.y*30).y
+        #
         # child.rotation = child.rotation + bodyList[index].angularVelocity*(1/60)*30
         # console.log 'angular', bodyList[index].angularVelocity
         index++

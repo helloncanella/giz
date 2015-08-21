@@ -20,4 +20,4 @@ update =->
   if(box2dAgentInstance)
     postMessage(box2dAgentInstance.getBodyList())
 
-setInterval(update,1000*rate)
+ setInterval(update,1000*rate)

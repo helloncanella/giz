@@ -41,11 +41,13 @@ if window.Worker
   information = undefined
   box2dWorker.onmessage = (e) ->
     information = e.data
+    canvas.updateDraw(information)
+    console.log 'aqui'
 
 
   (update = ()->
     if information
-      canvas.updateDraw(information)
+      console.log 'aqui'
     requestAnimationFrame(update)
   )()
 

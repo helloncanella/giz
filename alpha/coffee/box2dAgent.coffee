@@ -28,31 +28,14 @@ class box2dAgent
 
 			when "polygon"
 				strokeVertices = stroke.measures.vertices
-				bayazitDecomp = new bayazitDecomposer()
-				bayazitPolygons = bayazitDecomp.concanveToconvex(strokeVertices)
+				console.log strokeVertices
+				poly2triPolygon = new poly2triDecomposer()
+				triangulatedPolygons = poly2triPolygon.triangulatePolygons(strokeVertices)
 
-				for polygon in bayazitPolygons
-					if !toBeRemoved and !toBeAdded
-						toBeRemoved = new Array()
-						toBeAdded = new Array()
-
-					#Convert using poly2tri in case of the bayazit polygon have more tha 8 sides (limit of box2d)
-					if polygon.vertices.length>=8 #XXX
-						toBeRemoved.push(polygon)
-						poly2triPolygon = new poly2triDecomposer()
-						triangulatedPolygons = poly2triPolygon.triangulateBayazitPolygon(polygon)
-						for triangulated in triangulatedPolygons
-							toBeAdded.push(triangulated)
-
-				for item in toBeRemoved #remove polygon with more than or equal to 8 sides
-					index = bayazitPolygons.indexOf(item)
-					bayazitPolygons.splice(index,1)
-
-				newPolygonArray = new Array().concat(bayazitPolygons,toBeAdded)
-				for item in newPolygonArray
+				for triangule in triangulatedPolygons
 					if(!itensReadyToBox2d)
 						itensReadyToBox2d = new Array()
-					itensReadyToBox2d.push(item.transformResultToArrayFormat())
+					itensReadyToBox2d.push(triangule.transformResultToArrayFormat())
 
 				centroid = @calculateCentroid(itensReadyToBox2d)
 
@@ -73,6 +56,7 @@ class box2dAgent
 					if b2Vertices[start].x == b2Vertices[last].x and b2Vertices[start].y == b2Vertices[last].y
 						b2Vertices.splice(last,1)
 
+					console.log 'fixuture', fixture
 					fixture.shape.SetAsArray(b2Vertices,b2Vertices.length)
 					fixtureDefArray.push(fixture)
 

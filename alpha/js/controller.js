@@ -23,7 +23,7 @@ if (window.Worker) {
     debugDraw.SetDrawScale(scale);
     debugDraw.SetFillAlpha(0.3);
     debugDraw.SetLineThickness(1.0);
-    debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+    debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
     world.SetDebugDraw(debugDraw);
     return console.log('DEBUGDRAW', debugDraw);
   };
@@ -63,9 +63,7 @@ if (window.Worker) {
       canvas.drawRecognizedShape(strokeClassified);
     }
     box2dAgentInstance.transformTheGivenStrokeInABody(strokeClassified).insertTheTransformedBodyInTheWorld();
-    console.log('box2dAgentInstance', box2dAgentInstance);
-    bodyList = box2dAgentInstance.getBodyList();
-    return console.log('BODYLIST', bodyList);
+    return bodyList = box2dAgentInstance.getBodyList();
   };
   (update = function() {
     if (!box2dAgentInstance) {

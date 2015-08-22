@@ -1,4 +1,27 @@
 class poly2triDecomposer
+
+  triangulatePolygons: (vertices) ->
+    startPoint = vertices[0]
+    lastPoint = vertices[(vertices.length-1)]
+
+    for vertex in vertices
+      if !arrayOfTriangles
+        arrayOfTriangles = new Array()
+      componentX = vertex.x
+      componentY = vertex.y
+      if vertex != lastPoint
+        arrayOfTriangles.push(new poly2tri.Point(componentX,componentY))
+
+    swctx = new poly2tri.SweepContext(arrayOfTriangles)
+    swctx.triangulate();
+    @triangles = swctx.getTriangles();
+
+    for triangle in @triangles
+      triangle.makeCCW() #garantee that the points of polygon will be CCW
+
+    return @triangles
+
+
   triangulateBayazitPolygon: (polygon) ->
     vertices = polygon.vertices
     startPoint = vertices[0]

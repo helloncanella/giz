@@ -15,7 +15,7 @@ box2dAgent = (function() {
   }
 
   box2dAgent.prototype.transformTheGivenStrokeInABody = function(stroke) {
-    var b2Vertices, bayazitDecomp, bayazitPolygons, bodyDef, centroid, classifiedStroke, fixture, fixtureDefArray, i, index, item, itensReadyToBox2d, j, k, l, last, len, len1, len2, len3, len4, len5, localVertex, m, n, newPolygonArray, poly2triPolygon, polygon, scaledStroke, start, strokeVertices, toBeAdded, toBeRemoved, triangulated, triangulatedPolygons, vertex;
+    var b2Vertices, bodyDef, centroid, classifiedStroke, fixture, fixtureDefArray, i, itensReadyToBox2d, j, k, last, len, len1, len2, localVertex, poly2triPolygon, polygon, scaledStroke, start, strokeVertices, triangulatedPolygons, triangule, vertex;
     scaledStroke = this.scaleStroke(stroke);
     bodyDef = this.box2dEntity.definition = new b2BodyDef;
     bodyDef.type = b2Body.b2_dynamicBody;
@@ -26,47 +26,26 @@ box2dAgent = (function() {
     switch (classifiedStroke) {
       case "polygon":
         strokeVertices = stroke.measures.vertices;
-        bayazitDecomp = new bayazitDecomposer();
-        bayazitPolygons = bayazitDecomp.concanveToconvex(strokeVertices);
-        for (i = 0, len = bayazitPolygons.length; i < len; i++) {
-          polygon = bayazitPolygons[i];
-          if (!toBeRemoved && !toBeAdded) {
-            toBeRemoved = new Array();
-            toBeAdded = new Array();
-          }
-          if (polygon.vertices.length >= 8) {
-            toBeRemoved.push(polygon);
-            poly2triPolygon = new poly2triDecomposer();
-            triangulatedPolygons = poly2triPolygon.triangulateBayazitPolygon(polygon);
-            for (j = 0, len1 = triangulatedPolygons.length; j < len1; j++) {
-              triangulated = triangulatedPolygons[j];
-              toBeAdded.push(triangulated);
-            }
-          }
-        }
-        for (k = 0, len2 = toBeRemoved.length; k < len2; k++) {
-          item = toBeRemoved[k];
-          index = bayazitPolygons.indexOf(item);
-          bayazitPolygons.splice(index, 1);
-        }
-        newPolygonArray = new Array().concat(bayazitPolygons, toBeAdded);
-        for (l = 0, len3 = newPolygonArray.length; l < len3; l++) {
-          item = newPolygonArray[l];
+        console.log(strokeVertices);
+        poly2triPolygon = new poly2triDecomposer();
+        triangulatedPolygons = poly2triPolygon.triangulatePolygons(strokeVertices);
+        for (i = 0, len = triangulatedPolygons.length; i < len; i++) {
+          triangule = triangulatedPolygons[i];
           if (!itensReadyToBox2d) {
             itensReadyToBox2d = new Array();
           }
-          itensReadyToBox2d.push(item.transformResultToArrayFormat());
+          itensReadyToBox2d.push(triangule.transformResultToArrayFormat());
         }
         centroid = this.calculateCentroid(itensReadyToBox2d);
         bodyDef.position = new b2Vec2(centroid.x, centroid.y);
         fixtureDefArray = this.box2dEntity.fixtureDefArray = new Array();
-        for (m = 0, len4 = itensReadyToBox2d.length; m < len4; m++) {
-          polygon = itensReadyToBox2d[m];
+        for (j = 0, len1 = itensReadyToBox2d.length; j < len1; j++) {
+          polygon = itensReadyToBox2d[j];
           fixture = new b2FixtureDef();
           fixture.shape = new b2PolygonShape();
           b2Vertices = new Array();
-          for (n = 0, len5 = polygon.length; n < len5; n++) {
-            vertex = polygon[n];
+          for (k = 0, len2 = polygon.length; k < len2; k++) {
+            vertex = polygon[k];
             localVertex = {
               x: vertex.x - centroid.x,
               y: vertex.y - centroid.y
@@ -78,6 +57,7 @@ box2dAgent = (function() {
           if (b2Vertices[start].x === b2Vertices[last].x && b2Vertices[start].y === b2Vertices[last].y) {
             b2Vertices.splice(last, 1);
           }
+          console.log('fixuture', fixture);
           fixture.shape.SetAsArray(b2Vertices, b2Vertices.length);
           fixtureDefArray.push(fixture);
         }

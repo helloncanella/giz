@@ -25,7 +25,7 @@ if window.Worker
     debugDraw.SetDrawScale scale
     debugDraw.SetFillAlpha 0.3
     debugDraw.SetLineThickness 1.0
-    debugDraw.SetFlags b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit
+    debugDraw.SetFlags b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit
     world.SetDebugDraw debugDraw
     console.log 'DEBUGDRAW',debugDraw
 
@@ -62,9 +62,7 @@ if window.Worker
 
     box2dAgentInstance.transformTheGivenStrokeInABody(strokeClassified)
                       .insertTheTransformedBodyInTheWorld()
-    console.log 'box2dAgentInstance', box2dAgentInstance
     bodyList = box2dAgentInstance.getBodyList()
-    console.log  'BODYLIST',  bodyList
 
 
   (update = () ->

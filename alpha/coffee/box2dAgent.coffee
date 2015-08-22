@@ -113,7 +113,7 @@ class box2dAgent
 		else
 		  console.error "There isn't any body defined"
 
-
+ 
 	getBodyList: () ->
 		bodyList = new Array()
 		currentBody = @world.GetBodyList()

@@ -35,7 +35,6 @@ box2dAgent = (function() {
         break;
       case "polygon":
         strokeVertices = stroke.measures.vertices;
-        console.log(strokeVertices);
         poly2triPolygon = new poly2triDecomposer();
         triangulatedPolygons = poly2triPolygon.triangulatePolygons(strokeVertices);
         for (i = 0, len = triangulatedPolygons.length; i < len; i++) {
@@ -65,7 +64,6 @@ box2dAgent = (function() {
           if (b2Vertices[start].x === b2Vertices[last].x && b2Vertices[start].y === b2Vertices[last].y) {
             b2Vertices.splice(last, 1);
           }
-          console.log('fixuture', fixture);
           fixture.shape.SetAsArray(b2Vertices, b2Vertices.length);
           fixtureDefArray.push(fixture);
         }

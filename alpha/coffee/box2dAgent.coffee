@@ -35,7 +35,6 @@ class box2dAgent
 
 			when "polygon"
 				strokeVertices = stroke.measures.vertices
-				console.log strokeVertices
 				poly2triPolygon = new poly2triDecomposer()
 				triangulatedPolygons = poly2triPolygon.triangulatePolygons(strokeVertices)
 
@@ -63,7 +62,6 @@ class box2dAgent
 					if b2Vertices[start].x == b2Vertices[last].x and b2Vertices[start].y == b2Vertices[last].y
 						b2Vertices.splice(last,1)
 
-					console.log 'fixuture', fixture
 					fixture.shape.SetAsArray(b2Vertices,b2Vertices.length)
 					fixtureDefArray.push(fixture)
 
@@ -113,7 +111,7 @@ class box2dAgent
 		else
 		  console.error "There isn't any body defined"
 
- 
+
 	getBodyList: () ->
 		bodyList = new Array()
 		currentBody = @world.GetBodyList()
@@ -126,7 +124,6 @@ class box2dAgent
 					angularVelocity: currentBody.GetAngularVelocity()
 					centroid: currentBody.GetWorldCenter()
 					id: currentBody.GetUserData().id
-				# console.log 'bodyList[id]', bodyList[id]
 
 			currentBody = currentBody.m_next
 		return bodyList

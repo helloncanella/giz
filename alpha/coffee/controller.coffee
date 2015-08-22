@@ -13,7 +13,6 @@ if window.Worker
   debugDraw = undefined
 
   setBox2d = () ->
-    console.log 'dfadfadfadf'
     gravity = new b2Vec2(0,10)
     world = new b2World(gravity,false)
     rate = 1/60
@@ -27,9 +26,7 @@ if window.Worker
     debugDraw.SetLineThickness 1.0
     debugDraw.SetFlags b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit
     world.SetDebugDraw debugDraw
-    console.log 'DEBUGDRAW',debugDraw
-
-
+    
   $('canvas').mouseup (event)->
     strokeBundler = canvas.getStrokeBundler()
     myscriptWorker.postMessage(strokeBundler)

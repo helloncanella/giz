@@ -12,7 +12,6 @@ if (window.Worker) {
   debugDraw = void 0;
   setBox2d = function() {
     var gravity, scale;
-    console.log('dfadfadfadf');
     gravity = new b2Vec2(0, 10);
     world = new b2World(gravity, false);
     rate = 1 / 60;
@@ -24,8 +23,7 @@ if (window.Worker) {
     debugDraw.SetFillAlpha(0.3);
     debugDraw.SetLineThickness(1.0);
     debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
-    world.SetDebugDraw(debugDraw);
-    return console.log('DEBUGDRAW', debugDraw);
+    return world.SetDebugDraw(debugDraw);
   };
   $('canvas').mouseup(function(event) {
     var strokeBundler;

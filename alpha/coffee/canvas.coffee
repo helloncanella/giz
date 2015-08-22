@@ -73,9 +73,19 @@ class Canvas
                                 .setStrokeStyle(self.size, "round")
                                 .moveTo(old.x,old.y)
                                 .lineTo(newVertex.x,newVertex.y)
-
+            console.log 'newVertex', newVertex.x, newVertex.y
             @stage.update()
+
+            if(!centroidPointsArray)
+              centroidPointsArray = new Array()
+            centroidPointsArray.push(old)
+
             old = newVertex
+
+          console.log 'centroidPointsArray', centroidPointsArray
+          console.log 'recognizedShape', recognizedShape
+          console.log 'vertices', vertices
+
           @stage.update()
         when 'ellipseArc' #TODO ADAPT THE OPERATION FOR A GENERAL ELLIPSE ARC
           center = recognizedShape.measures.center
@@ -103,7 +113,6 @@ class Canvas
     # console.log @stage
     for child in @stage.children
       if(bodyList[index])
-        console.log 'aqui'
         child.x = child.x + bodyList[index].vx*(1/60)*30
         child.y = child.y + bodyList[index].vy*(1/60)*30
         # child.regX = child.localToGlobal(bodyList[index].centroid.x*30,bodyList[index].centroid.y*30).x

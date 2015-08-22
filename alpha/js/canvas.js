@@ -52,7 +52,7 @@ Canvas = (function() {
   };
 
   Canvas.prototype.drawRecognizedShape = function(recognizedShape) {
-    var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, endAngle, i, label, len, newVertex, old, radius, self, startAngle, sweepAngle, vertices;
+    var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, centroidPointsArray, endAngle, i, label, len, newVertex, old, radius, self, startAngle, sweepAngle, vertices;
     self = this;
     if (recognizedShape) {
       this.stage.removeChild(this.lastDraw);
@@ -73,9 +73,17 @@ Canvas = (function() {
               continue;
             }
             beautifulDrawGraphics.beginStroke(self.color).setStrokeStyle(self.size, "round").moveTo(old.x, old.y).lineTo(newVertex.x, newVertex.y);
+            console.log('newVertex', newVertex.x, newVertex.y);
             this.stage.update();
+            if (!centroidPointsArray) {
+              centroidPointsArray = new Array();
+            }
+            centroidPointsArray.push(old);
             old = newVertex;
           }
+          console.log('centroidPointsArray', centroidPointsArray);
+          console.log('recognizedShape', recognizedShape);
+          console.log('vertices', vertices);
           return this.stage.update();
         case 'ellipseArc':
           center = recognizedShape.measures.center;
@@ -104,7 +112,6 @@ Canvas = (function() {
     for (i = 0, len = ref.length; i < len; i++) {
       child = ref[i];
       if (bodyList[index]) {
-        console.log('aqui');
         child.x = child.x + bodyList[index].vx * (1 / 60) * 30;
         child.y = child.y + bodyList[index].vy * (1 / 60) * 30;
         index++;

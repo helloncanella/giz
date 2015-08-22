@@ -10,16 +10,31 @@
 		document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
 	</script>
 
-	<style></style>
+	<style>
+
+		/*canvas#debugDraw{
+			position:absolute;
+			right:1654px
+		}*/
+
+	</style>
 
 </head>
 
 <body>
+
+
 	<canvas id="easel" width='1570' height="768"></canvas>
+	<canvas id="debugDraw" width='1570' height="768"></canvas>
 	<script src="js/lib/jquery.js"></script>
 	<script src="js/lib/easel.js"></script>
 	<script src="js/lib/box2dWeb.js"></script>
 	<script src="js/box2dPreamble.js"></script>
+	<script src="js/lib/bayazit.js"></script>
+	<script src="js/lib/poly2tri.js"></script>
+	<script src="js/auxiliarClasses/poly2triDecomposer.js"></script>
+	<script src="js/auxiliarClasses/bayazitDecomposer.js"></script>
+	<script src="js/box2dAgent.js"></script>
 	<script src="js/tracker.js"></script>
 	<script src="js/canvas.js"></script>
 	<script src="js/controller.js"></script>

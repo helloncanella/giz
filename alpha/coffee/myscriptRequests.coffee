@@ -13,7 +13,7 @@ class myscriptRequests
 
   fillInkManager: ->
     counter = start = 0
-    end = @strokeBundler.length - 1
+    end = @strokeBundler.length - 1 
     for stroke in @strokeBundler
       switch counter
         when start then @inkManager.startInkCapture(stroke.x, stroke.y)

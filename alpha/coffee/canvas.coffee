@@ -46,14 +46,6 @@ class Canvas
 
       self.isMouseDown=false
 
-  storeInTheStrokeList: (stroke) ->
-    if !@strokeList
-      @strokeList = new Array()
-    @strokeList.push(stroke) #store new recognizedShape
-
-  removeFromTheStrokeList: (stroke) ->
-    index = @strokeList.indexOf(stroke)
-    @strokeList.splice(index,1)
 
   drawRecognizedShape: (recognizedShape) ->
     self = this

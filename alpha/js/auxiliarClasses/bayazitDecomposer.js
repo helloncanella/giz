@@ -13,6 +13,7 @@ bayazitDecomposer = (function() {
     }
     longerBayazitPolygons = polygonArray.decomp();
     this.bayazitPoligons = longerBayazitPolygons;
+    console.log('BAYAZIT', longerBayazitPolygons);
     ref = this.bayazitPoligons;
     for (j = 0, len1 = ref.length; j < len1; j++) {
       polygon = ref[j];

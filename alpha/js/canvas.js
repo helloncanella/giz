@@ -51,19 +51,6 @@ Canvas = (function() {
     });
   };
 
-  Canvas.prototype.storeInTheStrokeList = function(stroke) {
-    if (!this.strokeList) {
-      this.strokeList = new Array();
-    }
-    return this.strokeList.push(stroke);
-  };
-
-  Canvas.prototype.removeFromTheStrokeList = function(stroke) {
-    var index;
-    index = this.strokeList.indexOf(stroke);
-    return this.strokeList.splice(index, 1);
-  };
-
   Canvas.prototype.drawRecognizedShape = function(recognizedShape) {
     var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, endAngle, i, label, len, newVertex, old, radius, self, startAngle, sweepAngle, vertices;
     self = this;

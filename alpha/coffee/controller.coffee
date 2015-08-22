@@ -1,11 +1,35 @@
 if window.Worker
-  canvasTag = $('canvas')[0]
+  canvasTag = $('canvas#easel')[0]
+  debugDrawCanvas = $('canvas#debugDraw')[0]
   canvas = new Canvas(canvasTag)
 
-  myscriptWorker = new Worker('js/myscriptWorker.js')
-  box2dWorker = new Worker('js/box2dWorker.js')
+  context = debugDrawCanvas.getContext('2d')
 
-  strokeBundler = undefined
+  myscriptWorker = new Worker('js/myscriptWorker.js')
+
+  box2dAgentInstance = undefined
+  world = undefined
+  rate = undefined
+  debugDraw = undefined
+
+  setBox2d = () ->
+    console.log 'dfadfadfadf'
+    gravity = new b2Vec2(0,10)
+    world = new b2World(gravity,false)
+    rate = 1/60
+    scale = 30
+    box2dAgentInstance = new box2dAgent(world,scale)
+
+    debugDraw = new b2DebugDraw
+    debugDraw.SetSprite context
+    debugDraw.SetDrawScale scale
+    debugDraw.SetFillAlpha 0.3
+    debugDraw.SetLineThickness 1.0
+    debugDraw.SetFlags b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit
+    world.SetDebugDraw debugDraw
+    console.log 'DEBUGDRAW',debugDraw
+
+
   $('canvas').mouseup (event)->
     strokeBundler = canvas.getStrokeBundler()
     myscriptWorker.postMessage(strokeBundler)
@@ -36,35 +60,19 @@ if window.Worker
       label = strokeClassified.measures.label
       canvas.drawRecognizedShape(strokeClassified)
 
-    box2dWorker.postMessage(strokeClassified)
-
-  information = undefined
-  box2dWorker.onmessage = (e) ->
-    information = e.data
-    canvas.updateDraw(information)
-    console.log 'aqui'
+    box2dAgentInstance.transformTheGivenStrokeInABody(strokeClassified)
+                      .insertTheTransformedBodyInTheWorld()
+    console.log 'box2dAgentInstance', box2dAgentInstance
+    bodyList = box2dAgentInstance.getBodyList()
+    console.log  'BODYLIST',  bodyList
 
 
-  (update = ()->
-    if information
-      console.log 'aqui'
+  (update = () ->
+    if !box2dAgentInstance
+      setBox2d()
+    if box2dAgentInstance
+      world.Step(rate,50,50)
+      world.DrawDebugData()
+      canvas.updateDraw(box2dAgentInstance.getBodyList())
     requestAnimationFrame(update)
   )()
-
-
-
-
-  # bodiesList = null
-  # box2dWorker.onmessage = (e) ->
-  #   bodiesList = e.data or null
-  #
-  # (updateCanvas = () ->
-  #   window.requestAnimationFrame(updateCanvas)
-  # )()
-
-
-
-
-else
-  $( 'canvas').remove()
-  $('body').append "<h1> Your browser doesn't support our application. </h1> <p>Try one more modern, like chrome or firefox, for example.</p>"

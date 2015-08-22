@@ -10,6 +10,8 @@ class bayazitDecomposer
     longerBayazitPolygons = polygonArray.decomp()
     @bayazitPoligons = longerBayazitPolygons
 
+    console.log 'BAYAZIT', longerBayazitPolygons
+
     for polygon in @bayazitPoligons
       polygon.makeCCW()
 

@@ -23,8 +23,15 @@ class box2dAgent
 		classifiedStroke = @classifyStroke(scaledStroke)
 
 		# If last
-
+		fixtureDefArray = @box2dEntity.fixtureDefArray = new Array()
 		switch classifiedStroke
+			when 'circle'
+				fixture = new b2FixtureDef()
+				circleShape = fixture.shape = new b2CircleShape()
+				center = scaledStroke.measures.center
+				bodyDef.position = new b2Vec2(center.x,center.y)
+				circleShape.m_radius = scaledStroke.measures.maxRadius
+				fixtureDefArray.push(fixture)
 
 			when "polygon"
 				strokeVertices = stroke.measures.vertices
@@ -40,7 +47,7 @@ class box2dAgent
 				centroid = @calculateCentroid(itensReadyToBox2d)
 
 				bodyDef.position = new b2Vec2(centroid.x,centroid.y)
-				fixtureDefArray = @box2dEntity.fixtureDefArray = new Array()
+
 				for polygon in itensReadyToBox2d
 					fixture = new b2FixtureDef()
 					fixture.shape = new b2PolygonShape()
@@ -64,10 +71,23 @@ class box2dAgent
 		return this
 
 	scaleStroke:(stroke) ->
-		vertices = stroke.measures.vertices
-		for vertex in vertices
-			vertex.x /= @scale
-			vertex.y /= @scale
+		measures = stroke.measures
+
+		for index, measure of measures
+			switch index
+				when "center"
+					center = measure
+					center.x/=@scale
+					center.y/=@scale
+				when "vertices"
+					vertices = measure
+					for vertex in vertices
+						vertex.x/=@scale
+						vertex.y/=@scale
+				else
+					if (index == "maxRadius" or index =="minRadius")
+						measures[index]/=@scale
+
 		return stroke
 
 	calculateCentroid: (polygonsArray) ->

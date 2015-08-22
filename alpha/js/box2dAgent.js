@@ -15,7 +15,7 @@ box2dAgent = (function() {
   }
 
   box2dAgent.prototype.transformTheGivenStrokeInABody = function(stroke) {
-    var b2Vertices, bodyDef, centroid, classifiedStroke, fixture, fixtureDefArray, i, itensReadyToBox2d, j, k, last, len, len1, len2, localVertex, poly2triPolygon, polygon, scaledStroke, start, strokeVertices, triangulatedPolygons, triangule, vertex;
+    var b2Vertices, bodyDef, center, centroid, circleShape, classifiedStroke, fixture, fixtureDefArray, i, itensReadyToBox2d, j, k, last, len, len1, len2, localVertex, poly2triPolygon, polygon, scaledStroke, start, strokeVertices, triangulatedPolygons, triangule, vertex;
     scaledStroke = this.scaleStroke(stroke);
     bodyDef = this.box2dEntity.definition = new b2BodyDef;
     bodyDef.type = b2Body.b2_dynamicBody;
@@ -23,7 +23,16 @@ box2dAgent = (function() {
       id: stroke.id
     };
     classifiedStroke = this.classifyStroke(scaledStroke);
+    fixtureDefArray = this.box2dEntity.fixtureDefArray = new Array();
     switch (classifiedStroke) {
+      case 'circle':
+        fixture = new b2FixtureDef();
+        circleShape = fixture.shape = new b2CircleShape();
+        center = scaledStroke.measures.center;
+        bodyDef.position = new b2Vec2(center.x, center.y);
+        circleShape.m_radius = scaledStroke.measures.maxRadius;
+        fixtureDefArray.push(fixture);
+        break;
       case "polygon":
         strokeVertices = stroke.measures.vertices;
         console.log(strokeVertices);
@@ -38,7 +47,6 @@ box2dAgent = (function() {
         }
         centroid = this.calculateCentroid(itensReadyToBox2d);
         bodyDef.position = new b2Vec2(centroid.x, centroid.y);
-        fixtureDefArray = this.box2dEntity.fixtureDefArray = new Array();
         for (j = 0, len1 = itensReadyToBox2d.length; j < len1; j++) {
           polygon = itensReadyToBox2d[j];
           fixture = new b2FixtureDef();
@@ -66,12 +74,29 @@ box2dAgent = (function() {
   };
 
   box2dAgent.prototype.scaleStroke = function(stroke) {
-    var i, len, vertex, vertices;
-    vertices = stroke.measures.vertices;
-    for (i = 0, len = vertices.length; i < len; i++) {
-      vertex = vertices[i];
-      vertex.x /= this.scale;
-      vertex.y /= this.scale;
+    var center, i, index, len, measure, measures, vertex, vertices;
+    measures = stroke.measures;
+    for (index in measures) {
+      measure = measures[index];
+      switch (index) {
+        case "center":
+          center = measure;
+          center.x /= this.scale;
+          center.y /= this.scale;
+          break;
+        case "vertices":
+          vertices = measure;
+          for (i = 0, len = vertices.length; i < len; i++) {
+            vertex = vertices[i];
+            vertex.x /= this.scale;
+            vertex.y /= this.scale;
+          }
+          break;
+        default:
+          if (index === "maxRadius" || index === "minRadius") {
+            measures[index] /= this.scale;
+          }
+      }
     }
     return stroke;
   };

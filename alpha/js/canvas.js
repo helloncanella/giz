@@ -15,15 +15,16 @@ Canvas = (function() {
   };
 
   Canvas.prototype.setBlackboard = function() {
-    var old, self;
+    var old, pointToCentroidCalculation, self;
     old = void 0;
     this.lastDrawGraphics = void 0;
     this.lastDraw = void 0;
     self = this;
+    pointToCentroidCalculation = void 0;
     this.stage = new createjs.Stage(this.canvasTag.id);
     this.stage.enableDOMEvents(true);
     this.color = "#0FF";
-    this.size = 10;
+    this.size = 5;
     this.stage.on('stagemousedown', function(event) {
       self.color = createjs.Graphics.getHSL(Math.random() * 360, 100, 50);
       self.isMouseDown = true;
@@ -47,13 +48,15 @@ Canvas = (function() {
       };
     });
     return this.stage.on('stagemouseup', function(event) {
-      return self.isMouseDown = false;
+      self.isMouseDown = false;
+      return this.stage.update();
     });
   };
 
   Canvas.prototype.drawRecognizedShape = function(recognizedShape) {
-    var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, centroidPointsArray, endAngle, i, label, len, newVertex, old, radius, self, startAngle, sweepAngle, vertices;
+    var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, centroid, endAngle, i, label, len, newVertex, old, radius, self, startAngle, sweepAngle, vertices;
     self = this;
+    centroid = void 0;
     if (recognizedShape) {
       this.stage.removeChild(this.lastDraw);
       beautifulDrawGraphics = new createjs.Graphics();
@@ -61,11 +64,10 @@ Canvas = (function() {
       beautifulDrawGraphics.beginStroke(self.color);
       this.stage.addChild(beautifulDraw);
       this.stage.update();
-      console.log(this.stage);
-      label = recognizedShape.measures.label;
+      label = recognizedShape.measures.canvas.label;
       switch (label) {
         case 'polyline':
-          vertices = recognizedShape.measures.vertices;
+          vertices = recognizedShape.measures.canvas.vertices;
           for (i = 0, len = vertices.length; i < len; i++) {
             newVertex = vertices[i];
             if (!old) {
@@ -73,23 +75,15 @@ Canvas = (function() {
               continue;
             }
             beautifulDrawGraphics.beginStroke(self.color).setStrokeStyle(self.size, "round").moveTo(old.x, old.y).lineTo(newVertex.x, newVertex.y);
-            console.log('newVertex', newVertex.x, newVertex.y);
             this.stage.update();
-            if (!centroidPointsArray) {
-              centroidPointsArray = new Array();
-            }
-            centroidPointsArray.push(old);
             old = newVertex;
           }
-          console.log('centroidPointsArray', centroidPointsArray);
-          console.log('recognizedShape', recognizedShape);
-          console.log('vertices', vertices);
           return this.stage.update();
         case 'ellipseArc':
-          center = recognizedShape.measures.center;
-          radius = recognizedShape.measures.minRadius;
-          startAngle = recognizedShape.measures.startAngle;
-          sweepAngle = recognizedShape.measures.sweepAngle;
+          center = recognizedShape.measures.canvas.center;
+          radius = recognizedShape.measures.canvas.minRadius;
+          startAngle = recognizedShape.measures.canvas.startAngle;
+          sweepAngle = recognizedShape.measures.canvas.sweepAngle;
           endAngle = startAngle + sweepAngle;
           if (sweepAngle <= 0) {
             anticlockwise = true;
@@ -104,6 +98,17 @@ Canvas = (function() {
     }
   };
 
+  Canvas.prototype.setLastBodyAxis = function(body) {
+    var child, id;
+    id = body.id;
+    child = this.stage.children[id];
+    child.regX = body.centroid.x * 30;
+    child.regY = body.centroid.y * 30;
+    console.log('body', body);
+    child.x += child.regX;
+    return child.y += child.regY;
+  };
+
   Canvas.prototype.updateDraw = function(bodyList) {
     var child, i, index, len, ref, results;
     index = 0;
@@ -112,8 +117,9 @@ Canvas = (function() {
     for (i = 0, len = ref.length; i < len; i++) {
       child = ref[i];
       if (bodyList[index]) {
-        child.x = child.x + bodyList[index].vx * (1 / 60) * 30;
-        child.y = child.y + bodyList[index].vy * (1 / 60) * 30;
+        child.x += bodyList[index].vx * (1 / 60) * 30;
+        child.y += bodyList[index].vy * (1 / 60) * 30;
+        child.rotation += bodyList[index].angularVelocity * (1 / 60) * 180 / Math.PI;
         index++;
         results.push(this.stage.update());
       } else {

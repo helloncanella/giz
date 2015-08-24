@@ -28,13 +28,13 @@ box2dAgent = (function() {
       case 'circle':
         fixture = new b2FixtureDef();
         circleShape = fixture.shape = new b2CircleShape();
-        center = scaledStroke.measures.center;
+        center = scaledStroke.measures.box2d.center;
         bodyDef.position = new b2Vec2(center.x, center.y);
-        circleShape.m_radius = scaledStroke.measures.maxRadius;
+        circleShape.m_radius = scaledStroke.measures.box2d.maxRadius;
         fixtureDefArray.push(fixture);
         break;
       case "polygon":
-        strokeVertices = stroke.measures.vertices;
+        strokeVertices = stroke.measures.box2d.vertices;
         poly2triPolygon = new poly2triDecomposer();
         triangulatedPolygons = poly2triPolygon.triangulatePolygons(strokeVertices);
         for (i = 0, len = triangulatedPolygons.length; i < len; i++) {
@@ -72,28 +72,31 @@ box2dAgent = (function() {
   };
 
   box2dAgent.prototype.scaleStroke = function(stroke) {
-    var center, i, index, len, measure, measures, vertex, vertices;
-    measures = stroke.measures;
-    for (index in measures) {
-      measure = measures[index];
-      switch (index) {
+    var box2dMeasures, canvasMeasures, center, i, len, measure, property, vertex, vertices;
+    canvasMeasures = stroke.measures.canvas;
+    stroke.measures.box2d = JSON.parse(JSON.stringify(canvasMeasures));
+    box2dMeasures = stroke.measures.box2d;
+    for (property in canvasMeasures) {
+      measure = canvasMeasures[property];
+      switch (property) {
         case "center":
-          center = measure;
+          center = box2dMeasures[property];
           center.x /= this.scale;
           center.y /= this.scale;
           break;
         case "vertices":
-          vertices = measure;
+          vertices = box2dMeasures[property];
           for (i = 0, len = vertices.length; i < len; i++) {
             vertex = vertices[i];
             vertex.x /= this.scale;
             vertex.y /= this.scale;
           }
           break;
-        default:
-          if (index === "maxRadius" || index === "minRadius") {
-            measures[index] /= this.scale;
-          }
+        case "maxRadius":
+          box2dMeasures[property] /= this.scale;
+          break;
+        case "minRadius":
+          box2dMeasures[property] /= this.scale;
       }
     }
     return stroke;
@@ -163,10 +166,10 @@ box2dAgent = (function() {
 
   box2dAgent.prototype.classifyStroke = function(stroke) {
     var closed, label, lastPoint, length, maxRadius, minRadius, opened, startPoint, sweepAngle, vertices, weGotaEllipseArc, weGotaPolyline, weGotaUglyStroke, withDifferentRadius, withEqualRadius;
-    label = stroke.measures.label;
+    label = stroke.measures.box2d.label;
     switch (label) {
       case 'polyline':
-        vertices = stroke.measures.vertices;
+        vertices = stroke.measures.box2d.vertices;
         length = vertices.length;
         startPoint = vertices[0];
         lastPoint = vertices[length - 1];
@@ -175,9 +178,9 @@ box2dAgent = (function() {
         closed = !opened;
         break;
       case 'ellipseArc':
-        sweepAngle = stroke.measures.sweepAngle;
-        maxRadius = stroke.measures.maxRadius;
-        minRadius = stroke.measures.minRadius;
+        sweepAngle = stroke.measures.box2d.sweepAngle;
+        maxRadius = stroke.measures.box2d.maxRadius;
+        minRadius = stroke.measures.box2d.minRadius;
         weGotaEllipseArc = true;
         opened = Math.round(Math.abs(sweepAngle) / (2 * Math.PI)) !== 1;
         closed = !opened;

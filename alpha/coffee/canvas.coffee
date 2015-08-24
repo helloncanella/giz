@@ -13,12 +13,14 @@ class Canvas
     @lastDrawGraphics=undefined
     @lastDraw = undefined
     self = this
+    pointToCentroidCalculation = undefined
 
+    
     @stage = new createjs.Stage(@canvasTag.id)
 
     @stage.enableDOMEvents(true)
     @color = "#0FF"
-    @size = 10
+    @size = 5
 
     @stage.on 'stagemousedown', (event) ->
       self.color = createjs.Graphics.getHSL(Math.random()*360, 100, 50)
@@ -42,13 +44,16 @@ class Canvas
         x: event.stageX
         y: event.stageY
 
-    @stage.on 'stagemouseup', (event) ->
 
+
+    @stage.on 'stagemouseup', (event) ->
       self.isMouseDown=false
+      @stage.update()
 
 
   drawRecognizedShape: (recognizedShape) ->
     self = this
+    centroid = undefined
 
     if recognizedShape #the method wiil act just when there is a recognizedShape
       @stage.removeChild(@lastDraw)
@@ -59,12 +64,11 @@ class Canvas
       @stage.addChild(beautifulDraw)
       @stage.update()
 
-      console.log @stage
 
-      label = recognizedShape.measures.label
+      label = recognizedShape.measures.canvas.label
       switch label
         when 'polyline'
-          vertices = recognizedShape.measures.vertices
+          vertices = recognizedShape.measures.canvas.vertices
           for newVertex in vertices
             if !old
               old = newVertex
@@ -73,25 +77,24 @@ class Canvas
                                 .setStrokeStyle(self.size, "round")
                                 .moveTo(old.x,old.y)
                                 .lineTo(newVertex.x,newVertex.y)
-            console.log 'newVertex', newVertex.x, newVertex.y
             @stage.update()
 
-            if(!centroidPointsArray)
-              centroidPointsArray = new Array()
-            centroidPointsArray.push(old)
+            # if(!pointToCentroidCalculation)
+            #   pointToCentroidCalculation = new Array()
+            # pointToCentroidCalculation.push(old)
 
             old = newVertex
 
-          console.log 'centroidPointsArray', centroidPointsArray
-          console.log 'recognizedShape', recognizedShape
-          console.log 'vertices', vertices
+          # centroid = @calculateCentroid(pointToCentroidCalculation)
+
+
 
           @stage.update()
         when 'ellipseArc' #TODO ADAPT THE OPERATION FOR A GENERAL ELLIPSE ARC
-          center = recognizedShape.measures.center
-          radius = recognizedShape.measures.minRadius
-          startAngle = recognizedShape.measures.startAngle
-          sweepAngle = recognizedShape.measures.sweepAngle
+          center = recognizedShape.measures.canvas.center
+          radius = recognizedShape.measures.canvas.minRadius
+          startAngle = recognizedShape.measures.canvas.startAngle
+          sweepAngle = recognizedShape.measures.canvas.sweepAngle
           endAngle = startAngle + sweepAngle
 
           if sweepAngle<=0
@@ -103,22 +106,46 @@ class Canvas
           beautifulDrawGraphics.beginStroke(self.color)
                               .setStrokeStyle(self.size, "round")
                               .arc(center.x, center.y, radius, startAngle, endAngle,anticlockwise)
+          # centroid = center
+          # beautifulDraw.x = centroid.x
+          # beautifulDraw.y = centroid.Y
+
           @stage.update()
+
         else
           return null
 
+  # calculateCentroid: (pointToCentroidCalculation) ->
+  #   sum = {x:0, y:0}
+  #   pointsCounter=0
+  #   vertices = pointToCentroidCalculation
+  #   for vertex in vertices
+  #     sum.x+=vertex.x
+  #     sum.y+=vertex.y
+  #     pointsCounter++
+  #   centroid = {x:sum.x/pointsCounter, y:sum.y/pointsCounter}
+  #   return centroid
+
+  setLastBodyAxis: (body) ->
+    id = body.id
+    child = @stage.children[id]
+
+    child.regX = body.centroid.x*30
+    child.regY = body.centroid.y*30
+
+    console.log 'body', body
+
+    child.x+= child.regX
+    child.y+= child.regY
+
   updateDraw: (bodyList) ->
     index = 0
-    # console.log bodyList
-    # console.log @stage
     for child in @stage.children
       if(bodyList[index])
-        child.x = child.x + bodyList[index].vx*(1/60)*30
-        child.y = child.y + bodyList[index].vy*(1/60)*30
-        # child.regX = child.localToGlobal(bodyList[index].centroid.x*30,bodyList[index].centroid.y*30).x
-        # child.regY = child.localToGlobal(bodyList[index].centroid.x*30,bodyList[index].centroid.y*30).y
-        #
-        # child.rotation = child.rotation + bodyList[index].angularVelocity*(1/60)*30
-        # console.log 'angular', bodyList[index].angularVelocity
+
+        child.x += bodyList[index].vx*(1/60)*30
+        child.y += bodyList[index].vy*(1/60)*30
+
+        child.rotation+= bodyList[index].angularVelocity*(1/60)*180/Math.PI
         index++
         @stage.update()

@@ -38,12 +38,18 @@ if (window.Worker) {
     if (recognizedShape) {
       stroke = {
         uglyOrBeautiful: 'beautiful',
-        measures: recognizedShape
+        measures: {
+          canvas: recognizedShape,
+          box2d: null
+        }
       };
     } else {
       stroke = {
         uglyOrBeautiful: 'ugly',
-        measures: strokeBundler
+        measures: {
+          canvas: recognizedShape,
+          box2d: null
+        }
       };
     }
     stroke.id = this.strokeId;
@@ -55,20 +61,21 @@ if (window.Worker) {
     var beauty, bodyList, label, strokeClassified;
     recognizedShape = e.data;
     strokeClassified = self.classifyStrokeAndSetId(recognizedShape);
+    box2dAgentInstance.transformTheGivenStrokeInABody(strokeClassified).insertTheTransformedBodyInTheWorld();
+    bodyList = box2dAgentInstance.getBodyList();
     beauty = strokeClassified.uglyOrBeautiful;
     if (beauty === 'beautiful') {
-      label = strokeClassified.measures.label;
+      label = strokeClassified.measures.canvas.label;
       canvas.drawRecognizedShape(strokeClassified);
     }
-    box2dAgentInstance.transformTheGivenStrokeInABody(strokeClassified).insertTheTransformedBodyInTheWorld();
-    return bodyList = box2dAgentInstance.getBodyList();
+    return canvas.setLastBodyAxis(bodyList[bodyList.length - 1]);
   };
   (update = function() {
     if (!box2dAgentInstance) {
       setBox2d();
     }
     if (box2dAgentInstance) {
-      world.Step(rate, 50, 50);
+      world.Step(rate, 10, 10);
       world.DrawDebugData();
       canvas.updateDraw(box2dAgentInstance.getBodyList());
     }

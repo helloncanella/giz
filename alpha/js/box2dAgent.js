@@ -23,6 +23,7 @@ box2dAgent = (function() {
       id: stroke.id
     };
     classifiedStroke = this.classifyStroke(scaledStroke);
+    console.log(classifiedStroke);
     fixtureDefArray = this.box2dEntity.fixtureDefArray = new Array();
     switch (classifiedStroke) {
       case 'circle':
@@ -67,6 +68,9 @@ box2dAgent = (function() {
           fixture.shape.SetAsArray(b2Vertices, b2Vertices.length);
           fixtureDefArray.push(fixture);
         }
+        break;
+      case 'edge':
+        console.log(scaledStroke);
     }
     return this;
   };
@@ -165,31 +169,15 @@ box2dAgent = (function() {
   };
 
   box2dAgent.prototype.classifyStroke = function(stroke) {
-    var closed, label, lastPoint, length, maxRadius, minRadius, opened, startPoint, sweepAngle, vertices, weGotaEllipseArc, weGotaPolyline, weGotaUglyStroke, withDifferentRadius, withEqualRadius;
-    label = stroke.measures.box2d.label;
-    switch (label) {
-      case 'polyline':
-        vertices = stroke.measures.box2d.vertices;
-        length = vertices.length;
-        startPoint = vertices[0];
-        lastPoint = vertices[length - 1];
-        weGotaPolyline = true;
-        opened = (startPoint.x !== lastPoint.x) && (startPoint.y !== lastPoint.y);
-        closed = !opened;
-        break;
-      case 'ellipseArc':
-        sweepAngle = stroke.measures.box2d.sweepAngle;
-        maxRadius = stroke.measures.box2d.maxRadius;
-        minRadius = stroke.measures.box2d.minRadius;
-        weGotaEllipseArc = true;
-        opened = Math.round(Math.abs(sweepAngle) / (2 * Math.PI)) !== 1;
-        closed = !opened;
-        withEqualRadius = minRadius === maxRadius;
-        withDifferentRadius = !withEqualRadius;
-        break;
-      default:
-        weGotaUglyStroke = true;
-    }
+    var closed, conditions, opened, weGotaEllipseArc, weGotaPolyline, weGotaUglyStroke, withDifferentRadius, withEqualRadius;
+    conditions = stroke.conditions;
+    weGotaEllipseArc = conditions.weGotaEllipseArc;
+    weGotaPolyline = conditions.weGotaPolyline;
+    weGotaUglyStroke = conditions.weGotaUglyStroke;
+    withDifferentRadius = conditions.withDifferentRadius;
+    withEqualRadius = conditions.withEqualRadius;
+    closed = conditions.closed;
+    opened = conditions.opened;
     if ((weGotaEllipseArc || weGotaPolyline) && opened) {
       return "edge";
     }

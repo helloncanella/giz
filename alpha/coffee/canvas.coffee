@@ -15,7 +15,6 @@ class Canvas
     self = this
     pointToCentroidCalculation = undefined
 
-    
     @stage = new createjs.Stage(@canvasTag.id)
 
     @stage.enableDOMEvents(true)
@@ -43,8 +42,6 @@ class Canvas
       old =
         x: event.stageX
         y: event.stageY
-
-
 
     @stage.on 'stagemouseup', (event) ->
       self.isMouseDown=false
@@ -78,19 +75,10 @@ class Canvas
                                 .moveTo(old.x,old.y)
                                 .lineTo(newVertex.x,newVertex.y)
             @stage.update()
-
-            # if(!pointToCentroidCalculation)
-            #   pointToCentroidCalculation = new Array()
-            # pointToCentroidCalculation.push(old)
-
             old = newVertex
 
-          # centroid = @calculateCentroid(pointToCentroidCalculation)
-
-
-
-          @stage.update()
         when 'ellipseArc' #TODO ADAPT THE OPERATION FOR A GENERAL ELLIPSE ARC
+          console.log "ellipseArc"
           center = recognizedShape.measures.canvas.center
           radius = recognizedShape.measures.canvas.minRadius
           startAngle = recognizedShape.measures.canvas.startAngle
@@ -102,29 +90,16 @@ class Canvas
           else
             anticlockwise = false
 
-
           beautifulDrawGraphics.beginStroke(self.color)
                               .setStrokeStyle(self.size, "round")
                               .arc(center.x, center.y, radius, startAngle, endAngle,anticlockwise)
-          # centroid = center
-          # beautifulDraw.x = centroid.x
-          # beautifulDraw.y = centroid.Y
 
           @stage.update()
 
         else
+          console.log 'ugly'
           return null
 
-  # calculateCentroid: (pointToCentroidCalculation) ->
-  #   sum = {x:0, y:0}
-  #   pointsCounter=0
-  #   vertices = pointToCentroidCalculation
-  #   for vertex in vertices
-  #     sum.x+=vertex.x
-  #     sum.y+=vertex.y
-  #     pointsCounter++
-  #   centroid = {x:sum.x/pointsCounter, y:sum.y/pointsCounter}
-  #   return centroid
 
   setLastBodyAxis: (body) ->
     id = body.id
@@ -132,8 +107,6 @@ class Canvas
 
     child.regX = body.centroid.x*30
     child.regY = body.centroid.y*30
-
-    console.log 'body', body
 
     child.x+= child.regX
     child.y+= child.regY

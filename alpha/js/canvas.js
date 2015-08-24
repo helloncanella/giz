@@ -54,7 +54,7 @@ Canvas = (function() {
   };
 
   Canvas.prototype.drawRecognizedShape = function(recognizedShape) {
-    var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, centroid, endAngle, i, label, len, newVertex, old, radius, self, startAngle, sweepAngle, vertices;
+    var anticlockwise, beautifulDraw, beautifulDrawGraphics, center, centroid, endAngle, i, label, len, newVertex, old, radius, results, self, startAngle, sweepAngle, vertices;
     self = this;
     centroid = void 0;
     if (recognizedShape) {
@@ -68,6 +68,7 @@ Canvas = (function() {
       switch (label) {
         case 'polyline':
           vertices = recognizedShape.measures.canvas.vertices;
+          results = [];
           for (i = 0, len = vertices.length; i < len; i++) {
             newVertex = vertices[i];
             if (!old) {
@@ -76,10 +77,12 @@ Canvas = (function() {
             }
             beautifulDrawGraphics.beginStroke(self.color).setStrokeStyle(self.size, "round").moveTo(old.x, old.y).lineTo(newVertex.x, newVertex.y);
             this.stage.update();
-            old = newVertex;
+            results.push(old = newVertex);
           }
-          return this.stage.update();
+          return results;
+          break;
         case 'ellipseArc':
+          console.log("ellipseArc");
           center = recognizedShape.measures.canvas.center;
           radius = recognizedShape.measures.canvas.minRadius;
           startAngle = recognizedShape.measures.canvas.startAngle;
@@ -93,6 +96,7 @@ Canvas = (function() {
           beautifulDrawGraphics.beginStroke(self.color).setStrokeStyle(self.size, "round").arc(center.x, center.y, radius, startAngle, endAngle, anticlockwise);
           return this.stage.update();
         default:
+          console.log('ugly');
           return null;
       }
     }
@@ -104,7 +108,6 @@ Canvas = (function() {
     child = this.stage.children[id];
     child.regX = body.centroid.x * 30;
     child.regY = body.centroid.y * 30;
-    console.log('body', body);
     child.x += child.regX;
     return child.y += child.regY;
   };

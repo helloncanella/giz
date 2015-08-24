@@ -20,6 +20,7 @@ class box2dAgent
     bodyDef.userData = {id:stroke.id}
 
     classifiedStroke = @classifyStroke(scaledStroke)
+    console.log classifiedStroke
 
     # If last
     fixtureDefArray = @box2dEntity.fixtureDefArray = new Array()
@@ -63,6 +64,10 @@ class box2dAgent
 
           fixture.shape.SetAsArray(b2Vertices,b2Vertices.length)
           fixtureDefArray.push(fixture)
+
+      when 'edge'
+        console.log scaledStroke
+
 
     return this
 
@@ -131,31 +136,16 @@ class box2dAgent
     return bodyList
 
   classifyStroke: (stroke) ->
-    #verifying conditions
-    label = stroke.measures.box2d.label
-    switch label
-      when 'polyline'
-        vertices = stroke.measures.box2d.vertices
-        length = vertices.length
-        startPoint = vertices[0]
-        lastPoint = vertices[(length-1)]
-        #conditions
-        weGotaPolyline= true
-        opened= (startPoint.x != lastPoint.x) and (startPoint.y != lastPoint.y)
-        closed= !opened
-      when 'ellipseArc'
-        sweepAngle = stroke.measures.box2d.sweepAngle
-        maxRadius = stroke.measures.box2d.maxRadius
-        minRadius = stroke.measures.box2d.minRadius
-        #conditions
-        weGotaEllipseArc= true
-        opened= Math.round(Math.abs(sweepAngle)/(2*Math.PI))!=1
-        closed= !opened
-        withEqualRadius= minRadius == maxRadius
-        withDifferentRadius= !withEqualRadius
-      else
-        weGotaUglyStroke = true
 
+    conditions = stroke.conditions
+
+    weGotaEllipseArc = conditions.weGotaEllipseArc
+    weGotaPolyline = conditions.weGotaPolyline
+    weGotaUglyStroke = conditions.weGotaUglyStroke
+    withDifferentRadius = conditions.withDifferentRadius
+    withEqualRadius = conditions.withEqualRadius
+    closed = conditions.closed
+    opened = conditions.opened
 
     if (weGotaEllipseArc or weGotaPolyline) and opened
       return "edge"

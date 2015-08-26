@@ -15,12 +15,11 @@ Canvas = (function() {
   };
 
   Canvas.prototype.setBlackboard = function() {
-    var old, pointToCentroidCalculation, self;
+    var old, self;
     old = void 0;
     this.lastDrawGraphics = void 0;
     this.lastDraw = void 0;
     self = this;
-    pointToCentroidCalculation = void 0;
     this.stage = new createjs.Stage(this.canvasTag.id);
     this.stage.enableDOMEvents(true);
     this.color = "#0FF";

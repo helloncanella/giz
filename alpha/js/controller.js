@@ -32,30 +32,27 @@ if (window.Worker) {
     return myscriptWorker.postMessage(strokeBundler);
   });
   myscriptWorker.onmessage = function(e) {
-    var bodyList, strokeClassified, weGotaBeautifulStroke, weGotaClosedShape;
+    var bodyList, strokeClassified, toRedrawIsNeeded;
     recognizedShape = e.data;
     strokeClassified = self.classifyStrokeAndSetId(strokeBundler, recognizedShape);
-    console.log('strokeClassified', strokeClassified);
     box2dAgentInstance.transformTheGivenStrokeInABody(strokeClassified).insertTheTransformedBodyInTheWorld();
-    weGotaBeautifulStroke = !strokeClassified.conditions.weGotaUglyStroke;
-    weGotaClosedShape = strokeClassified.conditions.closed;
-    if (weGotaBeautifulStroke && weGotaClosedShape) {
+    toRedrawIsNeeded = strokeClassified.conditions.toRedrawIsNeeded;
+    if (toRedrawIsNeeded) {
       canvas.drawRecognizedShape(strokeClassified);
     }
     bodyList = box2dAgentInstance.getBodyList();
     return canvas.setLastBodyAxis(bodyList[bodyList.length - 1]);
   };
   classifyStrokeAndSetId = function(rawStroke, recognizedShape) {
-    var label, lastPoint, length, maxRadius, minRadius, opened, startPoint, stroke, sweepAngle, vertices, withEqualRadius;
+    var ellipseWithDifferentRadius, label, lastPoint, length, maxRadius, minRadius, opened, shapeIsClosed, startPoint, stroke, sweepAngle, vertices, withEqualRadius;
     stroke = {
       measures: {
-        canvas: void 0,
-        box2d: void 0
+        canvas: new Object(),
+        box2d: new Object()
       },
-      conditions: void 0
+      conditions: new Object()
     };
     if (recognizedShape) {
-      stroke.measures.canvas = recognizedShape;
       label = recognizedShape.label;
       switch (label) {
         case 'polyline':
@@ -74,7 +71,7 @@ if (window.Worker) {
           sweepAngle = recognizedShape.sweepAngle;
           maxRadius = recognizedShape.maxRadius;
           minRadius = recognizedShape.minRadius;
-          opened = Math.round(Math.abs(sweepAngle) / (2 * Math.PI)) !== 1;
+          opened = Math.abs(sweepAngle) / (2 * Math.PI) <= 1;
           withEqualRadius = minRadius === maxRadius;
           stroke.conditions = {
             weGotaEllipseArc: true,
@@ -85,10 +82,19 @@ if (window.Worker) {
           };
       }
     } else {
-      stroke.measures.canvas = rawStroke;
       stroke.conditions = {
-        weGotaUglyStroke: true
+        weGotaUglyStroke: true,
+        opened: true
       };
+    }
+    shapeIsClosed = stroke.conditions.closed;
+    ellipseWithDifferentRadius = stroke.conditions.withDifferentRadius;
+    if (shapeIsClosed && !ellipseWithDifferentRadius) {
+      stroke.measures.canvas = recognizedShape;
+      stroke.conditions.toRedrawIsNeeded = true;
+    } else {
+      stroke.measures.canvas.vertices = rawStroke;
+      stroke.conditions.toRedrawIsNeeded = false;
     }
     if (!this.thereIsPreviousStroke) {
       this.thereIsPreviousStroke = true;

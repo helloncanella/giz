@@ -15,7 +15,7 @@ box2dAgent = (function() {
   }
 
   box2dAgent.prototype.transformTheGivenStrokeInABody = function(stroke) {
-    var b2Vertices, bodyDef, center, centroid, circleShape, classifiedStroke, fixture, fixtureDefArray, i, itensReadyToBox2d, j, k, last, len, len1, len2, localVertex, poly2triPolygon, polygon, scaledStroke, start, strokeVertices, triangulatedPolygons, triangule, vertex;
+    var angle, average, b2Vertices, bodyDef, center, centroid, circleShape, classifiedStroke, distance, distanceVector, fixture, fixtureDefArray, i, itensReadyToBox2d, j, k, l, last, len, len1, len2, len3, localVertex, next, point, points, poly2triPolygon, polygon, precision, scaledStroke, start, strokeVertices, triangulatedPolygons, triangule, vertex;
     scaledStroke = this.scaleStroke(stroke);
     bodyDef = this.box2dEntity.definition = new b2BodyDef;
     bodyDef.type = b2Body.b2_dynamicBody;
@@ -23,7 +23,6 @@ box2dAgent = (function() {
       id: stroke.id
     };
     classifiedStroke = this.classifyStroke(scaledStroke);
-    console.log(classifiedStroke);
     fixtureDefArray = this.box2dEntity.fixtureDefArray = new Array();
     switch (classifiedStroke) {
       case 'circle':
@@ -70,7 +69,27 @@ box2dAgent = (function() {
         }
         break;
       case 'edge':
-        console.log(scaledStroke);
+        points = scaledStroke.measures.box2d.vertices;
+        precision = this.scale / 25;
+        for (l = 0, len3 = points.length; l < len3; l++) {
+          point = points[l];
+          if (!start) {
+            start = new b2Vec2(point.x, point.y);
+            continue;
+          }
+          next = new b2Vec2(point.x, point.y);
+          distanceVector = new b2Vec2(next.x - start.x, next.y - start.y);
+          distance = distanceVector.Length();
+          if (distance >= precision) {
+            center = average = new b2Vec2((next.x + start.x) / 2, (next.y + start.y) / 2);
+            angle = Math.atan2(distanceVector.y, distanceVector.x);
+            fixture = new b2FixtureDef();
+            fixture.shape = new b2PolygonShape();
+            fixture.shape.SetAsOrientedBox(distance / 2, 0.2, center, angle);
+            fixtureDefArray.push(fixture);
+            start = next;
+          }
+        }
     }
     return this;
   };
@@ -178,10 +197,10 @@ box2dAgent = (function() {
     withEqualRadius = conditions.withEqualRadius;
     closed = conditions.closed;
     opened = conditions.opened;
-    if ((weGotaEllipseArc || weGotaPolyline) && opened) {
+    if (opened || (weGotaEllipseArc && withDifferentRadius)) {
       return "edge";
     }
-    if (weGotaUglyStroke || ((weGotaPolyline || (weGotaEllipseArc && withDifferentRadius)) && closed)) {
+    if (weGotaPolyline && closed) {
       return "polygon";
     }
     if (weGotaEllipseArc && withEqualRadius && closed) {

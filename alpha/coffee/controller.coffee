@@ -37,16 +37,14 @@ if window.Worker
     recognizedShape = e.data
     strokeClassified = self.classifyStrokeAndSetId(strokeBundler,recognizedShape)
 
-    console.log 'strokeClassified', strokeClassified
-
+    #Inserting bodty in the world
     box2dAgentInstance.transformTheGivenStrokeInABody(strokeClassified)
                       .insertTheTransformedBodyInTheWorld()
 
-    # Draw recognizedShape closed if it exists
-    weGotaBeautifulStroke = !strokeClassified.conditions.weGotaUglyStroke
-    weGotaClosedShape = strokeClassified.conditions.closed
+    # Verify if is necessary to redraw the shape
+    toRedrawIsNeeded = strokeClassified.conditions.toRedrawIsNeeded
 
-    if weGotaBeautifulStroke and weGotaClosedShape
+    if toRedrawIsNeeded
       canvas.drawRecognizedShape(strokeClassified)
 
     bodyList = box2dAgentInstance.getBodyList()
@@ -55,15 +53,11 @@ if window.Worker
   classifyStrokeAndSetId = (rawStroke, recognizedShape) ->
     stroke =
       measures:
-        canvas: undefined
-        box2d: undefined
-      conditions: undefined
-
-    # conditions = stroke.conditions
+        canvas: new Object()
+        box2d: new Object()
+      conditions: new Object()
 
     if recognizedShape
-      stroke.measures.canvas = recognizedShape
-
       label = recognizedShape.label
       switch label
         when 'polyline'
@@ -81,10 +75,8 @@ if window.Worker
           sweepAngle = recognizedShape.sweepAngle
           maxRadius = recognizedShape.maxRadius
           minRadius = recognizedShape.minRadius
-          opened = Math.round(Math.abs(sweepAngle)/(2*Math.PI))!=1
-
+          opened = Math.abs(sweepAngle)/(2*Math.PI)<=1
           withEqualRadius= minRadius == maxRadius
-
           #conditions
           stroke.conditions=
             weGotaEllipseArc: true
@@ -93,8 +85,21 @@ if window.Worker
             withEqualRadius: withEqualRadius
             withDifferentRadius: !withEqualRadius
     else
-      stroke.measures.canvas = rawStroke
-      stroke.conditions = {weGotaUglyStroke: true}
+      stroke.conditions =
+        weGotaUglyStroke: true
+        opened: true
+
+
+    shapeIsClosed = stroke.conditions.closed
+    ellipseWithDifferentRadius = stroke.conditions.withDifferentRadius
+
+    if shapeIsClosed and !ellipseWithDifferentRadius
+      stroke.measures.canvas = recognizedShape
+      stroke.conditions.toRedrawIsNeeded=true
+    else
+      stroke.measures.canvas.vertices = rawStroke
+      stroke.conditions.toRedrawIsNeeded=false
+
 
     if !@thereIsPreviousStroke
       @thereIsPreviousStroke = true

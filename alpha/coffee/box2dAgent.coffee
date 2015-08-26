@@ -20,7 +20,6 @@ class box2dAgent
     bodyDef.userData = {id:stroke.id}
 
     classifiedStroke = @classifyStroke(scaledStroke)
-    console.log classifiedStroke
 
     # If last
     fixtureDefArray = @box2dEntity.fixtureDefArray = new Array()
@@ -66,7 +65,28 @@ class box2dAgent
           fixtureDefArray.push(fixture)
 
       when 'edge'
-        console.log scaledStroke
+        points = scaledStroke.measures.box2d.vertices
+        precision = @scale/25 #adjust accordingly to necessities
+
+        for point in points
+          if !start
+            start = new b2Vec2(point.x, point.y)
+            continue
+          next = new b2Vec2(point.x, point.y)
+
+          distanceVector = new b2Vec2(next.x-start.x,next.y-start.y)
+          distance = distanceVector.Length()
+
+          if distance>=precision
+            center = average = new b2Vec2((next.x+start.x)/2,(next.y+start.y)/2)
+            angle = Math.atan2(distanceVector.y,distanceVector.x)
+            fixture = new b2FixtureDef()
+            fixture.shape = new b2PolygonShape()
+            fixture.shape.SetAsOrientedBox(distance/2,0.2,center,angle)
+            fixtureDefArray.push(fixture)
+            start = next
+
+
 
 
     return this
@@ -147,9 +167,9 @@ class box2dAgent
     closed = conditions.closed
     opened = conditions.opened
 
-    if (weGotaEllipseArc or weGotaPolyline) and opened
+    if opened or (weGotaEllipseArc and withDifferentRadius)
       return "edge"
-    if weGotaUglyStroke or ((weGotaPolyline or (weGotaEllipseArc and withDifferentRadius)) and closed)
+    if weGotaPolyline and closed
       return "polygon"
     if weGotaEllipseArc and withEqualRadius and closed
       return "circle"

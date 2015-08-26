@@ -13,7 +13,6 @@ class Canvas
     @lastDrawGraphics=undefined
     @lastDraw = undefined
     self = this
-    pointToCentroidCalculation = undefined
 
     @stage = new createjs.Stage(@canvasTag.id)
 

@@ -1,8 +1,6 @@
-var canvas, getAABB, isMouseDown, next, shape, stage, start, stroke;
+var drawMode, getAABB, next, origin, precision, shape, stage, start, stroke;
 
-canvas = $('canvas')[0];
-
-isMouseDown = false;
+drawMode = false;
 
 stage = new createjs.Stage("canvas");
 
@@ -14,38 +12,93 @@ next = void 0;
 
 stroke = void 0;
 
+precision = 40;
+
+origin = {
+  x: 0,
+  y: 0
+};
+
 stage.on("stagemousedown", function(event) {
-  isMouseDown = true;
-  shape = new createjs.Shape();
-  shape.x = event.stageX;
-  shape.y = event.stageY;
-  console.log(shape.x, shape.y);
-  stroke = new Array();
-  start = {
-    x: 0,
-    y: 0
-  };
-  stroke.push(start);
-  return stage.addChild(shape);
+  return drawMode = true;
 });
 
 stage.on("stagemousemove", function(event) {
-  if (isMouseDown) {
+  if (drawMode) {
+    if (!shape) {
+      shape = new createjs.Shape();
+      shape.x = event.stageX;
+      shape.y = event.stageY;
+      stroke = new Array();
+      start = origin;
+      stroke.push(start);
+      stage.addChild(shape);
+      shape.graphics.beginStroke("red");
+      stage.update();
+    }
     next = {
       x: event.stageX - shape.x,
       y: event.stageY - shape.y
     };
-    shape.graphics.beginStroke("red").moveTo(start.x, start.y).lineTo(next.x, next.y);
-    console.log(next.x, next.y);
+    shape.graphics.lineTo(next.x, next.y);
     stage.update();
-    stroke.push(next);
-    return start = next;
+    return stroke.push(next);
   }
 });
 
 stage.on("stagemouseup", function(event) {
-  isMouseDown = false;
-  return console.log('shape', shape);
+  var aShape, aabbMeasures, distanceLastPointToOrigin, height, initialPosition, j, last, len, point, reseted, topLeft, width;
+  drawMode = false;
+  last = stroke[stroke.length - 1];
+  distanceLastPointToOrigin = Math.sqrt(Math.pow(last.x - origin.x, 2) + Math.pow(last.y - origin.y, 2));
+  if (precision > distanceLastPointToOrigin) {
+    shape.graphics.lineTo(origin.x, origin.y);
+    for (j = 0, len = stroke.length; j < len; j++) {
+      point = stroke[j];
+      if (!reseted) {
+        reseted = true;
+        shape.graphics.clear();
+        shape.graphics.beginStroke("red").beginFill("red").moveTo(origin.x, origin.y);
+      }
+      shape.graphics.lineTo(point.x, point.y);
+      if (point.x === last.x && point.y === last.y) {
+        shape.graphics.lineTo(origin.x, origin.y).closePath();
+      }
+    }
+  }
+  stage.update();
+  aabbMeasures = getAABB(stroke);
+  topLeft = {
+    x: aabbMeasures.topLeft.x,
+    y: aabbMeasures.topLeft.y
+  };
+  width = aabbMeasures.width;
+  height = aabbMeasures.height;
+  shape.setBounds(topLeft.x, topLeft.y, width, height);
+  aShape = shape;
+  initialPosition = void 0;
+  aShape.on("pressmove", function(event) {
+    var delta, newPosition;
+    drawMode = false;
+    if (!initialPosition) {
+      initialPosition = new Object();
+      initialPosition.x = event.stageX;
+      initialPosition.y = event.stageY;
+    } else {
+      newPosition = new Object();
+      newPosition.x = event.stageX;
+      newPosition.y = event.stageY;
+      delta = new Object();
+      delta.x = newPosition.x - initialPosition.x;
+      delta.y = newPosition.y - initialPosition.y;
+      event.target.x += delta.x;
+      event.target.y += delta.y;
+      initialPosition = newPosition;
+    }
+    return stage.update();
+  });
+  stage.update();
+  return shape = null;
 });
 
 getAABB = function(stroke) {

@@ -1,76 +1,111 @@
-canvas = $('canvas')[0]
-isMouseDown = false
-
+drawMode = false
 stage = new createjs.Stage("canvas")
 shape = undefined
 start = undefined
 next = undefined
 stroke = undefined
+precision = 40
+origin =
+  x: 0
+  y: 0
+
 
 stage.on "stagemousedown", (event) ->
-  isMouseDown = true
-  shape = new createjs.Shape()
-  shape.x = event.stageX
-  shape.y = event.stageY
-
-  console.log shape.x, shape.y
-
-  stroke = new Array()
-
-  start =
-    x: 0
-    y: 0
-
-  stroke.push(start)
-
-  stage.addChild(shape)
+  drawMode = true
 
 stage.on "stagemousemove", (event) ->
-  if(isMouseDown)
+
+  if(drawMode)
+
+    if(!shape)
+      shape = new createjs.Shape()
+      shape.x = event.stageX
+      shape.y = event.stageY
+
+      stroke = new Array()
+
+      start = origin
+
+      stroke.push(start)
+
+      stage.addChild(shape)
+
+      shape.graphics.beginStroke("red")
+      stage.update()
+
     next =
       x: event.stageX-shape.x
       y: event.stageY-shape.y
 
-    shape.graphics.beginStroke("red").moveTo(start.x,start.y).lineTo(next.x,next.y)
-    console.log next.x, next.y
+    shape.graphics.lineTo(next.x,next.y)
 
     stage.update()
 
     stroke.push(next)
 
-    start = next
-
-
 
 stage.on "stagemouseup", (event) ->
-  isMouseDown=false
+  drawMode=false
 
-  console.log 'shape', shape
-  #
-  # graphics = shape.graphics
-  # stage.removeChild(shape)
-  #
-  # aabbMeasures =  getAABB(stroke)
-  # topLeft =
-  #   x:aabbMeasures.x
-  #   y:aabbMeasures.y
-  # width = aabbMeasures.width
-  # height = aabbMeasures.height
-  #
-  # console.log graphics
-  # counter = 0
-  # for item in graphics.instructions
-  #   if(item.x && item.y)
-  #     console.log counter, item
-  #     counter++
-  #
-  # # aabbShape = new createjs.Shape(#graphics#)
-  # # aabbShape.setBounds(topLeft.x,topLeft.y,width)
-  #
-  #
-  # stage.addChild(aabbShape)
-  # stage.update()
-  # console.log 'mouseup'
+  last = stroke[(stroke.length-1)]
+  distanceLastPointToOrigin = Math.sqrt(Math.pow((last.x-origin.x),2)+Math.pow((last.y-origin.y),2))
+
+  if precision>distanceLastPointToOrigin
+    shape.graphics.lineTo(origin.x,origin.y)
+
+    for point in stroke
+      if !reseted
+        reseted = true
+        shape.graphics.clear()
+        shape.graphics.beginStroke("red").beginFill("red")
+                      .moveTo(origin.x, origin.y)
+
+      shape.graphics.lineTo(point.x,point.y)
+
+      if point.x == last.x && point.y == last.y
+        shape.graphics.lineTo(origin.x,origin.y).closePath()
+
+
+  stage.update()
+
+  aabbMeasures =  getAABB(stroke)
+
+  topLeft =
+    x:aabbMeasures.topLeft.x
+    y:aabbMeasures.topLeft.y
+  width = aabbMeasures.width
+  height = aabbMeasures.height
+
+  shape.setBounds(topLeft.x,topLeft.y,width,height)
+
+  aShape = shape
+
+
+  initialPosition=undefined
+  aShape.on "pressmove", (event)->
+    drawMode = false
+    if (!initialPosition)
+      initialPosition = new Object()
+      initialPosition.x = event.stageX
+      initialPosition.y = event.stageY
+    else
+      newPosition = new Object()
+      newPosition.x = event.stageX
+      newPosition.y = event.stageY
+
+      delta = new Object()
+      delta.x = newPosition.x - initialPosition.x
+      delta.y = newPosition.y - initialPosition.y
+
+      event.target.x += delta.x
+      event.target.y += delta.y
+
+      initialPosition = newPosition
+
+    stage.update()
+
+  stage.update()
+  shape = null
 
 
 getAABB = (stroke) ->
@@ -101,47 +136,3 @@ getAABB = (stroke) ->
     height: highest.y - (lowest.y)
 
   return aabb
-
-
-# function getAABB(stroke) {
-#
-#   console.log('stroke',stroke);
-#
-#   for (var i = 0; i < stroke.length; i++) {
-#     point = stroke[i];
-#
-#     console.log('stroke['+i+']',point);
-#
-#     if (!lowest && !highest) {
-#       //cloning stroke[i]
-#       var lowest = JSON.parse(JSON.stringify(point));
-#       var highest = JSON.parse(JSON.stringify(point));
-#       continue
-#     }
-#
-#     if (point.x > highest.x) {
-#       highest.x = point.x
-#     }
-#     if (point.x < lowest.x) {
-#       lowest.x = point.x
-#     }
-#     if (point.y > highest.y) {
-#       highest.y = point.y
-#     }
-#     if (point.y < lowest.y) {
-#       lowest.y = point.y
-#     }
-#   }
-#
-#   aabb = {
-#     topLeft: {
-#       x: lowest.x,
-#       y: highest.y
-#     },
-#     width: highest.x - lowest.x,
-#     height: highest.y - lowest.y
-#   }
-#
-#   console.log('AABB FUNCTION', aabb)
-#   return aabb
-# }

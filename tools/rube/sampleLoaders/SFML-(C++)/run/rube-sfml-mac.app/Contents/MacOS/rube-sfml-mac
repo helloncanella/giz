@@ -1,3 +1,0 @@
-#!/bin/bash
-cd "${0%/*}/../../.."
-./rube-sfml-mac.app/Contents/MacOS/rube-sfml-mac-bin

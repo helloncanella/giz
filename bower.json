@@ -3,7 +3,9 @@
   "private": true,
   "dependencies": {
     "bootstrap-sass": "~3.3.5",
-    "modernizr": "~2.8.1"
+    "modernizr": "~2.8.1",
+    "EaselJS": "easeljs#~0.8.1",
+    "box2dweb": "*"
   },
   "overrides": {
     "bootstrap-sass": {

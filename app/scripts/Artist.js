@@ -3,10 +3,9 @@
 'use strict';
 
 function Artist(createjs, canvasId) {
-  var shape, next;
+  var shape, next, strokePoints;
 
-  this.stage = new createjs.Stage('easeljs');
-
+  this.stage = new createjs.Stage(canvasId);
   this.draw = function(point) {
 
     if (!shape) {
@@ -15,7 +14,7 @@ function Artist(createjs, canvasId) {
       shape.y = point.y;
 
       shape.graphics.beginStroke('red')
-        .moveTo(shape.x, shape.y);
+        .moveTo(0, 0);
 
       this.stage.addChild(shape);
       this.stage.update();
@@ -30,12 +29,51 @@ function Artist(createjs, canvasId) {
 
     this.stage.update();
 
+    return this;
   };
 
-  this.cleanShapeReferene = f
+  this.closeOpenedShape = function(stroke) {
+
+    var first = stroke[0],
+      last = stroke[stroke.length - 1],
+      sqrt = Math.sqrt,
+      pow = Math.pow;
+
+      strokePoints = stroke;
+
+    var distance = sqrt(pow(last.x - first.x, 2) + pow(last.y - first.y, 2)),
+      precision = 40;
+
+    if (precision > distance) {
+
+      shape.graphics.clear();
+      shape.graphics.beginStroke('red').beginFill('red').moveTo(0, 0);
+
+      stroke.forEach(function(element) {
+        var point = element;
+
+        shape.graphics.lineTo(point.x-shape.x, point.y-shape.y);
+
+        if (point.x === last.x && point.y === last.y) {
+          shape.graphics.closePath();
+          this.stage.update();
+        }
+      },this);
+    }
+
+    return this;
+
+  };
+
+  this.setAABB = function(){
+
+  };
+
+  this.clearShapeReference = function() {
+    shape = null;
+  };
 
 }
-
 
 
 function Physics() {

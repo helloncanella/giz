@@ -6,8 +6,8 @@
 
    var drawMode;
 
-   var canvasId = '#easeljs',
-     canvas = $(canvasId),
+   var canvasId = 'easeljs',
+     canvas = $('#' + canvasId),
      artist = new Artist(createjs, canvasId),
      strokeCollector = new StrokeCollector();
 
@@ -21,12 +21,16 @@
            x: event.offsetX,
            y: event.offsetY
          };
-         artist.draw(point);
          strokeCollector.collect(point); // used in the enclosement of the shape
+         artist.draw(point);
        }
      },
      mouseup: function(event) {
        drawMode = false;
+       var stroke = strokeCollector.getStroke();
+       artist.closeOpenedShape(stroke)
+         .clearShapeReference();
+       //  .setAABB()
      }
    });
 

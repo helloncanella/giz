@@ -34,7 +34,4 @@
      }
    });
 
-
-   var physics = new Physics();
-
  })(jQuery, createjs, Artist);

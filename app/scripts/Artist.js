@@ -1,5 +1,6 @@
 /*jshint unused:false*/
-/*global AABB, createjs, $*/
+/*jshint -W020*/
+/*global AABB, createjs, drawMode, $*/
 
 'use strict';
 
@@ -9,6 +10,7 @@ function Artist(canvasId) {
   var canvas = $('#'+canvasId);
 
   this.stage = new createjs.Stage(canvasId);
+
   this.draw = function(point) {
 
     if (!shape) {
@@ -93,7 +95,11 @@ function Artist(canvasId) {
     });
 
     shape.on('pressmove',function(event){
+
+      //- 'drawMode' is a global.
+      //-  Its 'off' value intents to turn off all kind of drawing process
       drawMode = false;
+
       var newPosition = {
         x: event.stageX,
         y: event.stageY
@@ -118,10 +124,5 @@ function Artist(canvasId) {
   this.clearShapeReference = function() {
     shape = null;
   };
-
-}
-
-
-function Physics() {
 
 }

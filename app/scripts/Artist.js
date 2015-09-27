@@ -66,7 +66,7 @@ function Artist(createjs, canvasId) {
   };
 
   this.setAABB = function(){
-
+    strokePoints
   };
 
   this.clearShapeReference = function() {

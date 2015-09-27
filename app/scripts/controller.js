@@ -29,8 +29,8 @@
        drawMode = false;
        var stroke = strokeCollector.getStroke();
        artist.closeOpenedShape(stroke)
+         .setShapeBounds()
          .clearShapeReference();
-       //  .setAABB()
      }
    });
 

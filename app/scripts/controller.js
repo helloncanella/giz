@@ -1,14 +1,13 @@
  /*jshint unused:false*/
  /*global Artist, Physics, jQuery, StrokeCollector, createjs*/
  'use strict';
+ var drawMode;
 
  var Controller = (function($, createjs, Artist) {
 
-   var drawMode;
-
    var canvasId = 'easeljs',
      canvas = $('#' + canvasId),
-     artist = new Artist(createjs, canvasId),
+     artist = new Artist(canvasId),
      strokeCollector = new StrokeCollector();
 
    canvas.on({
@@ -30,13 +29,12 @@
        var stroke = strokeCollector.getStroke();
        artist.closeOpenedShape(stroke)
          .setShapeBounds()
+         .setShapeListeners()
          .clearShapeReference();
      }
    });
 
 
    var physics = new Physics();
-
-
 
  })(jQuery, createjs, Artist);

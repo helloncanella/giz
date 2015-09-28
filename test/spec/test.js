@@ -1,9 +1,10 @@
 /*jshint unused:false*/
-/*global describe, before, expect, it, Converter, Physics, Classifier*/
+/*global describe, before, expect, it, Converter, Physics, Classifier, b2Vec2,
+b2World */
 (function() {
   'use strict';
   var body;
-  var bodyClosed;
+  var bodyClosed, bodyOpened;
 
   describe('Converter', function() {
     it('it converts canvas to box2d measures', function() {
@@ -31,7 +32,7 @@
 
   describe('Classifier', function() {
     it('verifies if a body is opened or closed', function() {
-      var bodyOpened = [{
+      bodyOpened = [{
         x: 10,
         y: 15
       }, {
@@ -72,7 +73,7 @@
       }, {
         x: 481,
         y: 113
-      }]
+      }];
 
       var classifier = new Classifier();
 
@@ -87,11 +88,17 @@
 
 
   describe('Physics', function() {
-    var physics = new Physics();
+    var gravity = new b2Vec2(0,10);
+    var world = new b2World(gravity,false);
+    var physics = new Physics(world);
 
     describe('insertBody', function() {
-      it('insert body into the world', function() {
-        var body = physics.prepareBody(bodyClosed);
+      it('insert closed body into the world', function() {
+        var body = physics.insertIntoWorld(bodyClosed);
+        expect(body.constructor.name).to.equal('b2Body');
+      });
+      it('insert opened body', function() {
+        var body = physics.insertIntoWorld(bodyOpened);
         expect(body.constructor.name).to.equal('b2Body');
       });
     });

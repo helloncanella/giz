@@ -1,49 +1,80 @@
 /*jshint unused:false*/
 /*jshint -W106*/
-/*global Classifier, Triangulator, Chainer, b2FixtureDef, b2PolygonShape, b2BodyDef, b2Body, b2Vec2*/
+/*global Classifier, Chainer, b2FixtureDef, b2PolygonShape, b2BodyDef, b2Body,
+  b2Vec2, ClosedFreeForm, OpenedFreeForm*/
 
 'use strict';
 
-function Physics() {
+function Physics(world) {
 
   var insertedBodies = 0;
 
   this.insertIntoWorld = function(stroke) {
-    var first = stroke[0];
 
-    var bodyDef = new b2BodyDef();
-    bodyDef.type = b2Body.b2_dynamicBody;
-    bodyDef.position = new b2Vec2(first.x, first.y);
-    bodyDef.userData = {
-      id: insertedBodies
-    };
+    var bodyDef = defineBody('dynamic', stroke[0], {id: insertedBodies});
+    var body = world.CreateBody(bodyDef);
 
-    var fixture = new b2FixtureDef();
-    fixture.shape = new b2PolygonShape();
+    insertedBodies++;
 
-    var body = this.prepareBody(stroke);
+    var basicFixture = setupBasicFixture('polygon', 0.3, 1);
+
+    var allFixtures = getAllFixtures(basicFixture,stroke);
+
+    allFixtures.forEach(function(fixture) {
+      body.CreateFixture(fixture);
+    });
+
+    return body;
   };
 
-  this.prepareBody = function(stroke) {
+  var defineBody = function(type, position, userData) {
+    var bodyDef = new b2BodyDef();
+
+    if (type === 'dynamic') {
+      bodyDef.type = b2Body.b2_dynamicBody;
+    } else {
+      bodyDef.type = b2Body.b2_static;
+    }
+    bodyDef.position = new b2Vec2(position.x, position.y);
+    bodyDef.userData = Object.assign({}, userData);
+
+    return bodyDef;
+  };
+
+  var setupBasicFixture = function(shape, friction, density) {
+    var fixture = new b2FixtureDef();
+    fixture.friction = friction;
+    fixture.density = density;
+    switch (shape) {
+      case 'polygon':
+        fixture.shape = new b2PolygonShape();
+        break;
+      case 'circle':
+        break;
+    }
+
+    return fixture;
+  };
+
+  var getAllFixtures = function(basicFixture,stroke) {
+
+    var allFixtures;
+
     var classifier = new Classifier();
     var openOrClosed = classifier.openedOrClosed(stroke);
 
     if (openOrClosed === 'closed') {
-      var triangulator = new Triangulator(stroke);
-      var triangles = triangulator.getTriangles();
-
-      var b2Vertices = [];
-
-      triangles.forEach(function (triangle) {
-        triangle.forEach(function (point) {
-          var vertex =    
-        });
-      });
-
+      var closedFreeForm = new ClosedFreeForm(basicFixture,stroke);
+      allFixtures = closedFreeForm.getAllFixtures();
     } else {
-      var chain = new Chainer(stroke);
+      var openedFreeForm = new OpenedFreeForm(basicFixture,stroke);
+      allFixtures = openedFreeForm.getAllFixtures();
     }
+
+    return allFixtures;
   };
+
+
 
 
 }

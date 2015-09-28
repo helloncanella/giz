@@ -27,8 +27,11 @@
      mouseup: function(event) {
        drawMode = false;
        var stroke = strokeCollector.getStroke();
-       artist.closeOpenedShape(stroke)
-         .setShapeBounds()
+
+       //Override stroke data if it is closed
+       stroke = artist.closeOpenedShape(stroke);
+
+       artist.setShapeBounds()
          .setShapeListeners()
          .clearShapeReference();
      }

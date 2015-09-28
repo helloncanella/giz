@@ -64,9 +64,11 @@ function Artist(canvasId) {
           this.stage.update();
         }
       },this);
+
+      stroke.push(first); //closing shape;
     }
 
-    return this;
+    return stroke;
 
   };
 

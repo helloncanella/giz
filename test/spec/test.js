@@ -3,6 +3,7 @@
 (function() {
   'use strict';
   var body;
+  var bodyClosed;
 
   describe('Converter', function() {
     it('it converts canvas to box2d measures', function() {
@@ -41,10 +42,37 @@
         y: 27
       }];
 
-      var bodyClosed = bodyOpened.concat({
-        x: 10,
-        y: 15
-      });
+      bodyClosed = [{
+        x: 481,
+        y: 113
+      }, {
+        x: 481,
+        y: 114
+      }, {
+        x: 481,
+        y: 115
+      }, {
+        x: 481,
+        y: 116
+      }, {
+        x: 481,
+        y: 117
+      }, {
+        x: 481,
+        y: 118
+      }, {
+        x: 482,
+        y: 120
+      }, {
+        x: 483,
+        y: 120
+      }, {
+        x: 484,
+        y: 120
+      }, {
+        x: 481,
+        y: 113
+      }]
 
       var classifier = new Classifier();
 
@@ -58,9 +86,17 @@
 
 
 
+  describe('Physics', function() {
+    var physics = new Physics();
 
+    describe('insertBody', function() {
+      it('insert body into the world', function() {
+        var body = physics.prepareBody(bodyClosed);
+        expect(body.constructor.name).to.equal('b2Body');
+      });
+    });
 
-
+  });
 
 
 

@@ -1,6 +1,6 @@
-/*jshint unused:false*/
+/*jshint unused:false, -W106, -W016*/
 /*global Artist, Physics, jQuery, StrokeCollector, createjs, b2Vec2, b2World,
-b2DebugDraw,*/
+b2DebugDraw, requestAnimationFrame, Converter*/
 'use strict';
 var drawMode;
 
@@ -20,15 +20,18 @@ var Controller = (function($, createjs, Artist) {
     rate = 1/60;
 
   //-Building the Debug Draw
-  var context = $('canvas#box2dweb')[0].getContext('2d');
+  (function debugDrawBuilder(){
+    var context = $('canvas#box2dweb')[0].getContext('2d'),
+        debugDraw = new b2DebugDraw();
 
-  var debugDraw = new b2DebugDraw();
-  debugDraw.SetSprite(context);
-  debugDraw.SetDrawScale(scale);
-  debugDraw.SetFillAlpha 0.3
-  debugDraw.SetLineThickness 1.0
-  debugDraw.SetFlags b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit
-  world.SetDebugDraw debugDraw
+    debugDraw.SetSprite(context);
+    debugDraw.SetDrawScale(scale);
+    debugDraw.SetFillAlpha(0.3);
+    debugDraw.SetLineThickness(1.0);
+    debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
+    world.SetDebugDraw(debugDraw);
+  })();
+
 
   //- Activing Canva's listeners
   canvas.on({
@@ -55,7 +58,18 @@ var Controller = (function($, createjs, Artist) {
       artist.setShapeBounds()
         .setShapeListeners()
         .clearShapeReference();
+
+      var box2dBody = new Converter(stroke, scale).canvasToBox2d();
+      physics.insertIntoWorld(box2dBody);
+
     }
   });
+
+  //- Running the world
+  (function update(){
+    world.Step(rate,10,10);
+    world.DrawDebugData();
+    requestAnimationFrame(update);
+  })();
 
 })(jQuery, createjs, Artist);

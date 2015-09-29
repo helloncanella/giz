@@ -4,7 +4,50 @@ b2World */
 (function() {
   'use strict';
   var body;
-  var bodyClosed, bodyOpened;
+
+  var bodyOpened = [{
+    x: 10,
+    y: 15
+  }, {
+    x: 12,
+    y: 17
+  }, {
+    x: 18,
+    y: 27
+  }];
+
+  var bodyClosed = [{
+    x: 481,
+    y: 113
+  }, {
+    x: 481,
+    y: 114
+  }, {
+    x: 481,
+    y: 115
+  }, {
+    x: 481,
+    y: 116
+  }, {
+    x: 481,
+    y: 117
+  }, {
+    x: 481,
+    y: 118
+  }, {
+    x: 482,
+    y: 120
+  }, {
+    x: 483,
+    y: 120
+  }, {
+    x: 484,
+    y: 120
+  }, {
+    x: 481,
+    y: 113
+  }];
+
 
   describe('Converter', function() {
     it('it converts canvas to box2d measures', function() {
@@ -32,48 +75,6 @@ b2World */
 
   describe('Classifier', function() {
     it('verifies if a body is opened or closed', function() {
-      bodyOpened = [{
-        x: 10,
-        y: 15
-      }, {
-        x: 12,
-        y: 17
-      }, {
-        x: 18,
-        y: 27
-      }];
-
-      bodyClosed = [{
-        x: 481,
-        y: 113
-      }, {
-        x: 481,
-        y: 114
-      }, {
-        x: 481,
-        y: 115
-      }, {
-        x: 481,
-        y: 116
-      }, {
-        x: 481,
-        y: 117
-      }, {
-        x: 481,
-        y: 118
-      }, {
-        x: 482,
-        y: 120
-      }, {
-        x: 483,
-        y: 120
-      }, {
-        x: 484,
-        y: 120
-      }, {
-        x: 481,
-        y: 113
-      }];
 
       var classifier = new Classifier();
 
@@ -88,8 +89,8 @@ b2World */
 
 
   describe('Physics', function() {
-    var gravity = new b2Vec2(0,10);
-    var world = new b2World(gravity,false);
+    var gravity = new b2Vec2(0, 10);
+    var world = new b2World(gravity, false);
     var physics = new Physics(world);
 
     describe('insertBody', function() {
@@ -101,6 +102,14 @@ b2World */
         var body = physics.insertIntoWorld(bodyOpened);
         expect(body.constructor.name).to.equal('b2Body');
       });
+    });
+
+    describe('getListOfBodies', function() {
+      it('return correct number of inserted bodieis', function() {
+        var allBodies = physics.getListOfBodies();
+        expect(allBodies).to.have.length(2);
+      });
+
     });
 
   });

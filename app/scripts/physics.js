@@ -24,7 +24,26 @@ function Physics(world) {
       body.CreateFixture(fixture);
     });
 
+    //return useful for the automated tests
     return body;
+  };
+
+  this.getListOfBodies = function(){
+    var listOfBodies = [];
+
+    var firstBody = world.GetBodyList();
+    listOfBodies.push(firstBody);
+
+    var nextBody = firstBody.m_next;
+    while(nextBody){
+      if(nextBody.m_mass!==0){
+        listOfBodies.push(nextBody);
+      }
+      nextBody = nextBody.GetNext();
+
+    }
+
+    return listOfBodies;
   };
 
   var defineBody = function(type, position, userData) {

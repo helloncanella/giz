@@ -1,0 +1,26 @@
+{
+  "name": "ideas",
+  "version": "0.0.0",
+  "homepage": "https://github.com/helloncanella/giz",
+  "authors": [
+    "@helloncanella <helloncanella@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [
+    "es6",
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "EaselJS": "easeljs#~0.8.1",
+    "jquery": "jQuery#~2.1.4"
+  }
+}

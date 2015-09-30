@@ -9,56 +9,114 @@ function Artist(canvasId) {
   this.draw = function() {
     var promise = new Promise(function(resolve, reject) {
 
-      // token indicating the start of the draw.
-      var startToken;
-
-      var stroke = [];
-      var shape = new createjs.Shape();
-      stage.addChild(shape);
-
       canvas.on({
-        mousedown: function(event) {
-          var cursorPosition = {
-            x: event.offsetX,
-            y: event.offsetY
-          };
-          if (!startToken) {
-            startToken = new StartTokenFactory().getToken(cursorPosition);
-            stage.addChild(startToken);
-            stage.update();
-          }
-
-          shape.graphics.setStrokeStyle(2)
-            .beginStroke('black')
-            .moveTo(cursorPosition.x, cursorPosition.y);
-
+        mousedown: function () {
+          var shapeFactory  = new ShapeFactory(canvasId);
+          shapeFactory.spawnShape().then(function(shape){
+            shape.prepare().then(function (drawing) {
+              resolve(drawing);
+            });
+          });
         },
-        mousemove: function(event) {
-          // shape.graphics.clear();
-          shape.graphics.lineTo(event.clientX, event.clientY);
-          stage.update();
-        },
-        mouseup: function(event) {
-          canvas.trigger('finishDraw');
-        },
-        finishDraw: function(event) {
-          resolve(stroke);
-        }
       });
 
+    });
+
+    return promise;
+  };
+
+  //--------------------------------------------------
+  //- ShapeFactory
+  //--------------------------------------------------
+
+  function ShapeFactory (canvasId) {
+
+    var canvas = $('#'+canvasId);
+
+    this.spawnShape = function(){
+      var circleProcess;
+
+      var promise = new Promise(function(resolve,reject){
+
+        var shape;
+
+        //-------------------------------------------------------------
+        // SHAPE'S CREATION RULE
+        //
+        // - if the mousedown's time is greater than a certain amount,
+        // create a circle.
+        //
+        // - if it is short, create a Polyline.
+        //-------------------------------------------------------------
+
+        circleProcess = setTimeout(function(){
+          shape = new Circle();
+          resolve(shape);
+        },500);
+
+        canvas.mouseup(function(event) {
+          clearTimeout(circleProcess);
+          if(!shape){
+            shape = new Polyline();
+            resolve(shape);
+          }
+        });
+
+      });
+      return promise;
+    };
+  }
+
+  //-----------------------------------------------------------
+  //- Shape's abstraction. It inherits from createjs's Shape
+  //-----------------------------------------------------------
+  var EaseljsShape = createjs.Shape;
+
+  function Shape () {
+      EaseljsShape.call(this);
+  }
+
+  Shape.prototype = Object.create(EaseljsShape.prototype);
+
+  Shape.prototype.constructor = Shape;
+
+  Shape.prototype.prepare = function(){};
+
+  //-----------------------------------------------------------
+  //- Circle's abstraction. It inherits from Shape
+  //-----------------------------------------------------------
+  function Circle () {
+      Shape.call(this);
+  }
+
+  Circle.prototype = Object.create(Shape.prototype);
+
+  Circle.prototype.constructor = Circle;
+
+  Circle.prototype.prepare = function(){
+    var promise = new Promise(function (resolve,reject) {
+      resolve('círculo ninito');
     });
     return promise;
   };
 
-  // startToken builder
-  function StartTokenFactory() {
-
-    this.getToken = function(position) {
-      var startToken = new createjs.Shape();
-      startToken.graphics.setStrokeStyle(2).beginStroke('black')
-        .drawRect(position.x, position.y, 7.5, 7.5);
-      return startToken;
-    };
-
+  //-----------------------------------------------------------
+  //- Polyline's abstraction. It inherits from Shape
+  //-----------------------------------------------------------
+  function Polyline () {
+      Shape.call(this);
   }
+
+  Polyline.prototype = Object.create(Shape.prototype);
+
+  Polyline.prototype.constructor = Polyline;
+
+  Polyline.prototype.prepare = function(){
+    var promise = new Promise(function (resolve,reject) {
+      resolve('Polyline ninita');
+    });
+    return promise;
+  };
+
+
 }

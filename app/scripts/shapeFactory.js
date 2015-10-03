@@ -12,9 +12,8 @@ function ShapeFactory(canvasId) {
   this.spawnShape = function() {
     var circleProcess, incresingOfRadius;
 
-    var promise = new Promise(function(resolve) {
+    var promise = new Promise(function(resolve, reject) {
       var circle, polyline, firstPoint;
-
       //-------------------------------------------------------------
       // SHAPE'S CREATION RULE
       //
@@ -24,9 +23,10 @@ function ShapeFactory(canvasId) {
       // - if it is short, create a Polyline.
       //-------------------------------------------------------------
 
+      var shapeFactory = ShapeFactory.prototype;
+
       canvas.on({
         mousedown: function(e) {
-
           firstPoint = {
             x: e.offsetX,
             y: e.offsetY
@@ -41,7 +41,6 @@ function ShapeFactory(canvasId) {
             }, 1);
 
           }, 500);
-
         },
 
         mouseup: function(event) {

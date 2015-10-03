@@ -13,6 +13,7 @@ function Artist(canvasId) {
 
       shapeFactory.spawnShape().then(function(shape) {
         shape.prepare().then(function(drawing) {
+
           resolve(drawing);
         });
       });

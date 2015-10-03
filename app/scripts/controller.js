@@ -1,28 +1,31 @@
-/*jshint unused:false, -W106, -W016*/
-/*global Artist, Physics, jQuery, StrokeCollector, createjs, b2Vec2, b2World,
-b2DebugDraw, requestAnimationFrame, Converter*/
+/*jshint -W106, -W016*/
+/*global Artist, Physics, b2Vec2, b2World, b2DebugDraw, requestAnimationFrame
+, $*/
 'use strict';
-var drawMode;
 
-var Controller = (function($, createjs, Artist) {
+(function Controller() {
 
-  //- Artist's variables
-  var canvasId = 'easeljs',
-    canvas = $('#' + canvasId),
-    artist = new Artist(canvasId),
-    strokeCollector = new StrokeCollector();
+  var artist = new Artist('easeljs');
+
+  (function waitDraw() {
+    artist.draw().then(function(drawing) {
+      console.log(drawing);
+      waitDraw();
+    });
+
+  })();
 
   //- Physics's variables
   var gravity = new b2Vec2(0, 10),
     world = new b2World(gravity, false),
     scale = 30,
-    physics = new Physics(world,scale),
-    rate = 1/60;
+    physics = new Physics(world, scale),
+    rate = 1 / 60;
 
   //-Building the Debug Draw
-  (function debugDrawBuilder(){
+  (function debugDrawBuilder() {
     var context = $('canvas#box2dweb')[0].getContext('2d'),
-        debugDraw = new b2DebugDraw();
+      debugDraw = new b2DebugDraw();
 
     debugDraw.SetSprite(context);
     debugDraw.SetDrawScale(scale);
@@ -33,43 +36,11 @@ var Controller = (function($, createjs, Artist) {
   })();
 
 
-  //- Activing Canva's listeners
-  canvas.on({
-    mousedown: function() {
-      drawMode = true;
-    },
-    mousemove: function(event) {
-      if (drawMode) {
-        var point = {
-          x: event.offsetX,
-          y: event.offsetY
-        };
-        strokeCollector.collect(point); // used in the enclosement of the shape
-        artist.draw(point);
-      }
-    },
-    mouseup: function(event) {
-      drawMode = false;
-      var stroke = strokeCollector.getStroke();
-
-      //Override stroke data if it is closed
-      stroke = artist.closeOpenedShape(stroke);
-
-      artist.setShapeBounds()
-        .setShapeListeners()
-        .clearShapeReference();
-
-      var box2dBody = new Converter(stroke, scale).canvasToBox2d();
-      physics.insertIntoWorld(box2dBody);
-
-    }
-  });
-
   //- Running the world
-  (function update(){
-    world.Step(rate,10,10);
+  (function update() {
+    world.Step(rate, 10, 10);
     world.DrawDebugData();
     requestAnimationFrame(update);
   })();
 
-})(jQuery, createjs, Artist);
+})();

@@ -1,32 +1,39 @@
 /*jshint unused:false*/
-/*global b2Vec2*/
+/*global b2Vec2, FixtureFactory*/
 'use strict';
 
-function OpenedPolyline(basicFixture, stroke) {
+function OpenedPolyline(fixtureData, stroke) {
   var start, next;
+  var fixtureFactory = new FixtureFactory();
 
-  var allFixtures = [],
-    precision = 1.2; //- value in meters
+  var allFixtures = [];
+
+  var origin = {
+    x: stroke[0].x,
+    y: stroke[0].y
+  };
 
   stroke.forEach(function(point) {
     if (!start) {
-
-      start = new b2Vec2(point.x, point.y);
-
+      start = new b2Vec2(0, 0);
     } else {
-      next = new b2Vec2(point.x, point.y);
+      next = new b2Vec2(point.x - origin.x, point.y - origin.y);
 
       var distanceVector = new b2Vec2(next.x - start.x, next.y - start.y);
       var distance = distanceVector.Length();
 
-      if (distance >= precision) {
-        var center = new b2Vec2((next.x + start.x) / 2, (next.y + start.y) / 2);
-        var angle = Math.atan2(distanceVector.y, distanceVector.x);
+      var shape = fixtureData.shape;
+      var density = fixtureData.density || 0;
+      var friction = fixtureData.friction || 0;
 
-        basicFixture.shape.SetAsOrientedBox(distance / 2, 0.2, center, angle);
-        allFixtures.push(basicFixture);
-        start = next;
-      }
+      var fixture = fixtureFactory.spawn(shape, density, friction);
+
+      var center = new b2Vec2((next.x + start.x) / 2, (next.y + start.y) / 2);
+      var angle = Math.atan2(distanceVector.y, distanceVector.x);
+
+      fixture.shape.SetAsOrientedBox(distance / 2, 0.03, center, angle);
+      allFixtures.push(fixture);
+      start = next;
     }
 
   });

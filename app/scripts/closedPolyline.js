@@ -16,11 +16,16 @@ function ClosedPolyline (fixtureData,stroke){
 
     var fixture = fixtureFactory.spawn(shape,density,friction);
 
+    var origin = {
+      x: stroke[0].x,
+      y: stroke[0].y
+    };
+
     var b2Vertices = [];
     triangle.forEach(function(point) {
       var vertex = {
-        x: point.x - stroke[0].x,
-        y: point.y - stroke[0].y
+        x: point.x - origin.x,
+        y: point.y - origin.y
       };
       b2Vertices.push(new b2Vec2(vertex.x, vertex.y));
     });

@@ -1,28 +1,9 @@
 /*jshint -W106, -W016*/
 /*global Artist, Physics, b2Vec2, b2World, b2DebugDraw, requestAnimationFrame
-, $*/
+, $, Converter*/
 'use strict';
 
 (function Controller() {
-
-  var artist = new Artist('easeljs');
-
-
-  (function waitDraw() {
-    artist.draw().then(
-      function success(drawing) {
-        console.log(drawing);
-        waitDraw();
-      },
-      function fails(reason) {
-        waitDraw();
-        console.warn('newPromise failed with reason: ', reason);
-      }
-    );
-  })();
-
-
-
 
 
   //- Physics's variables
@@ -32,10 +13,29 @@
     physics = new Physics(world, scale),
     rate = 1 / 60;
 
+  var artist = new Artist('easeljs');
+  var converter = new Converter();
+
+  (function readyToDraw() {
+    artist.draw().then(function(shape) {
+      var stroke = shape.measures.points;
+      var convertedPoints = converter.canvasToBox2d(stroke,scale);
+
+      shape.measures.points = convertedPoints;
+
+      physics.insertIntoWorld(shape);
+
+      readyToDraw();
+    });
+  })();
+
+
+
   //-Building the Debug Draw
   (function debugDrawBuilder() {
     var context = $('canvas#box2dweb')[0].getContext('2d'),
-      debugDraw = new b2DebugDraw();
+
+    debugDraw = new b2DebugDraw();
 
     debugDraw.SetSprite(context);
     debugDraw.SetDrawScale(scale);

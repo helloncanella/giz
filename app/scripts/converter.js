@@ -2,8 +2,8 @@
 
 'use strict';
 
-function Converter(stroke, scale) {
-  this.canvasToBox2d = function() {
+function Converter() {
+  this.canvasToBox2d = function(stroke, scale) {
     var body = [];
     stroke.forEach(function(point, i) {
       body[i]= Object.assign({},point);

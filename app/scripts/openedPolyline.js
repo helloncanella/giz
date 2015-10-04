@@ -2,7 +2,7 @@
 /*global b2Vec2*/
 'use strict';
 
-function OpenedFreeForm(basicFixture, stroke) {
+function OpenedPolyline(basicFixture, stroke) {
   var start, next;
 
   var allFixtures = [],

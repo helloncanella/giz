@@ -136,6 +136,9 @@ Polyline.prototype.prepare = function() {
 
         if (close) {
           shape.close();
+          shape.data.opened = false;
+        }else{
+          shape.data.opened = true;
         }
 
         //- replace the set of provisories shapes by the definitive

@@ -1,7 +1,7 @@
 /*jshint unused:false*/
 /*jshint -W106*/
 /*global Classifier, Chainer, b2FixtureDef, b2PolygonShape, b2BodyDef, b2Body,
-  b2Vec2, ClosedFreeForm, OpenedFreeForm*/
+  b2Vec2, ClosedPolyline, OpenedPolyline*/
 
 'use strict';
 
@@ -11,84 +11,94 @@ function Physics(world) {
 
   this.insertIntoWorld = function(stroke) {
 
-    var bodyDef = defineBody('dynamic', stroke[0], {id: insertedBodies});
+    var bodyDef = defineBody(stroke);
     var body = world.CreateBody(bodyDef);
 
     insertedBodies++;
 
-    var basicFixture = setupBasicFixture('polygon', 0.3, 1);
+    var id = insertedBodies;
 
-    var allFixtures = getAllFixtures(basicFixture,stroke);
+    var allFixtures = getAllFixtures(stroke, id);
 
     allFixtures.forEach(function(fixture) {
       body.CreateFixture(fixture);
     });
 
-    //return useful for the automated tests
-    return body;
   };
 
-  this.getListOfBodies = function(){
+  this.getListOfBodies = function() {
     var listOfBodies = [];
 
     var firstBody = world.GetBodyList();
     listOfBodies.push(firstBody);
 
     var nextBody = firstBody.m_next;
-    while(nextBody){
-      if(nextBody.m_mass!==0){
+    while (nextBody) {
+      if (nextBody.m_mass !== 0) {
         listOfBodies.push(nextBody);
       }
       nextBody = nextBody.GetNext();
-
     }
 
     return listOfBodies;
   };
 
-  var defineBody = function(type, position, userData) {
+  var defineBody = function(stroke, id) {
     var bodyDef = new b2BodyDef();
 
-    if (type === 'dynamic') {
-      bodyDef.type = b2Body.b2_dynamicBody;
-    } else {
-      bodyDef.type = b2Body.b2_static;
+    bodyDef.type = b2Body.b2_dynamicBody;
+
+    var label = stroke.label;
+
+    switch (label) {
+      case 'polyline':
+        var start = stroke.measures.points[0];
+        bodyDef.position = new b2Vec2(start.x, start.y);
+        break;
+      case 'circle':
+        var center = stroke.measures.center;
+        bodyDef.position = new b2Vec2(center.x, center.y);
+        break;
+      default:
     }
-    bodyDef.position = new b2Vec2(position.x, position.y);
-    bodyDef.userData = Object.assign({}, userData);
+
+    bodyDef.userData = id;
 
     return bodyDef;
   };
 
-  var setupBasicFixture = function(shape, friction, density) {
-    var fixture = new b2FixtureDef();
-    fixture.friction = friction;
-    fixture.density = density;
-    switch (shape) {
-      case 'polygon':
-        fixture.shape = new b2PolygonShape();
+
+
+  var getAllFixtures = function(stroke) {
+
+    var allFixtures, shape;
+
+    var fixtureData = {
+      friction: 0.3,
+      density: 1
+    };
+
+    var label = stroke.label;
+
+    switch (label) {
+      case 'polyline':
+        fixtureData.shape = 'polygon';
+        var points = stroke.measures.points;
+        var isOpened = stroke.opened;
+        if (isOpened) {
+          shape = new OpenedPolyline(fixtureData, points);
+        } else {
+          shape = new ClosedPolyline(fixtureData, points);
+        }
         break;
       case 'circle':
+        console.log('circle');
         break;
+      default:
+
     }
 
-    return fixture;
-  };
-
-  var getAllFixtures = function(basicFixture,stroke) {
-
-    var allFixtures;
-
-    var classifier = new Classifier();
-    var openOrClosed = classifier.openedOrClosed(stroke);
-
-    if (openOrClosed === 'closed') {
-      var closedFreeForm = new ClosedFreeForm(basicFixture,stroke);
-      allFixtures = closedFreeForm.getAllFixtures();
-    } else {
-      var openedFreeForm = new OpenedFreeForm(basicFixture,stroke);
-      allFixtures = openedFreeForm.getAllFixtures();
-    }
+    allFixtures = shape.getAllFixtures();
 
     return allFixtures;
   };

@@ -1,4 +1,4 @@
-/*global createjs, $, Artist, ShapeFactory*/
+/*global createjs, $, Artist, ShapeFactory, AABB*/
 /*jshint -W098, -W003*/
 'use strict';
 
@@ -23,6 +23,21 @@ Shape.prototype = Object.create(EaseljsShape.prototype);
 Shape.prototype.constructor = Shape;
 
 Shape.prototype.prepare = function() {};
+
+Shape.prototype.setAABB = function() {
+
+  var data = this.data;
+
+  var aabb = new AABB(data);
+
+  var width = aabb.width,
+    height = aabb.height,
+    topLeft = Object.assign({}, aabb.topLeft);
+
+  this.setBounds(topLeft.x, topLeft.y, width, height);
+
+  return this;
+};
 
 Shape.prototype.setListeners = function () {
 

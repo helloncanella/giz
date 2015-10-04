@@ -22,27 +22,14 @@ function Artist(canvasId) {
           .setListeners()
           .prepare()
           .then(function(drawing) {
-            resolve(drawing);
+            drawing.setAABB();
+            resolve(drawing.data);
           });
       });
     });
 
     return promise;
   };
-
-  this.setShapeBounds = function() {
-
-    var aabb = new AABB(strokePoints);
-
-    var width = aabb.width,
-      height = aabb.height,
-      topLeft = Object.assign({}, aabb.topLeft);
-
-    shape.setBounds(topLeft.x, topLeft.y, width, height);
-
-    return this;
-  };
-
 
   this.clearShapeReference = function() {
     shape = null;

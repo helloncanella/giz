@@ -27,12 +27,21 @@ Circle.prototype = Object.create(Shape.prototype);
 
 Circle.prototype.constructor = Circle;
 
+Circle.prototype.setBounds = function(){
+  
+};
+
 Circle.prototype.prepare = function() {
   var data = this.data;
 
+  var circle = this;
+
   var promise = new Promise(function(resolve) {
+    circle.setBounds();
     resolve(data);
   });
+
+
   return promise;
 };
 

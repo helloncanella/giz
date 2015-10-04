@@ -141,9 +141,10 @@ Polyline.prototype.prepare = function() {
         //- replace the set of provisories shapes by the definitive
         shape.replaceProvisoryShapes();
 
+
         stage.update();
 
-        resolve(shape.data);
+        resolve(shape);
         canvas.off();
       }
     });

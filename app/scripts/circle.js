@@ -28,10 +28,10 @@ Circle.prototype = Object.create(Shape.prototype);
 Circle.prototype.constructor = Circle;
 
 Circle.prototype.prepare = function() {
-  var data = this.data;
+  var shape = this;
 
   var promise = new Promise(function(resolve) {
-    resolve(data);
+    resolve(shape);
   });
   return promise;
 };

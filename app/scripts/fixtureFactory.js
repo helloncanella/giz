@@ -1,4 +1,4 @@
-/*global b2FixtureDef, b2PolygonShape*/
+/*global b2FixtureDef, b2PolygonShape, b2CircleShape*/
 /*jshint -W106, -W098*/
 'use strict';
 
@@ -11,6 +11,9 @@ function FixtureFactory () {
     switch (shape) {
       case 'polygon':
         fixture.shape = new b2PolygonShape();
+        break;
+      case 'circle':
+        fixture.shape = new b2CircleShape();
         break;
       default:
     }

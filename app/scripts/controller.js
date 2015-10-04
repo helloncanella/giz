@@ -18,12 +18,9 @@
 
   (function readyToDraw() {
     artist.draw().then(function(shape) {
-      var stroke = shape.measures.points;
-      var convertedPoints = converter.canvasToBox2d(stroke,scale);
+      var convertedShape = converter.canvasToBox2d(shape,scale);
 
-      shape.measures.points = convertedPoints;
-
-      physics.insertIntoWorld(shape);
+      physics.insertIntoWorld(convertedShape);
 
       readyToDraw();
     });

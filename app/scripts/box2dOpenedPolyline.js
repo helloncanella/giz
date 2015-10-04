@@ -2,7 +2,7 @@
 /*global b2Vec2, FixtureFactory*/
 'use strict';
 
-function OpenedPolyline(fixtureData, stroke) {
+function Box2dOpenedPolyline(fixtureData, stroke) {
   var start, next;
   var fixtureFactory = new FixtureFactory();
 

@@ -3,7 +3,7 @@
 'use strict';
 
 
-function ClosedPolyline (fixtureData,stroke){
+function Box2dClosedPolyline (fixtureData,stroke){
   var allFixtures = [];
   var triangles = new Triangulator(stroke).getTriangles();
   var fixtureFactory = new FixtureFactory();

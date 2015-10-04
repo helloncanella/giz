@@ -1,7 +1,7 @@
 /*jshint unused:false*/
 /*jshint -W106*/
-/*global Classifier, Chainer, b2FixtureDef, b2PolygonShape, b2BodyDef, b2Body,
-  b2Vec2, ClosedPolyline, OpenedPolyline*/
+/*global Classifier, Chainer, b2FixtureDef, b2PolygonShape, b2BodyDef,
+  b2Body, b2Vec2, Box2dOpenedPolyline, Box2dClosedPolyline, Box2dCircle*/
 
 'use strict';
 
@@ -86,13 +86,15 @@ function Physics(world) {
         var points = stroke.measures.points;
         var isOpened = stroke.opened;
         if (isOpened) {
-          shape = new OpenedPolyline(fixtureData, points);
+          shape = new Box2dOpenedPolyline(fixtureData, points);
         } else {
-          shape = new ClosedPolyline(fixtureData, points);
+          shape = new Box2dClosedPolyline(fixtureData, points);
         }
         break;
       case 'circle':
-        console.log('circle');
+        var radius = stroke.measures.radius;
+        fixtureData.shape = 'circle';
+        shape = new Box2dCircle(fixtureData, radius);
         break;
       default:
 

@@ -39,9 +39,7 @@ function ShapeFactory(canvasId) {
               circle.increaseRadius();
               stage.update();
             }, 1);
-
           }, 500);
-
         },
 
         mouseup: function(event) {

@@ -13,16 +13,18 @@ function Artist(canvasId) {
   this.stage = new createjs.Stage(canvasId);
 
   this.draw = function(point) {
-    var promise = new Promise(function(resolve, reject) {
-      shapeFactory.spawnShape()
-        .then(function(shape) {
-          shape
-            .setListeners()
-            .prepare()
-            .then(function(drawing) {
-              resolve(drawing);
-            });
-        });
+
+    var artist = this;
+
+    var promise = new Promise(function(resolve) {
+      shapeFactory.spawnShape().then(function(shape) {
+        shape
+          .setListeners()
+          .prepare()
+          .then(function(drawing) {
+            resolve(drawing);
+          });
+      });
     });
 
     return promise;
@@ -47,6 +49,3 @@ function Artist(canvasId) {
   };
 
 }
-
-//- It will be used to turn off Artist.prototye.draw method;
-Artist.prototype.canDraw = true;

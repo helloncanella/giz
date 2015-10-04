@@ -12,6 +12,8 @@ function ShapeFactory(canvasId) {
   this.spawnShape = function() {
     var circleProcess, incresingOfRadius;
 
+    var shapeFactory = this;
+
     var promise = new Promise(function(resolve, reject) {
       var circle, polyline, firstPoint;
       //-------------------------------------------------------------
@@ -25,35 +27,41 @@ function ShapeFactory(canvasId) {
 
       var shapeFactory = ShapeFactory.prototype;
 
+      // the listener will be active, just if the shapeFactory is turned on
       canvas.on({
         mousedown: function(e) {
-          firstPoint = {
-            x: e.offsetX,
-            y: e.offsetY
-          };
+          if (shapeFactory.isOn()) {
+            firstPoint = {
+              x: e.offsetX,
+              y: e.offsetY
+            };
 
-          circleProcess = setTimeout(function() {
-            circle = new Circle(firstPoint);
-            stage.addChild(circle);
-            incresingOfRadius = setInterval(function() {
-              circle.increaseRadius();
-              stage.update();
-            }, 1);
+            //XXX Problem when two successives shapes is created
+            circleProcess = setTimeout(function() {
+              circle = new Circle(firstPoint);
+              stage.addChild(circle);
+              incresingOfRadius = setInterval(function() {
+                circle.increaseRadius();
+                stage.update();
+              }, 1);
 
-          }, 500);
+            }, 500);
+          }
         },
 
         mouseup: function(event) {
-          clearTimeout(circleProcess);
-          clearInterval(incresingOfRadius);
-          if (circle) {
-            resolve(circle);
-          } else {
-            polyline = new Polyline(firstPoint, canvas);
-            stage.addChild(polyline);
-            polyline.start(firstPoint, 7.5);
-            stage.update();
-            resolve(polyline);
+          if (shapeFactory.isOn()) {
+            clearTimeout(circleProcess);
+            clearInterval(incresingOfRadius);
+            if (circle) {
+              resolve(circle);
+            } else {
+              polyline = new Polyline(firstPoint, canvas);
+              stage.addChild(polyline);
+              polyline.start(firstPoint, 7.5);
+              stage.update();
+              resolve(polyline);
+            }
           }
         }
       });
@@ -62,3 +70,18 @@ function ShapeFactory(canvasId) {
     return promise;
   };
 }
+
+//- It will be used to turn off ShapeFactory.prototye.draw method;
+ShapeFactory.prototype.state = true;
+
+ShapeFactory.prototype.turnOff = function() {
+  this.state = false;
+};
+
+ShapeFactory.prototype.turnOn = function() {
+  this.state = true;
+};
+
+ShapeFactory.prototype.isOn = function() {
+  return this.state;
+};

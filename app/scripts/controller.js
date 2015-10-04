@@ -7,13 +7,23 @@
 
   var artist = new Artist('easeljs');
 
-  (function waitDraw() {
-    artist.draw().then(function(drawing) {
-      console.log(drawing);
-      waitDraw();
-    });
 
+  (function waitDraw() {
+    artist.draw().then(
+      function success(drawing) {
+        console.log(drawing);
+        waitDraw();
+      },
+      function fails(reason) {
+        waitDraw();
+        console.warn('newPromise failed with reason: ', reason);
+      }
+    );
   })();
+
+
+
+
 
   //- Physics's variables
   var gravity = new b2Vec2(0, 10),

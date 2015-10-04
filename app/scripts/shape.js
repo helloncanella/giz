@@ -31,6 +31,9 @@ Shape.prototype.setListeners = function () {
 
   this.on('mousedown',function (event) {
 
+    //While the mousedown is pressed, turn off the shapeFactory
+    shapeFactory.turnOff();
+
     initialPosition = {
       x: event.stageX,
       y: event.stageY
@@ -56,6 +59,11 @@ Shape.prototype.setListeners = function () {
     initialPosition = newPosition;
 
     this.stage.update();
+  });
+
+  this.on('pressup', function(){
+    //The factory is free to generate new shapes
+    shapeFactory.turnOn();
   });
 
   return this;

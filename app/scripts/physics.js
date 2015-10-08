@@ -1,7 +1,6 @@
-/*jshint unused:false*/
-/*jshint -W106*/
-/*global Classifier, Chainer, b2FixtureDef, b2PolygonShape, b2BodyDef,
-  b2Body, b2Vec2, Box2dOpenedPolyline, Box2dClosedPolyline, Box2dCircle*/
+/*jshint -W106, -W098*/
+/*global b2Body, b2Vec2, Box2dOpenedPolyline, Box2dClosedPolyline, b2BodyDef,
+ Box2dCircle*/
 
 'use strict';
 
@@ -12,8 +11,6 @@ function Physics(world) {
   this.insertIntoWorld = function(stroke) {
     var bodyDef = defineBody(stroke);
     var body = world.CreateBody(bodyDef);
-
-
 
     insertedBodies++;
 
@@ -104,7 +101,6 @@ function Physics(world) {
         shape = new Box2dCircle(fixtureData, radius);
         break;
       default:
-
     }
 
     allFixtures = shape.getAllFixtures();

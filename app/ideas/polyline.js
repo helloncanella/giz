@@ -1,5 +1,5 @@
-/*global createjs, $, Shape*/
-/*jshint -W098, -W003*/
+/*global Shape*/
+/*jshint -W003*/
 'use strict';
 
 function Polyline(position, canvas) {
@@ -27,7 +27,7 @@ Polyline.prototype = Object.create(Shape.prototype);
 
 Polyline.prototype.constructor = Polyline;
 
-Polyline.prototype.start = function(position, sideLength) {
+Polyline.prototype.start = function(position) {
   var stage = this.stage;
 
   this.storePoint(position);

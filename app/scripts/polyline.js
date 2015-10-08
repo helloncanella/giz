@@ -41,7 +41,7 @@ Polyline.prototype.start = function(position) {
 
 Polyline.prototype.setCentroid = function() {
 
-  var
+  var 
     data = this.data,
     isOpened = data.opened,
     points = this.data.measures.points;

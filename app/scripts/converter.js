@@ -3,7 +3,7 @@
 'use strict';
 
 function Converter() {
-  this.canvasToBox2d = function(shape, scale) {
+  this.canvasToBox2d = function(shape, type, scale) {
 
     var label = shape.label;
 
@@ -19,6 +19,21 @@ function Converter() {
           body[i].y = point.y / scale;
           points[i]=body[i];
         });
+
+        var areThereTriangles = measures.hasOwnProperty('triangles');
+
+        if(areThereTriangles){
+          var triangles = measures.triangles;
+
+          triangles.forEach(function(triangle) {
+            triangle.forEach(function (point) {
+              point.x /= scale;
+              point.y /= scale;
+            });
+          });
+          
+        }
+
         break;
       case 'circle':
         measures.center.x /= scale ;
@@ -28,9 +43,11 @@ function Converter() {
       default:
     }
 
+    //Specifying if the body will be dynamic or static
+    shape.type = type;
+
     var convertedShape = shape;
 
-    console.log(shape.measures);
 
     return convertedShape;
   };

@@ -10,9 +10,10 @@ function Physics(world) {
   var insertedBodies = 0;
 
   this.insertIntoWorld = function(stroke) {
-
     var bodyDef = defineBody(stroke);
     var body = world.CreateBody(bodyDef);
+
+
 
     insertedBodies++;
 
@@ -23,7 +24,6 @@ function Physics(world) {
     allFixtures.forEach(function(fixture) {
       body.CreateFixture(fixture);
     });
-
   };
 
   this.getListOfBodies = function() {
@@ -46,9 +46,8 @@ function Physics(world) {
   var defineBody = function(stroke, id) {
     var bodyDef = new b2BodyDef();
 
-    bodyDef.type = b2Body.b2_dynamicBody;
-
     var label = stroke.label;
+    var type = stroke.type;
 
     switch (label) {
       case 'polyline':
@@ -60,6 +59,13 @@ function Physics(world) {
         bodyDef.position = new b2Vec2(center.x, center.y);
         break;
       default:
+    }
+
+
+    if (type === 'dynamic') {
+      bodyDef.type = b2Body.b2_dynamicBody;
+    } else {
+      bodyDef.type = b2Body.b2_staticBody;
     }
 
     bodyDef.userData = id;
@@ -88,7 +94,8 @@ function Physics(world) {
         if (isOpened) {
           shape = new Box2dOpenedPolyline(fixtureData, points);
         } else {
-          shape = new Box2dClosedPolyline(fixtureData, points);
+          var triangles = stroke.measures.triangles;
+          shape = new Box2dClosedPolyline(fixtureData, points, triangles);
         }
         break;
       case 'circle':

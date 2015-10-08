@@ -8,7 +8,7 @@ function Shape(position) {
 
   EaseljsShape.call(this);
 
-  this.x = position.x;this.y = position.y;
+  this.x = position.x;
   this.y = position.y;
 
   this.data = {
@@ -74,6 +74,8 @@ Shape.prototype.setListeners = function () {
     initialPosition = newPosition;
 
     this.stage.update();
+
+    return this;
   });
 
   this.on('pressup', function(){

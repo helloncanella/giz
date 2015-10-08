@@ -1,4 +1,4 @@
-/*global createjs, $, Shape*/
+/*global createjs, $, Shape, Triangulator*/
 /*jshint -W098, -W003*/
 'use strict';
 
@@ -39,6 +39,152 @@ Polyline.prototype.start = function(position, sideLength) {
 
 };
 
+Polyline.prototype.setCentroid = function() {
+
+  var
+    data = this.data,
+    isOpened = data.opened,
+    points = this.data.measures.points,
+    shape = this;
+
+  var centroid = calculateCentroid();
+
+  var graphics = this.graphics;
+  var stage = this.stage;
+
+  graphics
+    .beginStroke('red')
+    .beginFill('red')
+    .drawCircle(centroid.x - this.x, centroid.y - this.y, 1);
+
+  stage.update();
+
+  console.log(centroid.x - this.x, centroid.y - this.y);
+
+  function calculateCentroid() {
+
+    var centroid = {};
+
+    if (isOpened) {
+      centroid = openedPolylineCentroid();
+    } else {
+      centroid = closedPolylineCentroid();
+    }
+
+    function closedPolylineCentroid() {
+      var
+        triangles = new Triangulator(points).getTriangles(),
+        totalArea = 0,
+        polygonMoment = {
+          x: 0,
+          y: 0
+        };
+
+      //storing the calculated triangles
+      shape.data.measures.triangles = triangles;
+
+      triangles.forEach(function(triangle) {
+
+        var triangleCentroid = {
+          x: 0,
+          y: 0
+        };
+
+        var points = [];
+
+        triangle.forEach(function(point) {
+          triangleCentroid.x += point.x / 3;
+          triangleCentroid.y += point.y / 3;
+          points.push(point);
+        });
+
+        var area = calculateArea();
+
+        polygonMoment.x += area * triangleCentroid.x;
+        polygonMoment.y += area * triangleCentroid.y;
+
+        totalArea += area;
+      });
+
+      centroid.x = polygonMoment.x/totalArea;
+      centroid.y = polygonMoment.y/totalArea;
+
+      function calculateArea() {
+        var area;
+
+        var abs = Math.abs;
+
+        var vectorA = {
+          x: points[1].x - points[0].x,
+          y: points[1].y - points[0].y
+        };
+
+        var vectorB = {
+          x: points[2].x - points[0].x,
+          y: points[2].y - points[0].y
+        };
+
+        area = abs(vectorA.x * vectorB.y - vectorA.y * vectorB.x);
+
+        return area;
+      }
+
+      return centroid;
+    }
+
+
+    function openedPolylineCentroid() {
+      var start = points[0];
+
+      var
+        pow = Math.pow,
+        sqrt = Math.sqrt;
+
+      var
+        sumLength = 0,
+        rodMoment = {
+          x: 0,
+          y: 0
+        };
+
+      points.forEach(function(point) {
+        var next = point;
+
+        var distance = {
+          x: next.x - start.x,
+          y: next.y - start.y
+        };
+
+        var centroidOfRod = {
+          x: start.x + distance.x / 2,
+          y: start.y + distance.y / 2
+        };
+
+        var distanceLength = sqrt(pow(distance.x, 2) + pow(distance.y, 2));
+
+        sumLength += distanceLength;
+
+        rodMoment.x += distanceLength * centroidOfRod.x;
+        rodMoment.y += distanceLength * centroidOfRod.y;
+
+        start = next;
+      });
+
+      centroid.x = rodMoment.x / sumLength;
+      centroid.y = rodMoment.y / sumLength;
+
+
+
+      return centroid;
+    }
+
+    return centroid;
+  }
+
+
+  return this;
+};
+
 Polyline.prototype.storePoint = function(point) {
 
   this.points.push({
@@ -68,14 +214,14 @@ Polyline.prototype.replaceProvisoryShapes = function() {
     graphics.lineTo(end.x, end.y);
   });
 
-  var lastPoint = points[points.length-1];
+  var lastPoint = points[points.length - 1];
   var firstPoint = points[0];
 
   var number = this.provisoryShapesNumber;
 
   var shapeIndex = stage.getChildIndex(shape);
 
-  stage.children.splice(shapeIndex+1,number);
+  stage.children.splice(shapeIndex + 1, number);
 
 };
 
@@ -137,7 +283,7 @@ Polyline.prototype.prepare = function() {
         if (close) {
           shape.close();
           shape.data.opened = false;
-        }else{
+        } else {
           shape.data.opened = true;
         }
 

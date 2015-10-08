@@ -22,7 +22,9 @@ function Artist(canvasId) {
           .setListeners()
           .prepare()
           .then(function(drawing) {
-            drawing.setAABB();
+            drawing
+              .setAABB()
+              .setCentroid();
             resolve(drawing.data);
           });
       });

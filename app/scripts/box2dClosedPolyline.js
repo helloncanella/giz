@@ -3,10 +3,16 @@
 'use strict';
 
 
-function Box2dClosedPolyline (fixtureData,stroke){
+function Box2dClosedPolyline (fixtureData,stroke,triangles){
   var allFixtures = [];
-  var triangles = new Triangulator(stroke).getTriangles();
   var fixtureFactory = new FixtureFactory();
+
+  //TODO CREATE THE CLASS Box2dLimit
+
+  //triangles are not provided when the borders are created
+  if(!triangles){
+    triangles = new Triangulator(stroke).getTriangles();
+  }
 
   triangles.forEach(function(triangle, index) {
 

@@ -1,5 +1,5 @@
-/*global createjs, $, Shape, Triangulator*/
-/*jshint -W098, -W003*/
+/*global Shape*/
+/*jshint -W003*/
 'use strict';
 
 function Polyline(position, canvas) {
@@ -27,12 +27,12 @@ Polyline.prototype = Object.create(Shape.prototype);
 
 Polyline.prototype.constructor = Polyline;
 
-Polyline.prototype.start = function(position, sideLength) {
+Polyline.prototype.start = function(position) {
   var stage = this.stage;
 
   this.storePoint(position);
 
-  //- Inserting initial token;
+  //- Inserting the initial token;
   var initialToken = this.getToken(position, 7.5, this.canvas);
   stage.addChild(initialToken);
   stage.update();
@@ -44,8 +44,7 @@ Polyline.prototype.setCentroid = function() {
   var
     data = this.data,
     isOpened = data.opened,
-    points = this.data.measures.points,
-    shape = this;
+    points = this.data.measures.points;
 
   var centroid = calculateCentroid();
 
@@ -64,6 +63,7 @@ Polyline.prototype.setCentroid = function() {
   function calculateCentroid() {
 
     var centroid = {};
+    var start = points[0];
 
     if (isOpened) {
       centroid = openedPolylineCentroid();
@@ -71,70 +71,42 @@ Polyline.prototype.setCentroid = function() {
       centroid = closedPolylineCentroid();
     }
 
+    //- Deploying the formula found at http://tny.im/dk10D
     function closedPolylineCentroid() {
+
+      var next, I;
+
       var
-        triangles = new Triangulator(points).getTriangles(),
-        totalArea = 0,
-        polygonMoment = {
+        Area = 0,
+        sum = {
           x: 0,
           y: 0
         };
 
-      //storing the calculated triangles
-      shape.data.measures.triangles = triangles;
+      for (var i = 1; i < points.length; i++) {
+        next = points[i];
+        I = start.x * next.y - next.x * start.y;
 
-      triangles.forEach(function(triangle) {
+        sum.x += (start.x + next.x) * I;
+        sum.y += (start.y + next.y) * I;
 
-        var triangleCentroid = {
-          x: 0,
-          y: 0
-        };
+        Area += I;
 
-        var points = [];
-
-        triangle.forEach(function(point) {
-          triangleCentroid.x += point.x / 3;
-          triangleCentroid.y += point.y / 3;
-          points.push(point);
-        });
-
-        var area = calculateArea();
-
-        polygonMoment.x += area * triangleCentroid.x;
-        polygonMoment.y += area * triangleCentroid.y;
-
-        totalArea += area;
-      });
-
-      centroid.x = polygonMoment.x/totalArea;
-      centroid.y = polygonMoment.y/totalArea;
-
-      function calculateArea() {
-        var area;
-
-        var abs = Math.abs;
-
-        var vectorA = {
-          x: points[1].x - points[0].x,
-          y: points[1].y - points[0].y
-        };
-
-        var vectorB = {
-          x: points[2].x - points[0].x,
-          y: points[2].y - points[0].y
-        };
-
-        area = abs(vectorA.x * vectorB.y - vectorA.y * vectorB.x);
-
-        return area;
+        start = next;
       }
+
+      Area /= 2;
+
+      centroid = {
+        x: (1 / (6 * Area)) * sum.x,
+        y: (1 / (6 * Area)) * sum.y
+      };
 
       return centroid;
     }
 
 
     function openedPolylineCentroid() {
-      var start = points[0];
 
       var
         pow = Math.pow,
@@ -173,14 +145,11 @@ Polyline.prototype.setCentroid = function() {
       centroid.x = rodMoment.x / sumLength;
       centroid.y = rodMoment.y / sumLength;
 
-
-
       return centroid;
     }
 
     return centroid;
   }
-
 
   return this;
 };
@@ -214,9 +183,6 @@ Polyline.prototype.replaceProvisoryShapes = function() {
     graphics.lineTo(end.x, end.y);
   });
 
-  var lastPoint = points[points.length - 1];
-  var firstPoint = points[0];
-
   var number = this.provisoryShapesNumber;
 
   var shapeIndex = stage.getChildIndex(shape);
@@ -234,8 +200,6 @@ Polyline.prototype.prepare = function() {
       x: this.x,
       y: this.y
     };
-
-  var lastPoint = Object.assign({}, start);
 
   var segment = new Segment(start);
   stage.addChild(segment);
@@ -272,10 +236,8 @@ Polyline.prototype.prepare = function() {
           shape.storePoint(end);
           shape.lastPoint = Object.assign({}, end);
         }
-
-
       },
-      dblclick: function(e) {
+      dblclick: function() {
         canvas.trigger('finishPolyline');
       },
       finishPolyline: function(event, close) {
@@ -289,7 +251,6 @@ Polyline.prototype.prepare = function() {
 
         //- replace the set of provisories shapes by the definitive
         shape.replaceProvisoryShapes();
-
 
         stage.update();
 
@@ -319,7 +280,6 @@ Polyline.prototype.close = function() {
 
 };
 
-
 //----------------------------------------------------------------------
 //- Token's abstraction. It marks the initial and end of the Polyline
 //----------------------------------------------------------------------
@@ -333,7 +293,6 @@ function Token(start, sideLength, canvas) {
   var stroke = graphics.beginStroke(2).command;
   var fill = graphics.beginFill('white').command;
 
-
   graphics
     .drawRect(
       0 - sideLength / 2,
@@ -341,7 +300,6 @@ function Token(start, sideLength, canvas) {
       sideLength,
       sideLength
     );
-
 
   //- Setting listeners
   this.on('mouseover', function() {
@@ -358,8 +316,6 @@ function Token(start, sideLength, canvas) {
     canvas.trigger('finishPolyline', ['close']);
     token.off('mouseout');
   });
-
-
 }
 
 Token.prototype = Object.create(Shape.prototype);

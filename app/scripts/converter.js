@@ -20,20 +20,6 @@ function Converter() {
           points[i]=body[i];
         });
 
-        var areThereTriangles = measures.hasOwnProperty('triangles');
-
-        if(areThereTriangles){
-          var triangles = measures.triangles;
-
-          triangles.forEach(function(triangle) {
-            triangle.forEach(function (point) {
-              point.x /= scale;
-              point.y /= scale;
-            });
-          });
-          
-        }
-
         break;
       case 'circle':
         measures.center.x /= scale ;

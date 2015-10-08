@@ -58,7 +58,6 @@ function Physics(world) {
       default:
     }
 
-
     if (type === 'dynamic') {
       bodyDef.type = b2Body.b2_dynamicBody;
     } else {

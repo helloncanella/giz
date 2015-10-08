@@ -39,6 +39,8 @@ Shape.prototype.setAABB = function() {
   return this;
 };
 
+Shape.prototype.setCentroid = function(){};
+
 Shape.prototype.setListeners = function () {
 
   var initialPosition;

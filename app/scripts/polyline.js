@@ -41,7 +41,7 @@ Polyline.prototype.start = function(position) {
 
 Polyline.prototype.setCentroid = function() {
 
-  var 
+  var
     data = this.data,
     isOpened = data.opened,
     points = this.data.measures.points,
@@ -74,25 +74,32 @@ Polyline.prototype.setCentroid = function() {
         y: points[0] - shape.y
       };
 
-    graphics.clear();
+    rebuildShape();
 
-    graphics
-      .beginStroke('royalblue')
-      .setStrokeStyle(2)
-      .moveTo(start.x, start.y);
+    function rebuildShape() {
+      graphics.clear();
 
+      graphics
+        .beginFill('royalblue')
+        .setStrokeStyle(2)
+        .moveTo(start.x, start.y);
 
-    for (var i = 1; i < points.length; i++) {
+      for (var i = 1; i < points.length; i++) {
 
-      next = {
-        x: points[i].x - shape.x,
-        y: points[i].y - shape.y
-      };
+        next = {
+          x: points[i].x - shape.x,
+          y: points[i].y - shape.y
+        };
 
-      graphics.lineTo(next.x, next.y);
+        graphics.lineTo(next.x, next.y);
 
-      start = next;
+        start = next;
+      }
+
+      graphics.closePath();
     }
+
+
 
   }
 
@@ -312,7 +319,7 @@ Polyline.prototype.close = function() {
   //remove last point and add replace for the point
   this.points.splice(-1, 1, this.points[0]);
 
-  this.graphics.beginFill('royalblue');
+  this.graphics.beginFill('royalblue').closePath();
 
 };
 

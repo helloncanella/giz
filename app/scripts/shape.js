@@ -39,14 +39,21 @@ Shape.prototype.setAABB = function() {
   return this;
 };
 
-Shape.prototype.setCentroid = function(){};
+Shape.prototype.setCentroid = function(centroid) {
+  var data = this.data;
 
-Shape.prototype.setListeners = function () {
+  data.centroid = {
+    x: centroid.x,
+    y: centroid.y
+  };
+};
+
+Shape.prototype.setListeners = function() {
 
   var initialPosition;
   var shapeFactory = ShapeFactory.prototype;
 
-  this.on('mousedown',function (event) {
+  this.on('mousedown', function(event) {
 
     //While the mousedown is pressed, turn off the shapeFactory
     shapeFactory.turnOff();
@@ -58,7 +65,7 @@ Shape.prototype.setListeners = function () {
 
   });
 
-  this.on('pressmove',function(event){
+  this.on('pressmove', function(event) {
 
     var newPosition = {
       x: event.stageX,
@@ -66,8 +73,8 @@ Shape.prototype.setListeners = function () {
     };
 
     var delta = {
-      x:newPosition.x - initialPosition.x,
-      y:newPosition.y - initialPosition.y
+      x: newPosition.x - initialPosition.x,
+      y: newPosition.y - initialPosition.y
     };
 
     this.x += delta.x;
@@ -80,7 +87,7 @@ Shape.prototype.setListeners = function () {
     return this;
   });
 
-  this.on('pressup', function(){
+  this.on('pressup', function() {
     //The factory is free to generate new shapes
     shapeFactory.turnOn();
   });

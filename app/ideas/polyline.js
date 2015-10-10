@@ -68,9 +68,6 @@ Polyline.prototype.replaceProvisoryShapes = function() {
     graphics.lineTo(end.x, end.y);
   });
 
-  var lastPoint = points[points.length-1];
-  var firstPoint = points[0];
-
   var number = this.provisoryShapesNumber;
 
   var shapeIndex = stage.getChildIndex(shape);
@@ -88,8 +85,6 @@ Polyline.prototype.prepare = function() {
       x: this.x,
       y: this.y
     };
-
-  var lastPoint = Object.assign({}, start);
 
   var segment = new Segment(start);
   stage.addChild(segment);

@@ -2,16 +2,24 @@
 /*global b2Vec2, FixtureFactory*/
 'use strict';
 
-function Box2dOpenedPolyline(fixtureData, stroke) {
-  var start, next;
+function Box2dOpenedPolyline(fixtureData, stroke, centroid) {
+  var start, next, origin;
   var fixtureFactory = new FixtureFactory();
 
   var allFixtures = [];
 
-  var origin = {
-    x: stroke[0].x,
-    y: stroke[0].y
-  };
+  if (centroid) {
+    origin = {
+      x: centroid.x,
+      y: centroid.y
+    };
+  } else {
+    origin = {
+      x: stroke[0].x,
+      y: stroke[0].y
+    };
+  }
+
 
   stroke.forEach(function(point) {
     if (!start) {

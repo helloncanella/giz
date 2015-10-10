@@ -3,10 +3,14 @@
 'use strict';
 
 
-function Box2dClosedPolyline (fixtureData,stroke){
-  var allFixtures = [];
-  var triangles = new Triangulator(stroke).getTriangles();
-  var fixtureFactory = new FixtureFactory();
+function Box2dClosedPolyline(fixtureData, stroke, centroid) {
+
+  var origin;
+
+  var
+    allFixtures = [],
+    triangles = new Triangulator(stroke).getTriangles(),
+    fixtureFactory = new FixtureFactory();
 
   triangles.forEach(function(triangle, index) {
 
@@ -14,12 +18,19 @@ function Box2dClosedPolyline (fixtureData,stroke){
     var density = fixtureData.density || 0;
     var friction = fixtureData.friction || 0;
 
-    var fixture = fixtureFactory.spawn(shape,density,friction);
+    var fixture = fixtureFactory.spawn(shape, density, friction);
 
-    var origin = {
-      x: stroke[0].x,
-      y: stroke[0].y
-    };
+    if (centroid) {
+      origin = {
+        x: centroid.x,
+        y: centroid.y
+      };
+    } else {
+      origin = {
+        x: stroke[0].x,
+        y: stroke[0].y
+      };
+    }
 
     var b2Vertices = [];
     triangle.forEach(function(point) {
@@ -34,7 +45,7 @@ function Box2dClosedPolyline (fixtureData,stroke){
     allFixtures.push(fixture);
   });
 
-  this.getAllFixtures = function(){
+  this.getAllFixtures = function() {
     return allFixtures;
   };
 }

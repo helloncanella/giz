@@ -36,6 +36,19 @@ Circle.prototype.prepare = function() {
   return promise;
 };
 
+Circle.prototype.setCentroid = function(){
+
+  var centroid = {
+    x:this.x,
+    y:this.y
+  };
+
+  Shape.prototype.setCentroid.call(this, centroid);
+
+  console.log(this.data);
+
+};
+
 Circle.prototype.increaseRadius = function() {
 
   var radius = this.data.measures.radius += 0.15;

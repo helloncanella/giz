@@ -1,4 +1,4 @@
-/*global Shape*/
+/*global Shape, Polyline*/
 /*jshint -W098, -W003*/
 'use strict';
 
@@ -22,9 +22,12 @@ function Limit(position, width, height) {
         y: position.y
       }],
     },
+    centroid: {
+      x: position.x + width/2,
+      y: position.y + height/2
+    },
     opened: false
   };
-
 
   var graphics = this.graphics;
 

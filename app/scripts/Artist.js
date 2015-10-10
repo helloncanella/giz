@@ -17,13 +17,12 @@ function Artist(canvasId) {
     var promise = new Promise(function(resolve) {
       shapeFactory.spawnShape().then(function(shape) {
         shape
-          .setListeners()
           .prepare()
           .then(function(drawing) {
             drawing
               .setAABB()
               .setCentroid();
-            resolve(drawing.data);
+          resolve(drawing.data);
           });
       });
     });

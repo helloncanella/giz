@@ -22,7 +22,14 @@ function Physics(world) {
       body.CreateFixture(fixture);
     });
 
-    console.log(body);
+    var position = body.GetWorldCenter();
+    var centroid = stroke.centroid;
+
+    if(centroid){
+      console.log(id, position.x*30 - centroid.x*30, position.y*30 - centroid.y*30);
+    }
+
+
   };
 
   this.getListOfBodies = function() {
@@ -48,7 +55,7 @@ function Physics(world) {
       var bodyData = {
         x: centroidPosition.x,
         y: centroidPosition.y,
-        angle: body.GetAngle()*180/PI
+        angle: body.GetAngle() * 180 / PI
       };
 
       var id = body.GetUserData();
@@ -65,17 +72,9 @@ function Physics(world) {
 
     var label = stroke.label;
 
-    switch (label) {
-      case 'polyline':
-        var start = stroke.measures.points[0];
-        bodyDef.position = new b2Vec2(start.x, start.y);
-        break;
-      case 'circle':
-        var center = stroke.measures.center;
-        bodyDef.position = new b2Vec2(center.x, center.y);
-        break;
-      default:
-    }
+    var centroid = stroke.centroid;
+
+    bodyDef.position = new b2Vec2(centroid.x, centroid.y);
 
     if (type === 'dynamic') {
       bodyDef.type = b2Body.b2_dynamicBody;
@@ -105,12 +104,13 @@ function Physics(world) {
       case 'polyline':
         fixtureData.shape = 'polygon';
         var points = stroke.measures.points;
+        var centroid = stroke.centroid;
         var isOpened = stroke.opened;
         if (isOpened) {
-          shape = new Box2dOpenedPolyline(fixtureData, points);
+          shape = new Box2dOpenedPolyline(fixtureData, points, centroid);
         } else {
           var triangles = stroke.measures.triangles;
-          shape = new Box2dClosedPolyline(fixtureData, points, triangles);
+          shape = new Box2dClosedPolyline(fixtureData, points, centroid);
         }
         break;
       case 'circle':

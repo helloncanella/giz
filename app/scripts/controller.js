@@ -79,12 +79,10 @@
     // artist.stage.update();
     world.Step(rate, 10, 10);
     world.DrawDebugData();
+
     var bodies = physics.getListOfBodies();
 
-    var clonedList = JSON.parse(JSON.stringify(bodies));
-
-    var listOfDraw = converter.convert(clonedList,'canvas','angle');
-
+    var listOfDraw = converter.convert(bodies,'canvas','angle');
 
     artist.update(listOfDraw,rate);
 

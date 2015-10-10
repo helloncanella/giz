@@ -23,9 +23,9 @@
       //- Cloning object in order to not modify the original shape;
       var clonedShape = JSON.parse(JSON.stringify(shape));
 
-      var convertedShape = converter.convert(clonedShape,'box2d');
+      var convertedShape = converter.convert(clonedShape, 'box2d');
 
-      physics.insertIntoWorld(convertedShape,'dynamic');
+      physics.insertIntoWorld(convertedShape, 'dynamic');
 
       readyToDraw();
     });
@@ -49,23 +49,20 @@
     }, 10, canvasHeight);
 
     var limits = [bottom, left, right];
-    var stage = artist.stage;
 
     limits.forEach(function(limit) {
-      stage.addChild(limit);
-      var convertedShape = converter.convert(limit.data,'box2d');
+      var convertedShape = converter.convert(limit.data, 'box2d');
       physics.insertIntoWorld(convertedShape, 'static');
+      var bodies = physics.getListOfBodies();
     });
-
-    stage.update();
 
   })();
 
 
   //-Building the Debug Draw
   (function debugDrawBuilder() {
-    var context = $('canvas#box2dweb')[0].getContext('2d'),
-
+    var
+      context = $('canvas#box2dweb')[0].getContext('2d'),
       debugDraw = new b2DebugDraw();
 
     debugDraw.SetSprite(context);
@@ -79,8 +76,18 @@
 
   //- Running the world
   (function update() {
+    // artist.stage.update();
     world.Step(rate, 10, 10);
     world.DrawDebugData();
+    var bodies = physics.getListOfBodies();
+
+    var clonedList = JSON.parse(JSON.stringify(bodies));
+
+    var listOfDraw = converter.convert(clonedList,'canvas','angle');
+
+
+    artist.update(listOfDraw,rate);
+
     requestAnimationFrame(update);
   })();
 

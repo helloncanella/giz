@@ -4,8 +4,12 @@
 
 function ShapeFactory(canvasId) {
 
-  var canvas = $('#' + canvasId),
-    stage = new createjs.Stage(canvasId);
+  var canvas = $('#' + canvasId);
+
+  this.stage = new createjs.Stage(canvasId);
+
+  var stage = this.stage;
+
 
   stage.enableMouseOver(10);
 

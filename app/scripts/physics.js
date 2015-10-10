@@ -8,7 +8,7 @@ function Physics(world) {
 
   var insertedBodies = 0;
 
-  this.insertIntoWorld = function(stroke,type) {
+  this.insertIntoWorld = function(stroke, type) {
     insertedBodies++;
 
     var id = insertedBodies;
@@ -16,16 +16,19 @@ function Physics(world) {
     var bodyDef = defineBody(stroke, type, id);
     var body = world.CreateBody(bodyDef);
 
-
     var allFixtures = getAllFixtures(stroke, id);
 
     allFixtures.forEach(function(fixture) {
       body.CreateFixture(fixture);
     });
+
+    console.log(body);
   };
 
   this.getListOfBodies = function() {
-    var listOfBodies = [];
+    var
+      listOfBodies = [],
+      bodyDataArray = [];
 
     var firstBody = world.GetBodyList();
     listOfBodies.push(firstBody);
@@ -38,7 +41,23 @@ function Physics(world) {
       nextBody = nextBody.GetNext();
     }
 
-    return listOfBodies;
+    listOfBodies.forEach(function(body, i, listOfBodies) {
+      var centroidPosition = body.GetWorldCenter();
+      var PI = Math.PI;
+
+      var bodyData = {
+        x: centroidPosition.x,
+        y: centroidPosition.y,
+        angle: body.GetAngle()*180/PI
+      };
+
+      var id = body.GetUserData();
+      bodyDataArray[id] = bodyData;
+
+    });
+
+
+    return bodyDataArray;
   };
 
   var defineBody = function(stroke, type, id) {

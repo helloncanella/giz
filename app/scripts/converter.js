@@ -1,40 +1,35 @@
-/*jshint unused:false*/
-
+/*jshint -W098*/
 'use strict';
 
-function Converter() {
-  this.canvasToBox2d = function(shape, type, scale) {
+function Converter(scale) {
+  this.scale = scale;
+}
 
-    var label = shape.label;
+Converter.prototype.convert = function(entity, destiny) {
 
-    var measures = shape.measures;
+  if (entity instanceof Array) {
+    entity.forEach(function(element, i, array) {
+      array[i] = this.convert(element, destiny);
+    }, this);
+  } else if (entity instanceof Object) {
+    for (var property in entity) {
+      if (entity.hasOwnProperty(property)) {
+        var value = entity[property];
+        entity[property] = this.convert(value, destiny);
+      }
+    }
+  } else if (typeof entity === 'number') {
+    var scale = this.scale;
 
-    switch (label) {
-      case 'polyline':
-        var points = measures.points;
-        var body = [];
-        points.forEach(function(point, i) {
-          body[i]= Object.assign({},point);
-          body[i].x = point.x / scale;
-          body[i].y = point.y / scale;
-          points[i]=body[i];
-        });
-
-        break;
-      case 'circle':
-        measures.center.x /= scale ;
-        measures.center.y /= scale ;
-        measures.radius /= scale;
-        break;
-      default:
+    if (destiny === 'box2d') {
+      entity /= scale;
+    } else if (destiny === 'canvas') {
+      entity *= scale;
+    } else{
+      throw 'Problem on the assignment of the variable \'destiny\'';
     }
 
-    //Specifying if the body will be dynamic or static
-    shape.type = type;
+  }
 
-    var convertedShape = shape;
-
-
-    return convertedShape;
-  };
-}
+  return entity;
+};

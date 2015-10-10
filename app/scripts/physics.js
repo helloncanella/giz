@@ -8,13 +8,14 @@ function Physics(world) {
 
   var insertedBodies = 0;
 
-  this.insertIntoWorld = function(stroke) {
-    var bodyDef = defineBody(stroke);
-    var body = world.CreateBody(bodyDef);
-
+  this.insertIntoWorld = function(stroke,type) {
     insertedBodies++;
 
     var id = insertedBodies;
+
+    var bodyDef = defineBody(stroke, type, id);
+    var body = world.CreateBody(bodyDef);
+
 
     var allFixtures = getAllFixtures(stroke, id);
 
@@ -40,11 +41,10 @@ function Physics(world) {
     return listOfBodies;
   };
 
-  var defineBody = function(stroke, id) {
+  var defineBody = function(stroke, type, id) {
     var bodyDef = new b2BodyDef();
 
     var label = stroke.label;
-    var type = stroke.type;
 
     switch (label) {
       case 'polyline':

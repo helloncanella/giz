@@ -15,13 +15,17 @@
     rate = 1 / 60;
 
   var artist = new Artist('easeljs');
-  var converter = new Converter();
+  var converter = new Converter(scale);
 
   (function readyToDraw() {
     artist.draw().then(function(shape) {
-      var convertedShape = converter.canvasToBox2d(shape, 'dynamic', scale);
 
-      physics.insertIntoWorld(convertedShape);
+      //- Cloning object in order to not modify the original shape;
+      var clonedShape = JSON.parse(JSON.stringify(shape));
+
+      var convertedShape = converter.convert(clonedShape,'box2d');
+
+      physics.insertIntoWorld(convertedShape,'dynamic');
 
       readyToDraw();
     });
@@ -49,8 +53,8 @@
 
     limits.forEach(function(limit) {
       stage.addChild(limit);
-      var convertedShape = converter.canvasToBox2d(limit.data, 'static', scale);
-      physics.insertIntoWorld(convertedShape);
+      var convertedShape = converter.convert(limit.data,'box2d');
+      physics.insertIntoWorld(convertedShape, 'static');
     });
 
     stage.update();

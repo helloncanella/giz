@@ -20,7 +20,6 @@ function Polyline(position, canvas) {
       points: this.points
     },
   };
-
 }
 
 Polyline.prototype = Object.create(Shape.prototype);
@@ -54,6 +53,7 @@ Polyline.prototype.setCentroid = function() {
   var graphics = this.graphics;
   var stage = this.stage;
 
+  //- setting the center of mass graphically
   graphics
     .beginStroke('red')
     .beginFill('red')
@@ -65,19 +65,20 @@ Polyline.prototype.setCentroid = function() {
     shape.x = centroid.x;
     shape.y = centroid.y;
 
-    var next;
-
-    var
-      graphics = shape.graphics,
-      start = {
-        x: points[0] - shape.x,
-        y: points[0] - shape.y
-      };
-
     rebuildShape();
 
     function rebuildShape() {
+      var next;
+
+      var
+        graphics = shape.graphics,
+        start = {
+          x: points[0] - shape.x,
+          y: points[0] - shape.y
+        };
+
       graphics.clear();
+
 
       graphics
         .beginFill('royalblue')
@@ -98,9 +99,6 @@ Polyline.prototype.setCentroid = function() {
 
       graphics.closePath();
     }
-
-
-
   }
 
   function calculateCentroid() {

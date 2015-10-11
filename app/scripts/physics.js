@@ -24,12 +24,6 @@ function Physics(world) {
 
     var position = body.GetWorldCenter();
     var centroid = stroke.centroid;
-
-    if (centroid) {
-      console.log(id, position.x * 30 - centroid.x * 30, position.y * 30 - centroid.y * 30);
-    }
-
-
   };
 
   this.getListOfBodies = function() {
@@ -48,7 +42,7 @@ function Physics(world) {
       nextBody = nextBody.GetNext();
     }
 
-    listOfBodies.forEach(function(body, i, listOfBodies) {
+    listOfBodies.forEach(function(body) {
       var centroidPosition = body.GetWorldCenter();
       var PI = Math.PI;
 
@@ -107,7 +101,6 @@ function Physics(world) {
         if (isOpened) {
           shape = new Box2dOpenedPolyline(fixtureData, points, centroid);
         } else {
-          var triangles = stroke.measures.triangles;
           shape = new Box2dClosedPolyline(fixtureData, points, centroid);
         }
         break;

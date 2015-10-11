@@ -25,8 +25,8 @@ function Physics(world) {
     var position = body.GetWorldCenter();
     var centroid = stroke.centroid;
 
-    if(centroid){
-      console.log(id, position.x*30 - centroid.x*30, position.y*30 - centroid.y*30);
+    if (centroid) {
+      console.log(id, position.x * 30 - centroid.x * 30, position.y * 30 - centroid.y * 30);
     }
 
 
@@ -68,11 +68,9 @@ function Physics(world) {
   };
 
   var defineBody = function(stroke, type, id) {
-    var bodyDef = new b2BodyDef();
-
-    var label = stroke.label;
-
-    var centroid = stroke.centroid;
+    var
+      bodyDef = new b2BodyDef(),
+      centroid = stroke.centroid;
 
     bodyDef.position = new b2Vec2(centroid.x, centroid.y);
 

@@ -4,11 +4,11 @@
 
 function ShapeFactory(canvasId) {
 
-  var canvas = $('#' + canvasId);
-
   this.stage = new createjs.Stage(canvasId);
 
-  var stage = this.stage;
+  var
+    canvas = $('#' + canvasId),
+    stage = this.stage;
 
   stage.enableMouseOver(10);
 
@@ -33,7 +33,7 @@ function ShapeFactory(canvasId) {
 
       canvas.on({
         mousedown: function(e) {
-          
+
           firstPoint = {
             x: e.offsetX,
             y: e.offsetY
@@ -46,7 +46,7 @@ function ShapeFactory(canvasId) {
               shape.increaseRadius();
               stage.update();
             }, 1);
-          }, 800);
+          }, 500);
 
           //- preventing the mousedown to fire multiple times
           canvas.unbind('mousedown'); //HACK

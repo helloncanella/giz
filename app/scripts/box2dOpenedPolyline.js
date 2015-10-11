@@ -23,7 +23,7 @@ function Box2dOpenedPolyline(fixtureData, stroke, centroid) {
 
   stroke.forEach(function(point) {
     if (!start) {
-      start = new b2Vec2(0, 0);
+      start = new b2Vec2(point.x - origin.x, point.y - origin.y);
     } else {
       next = new b2Vec2(point.x - origin.x, point.y - origin.y);
 

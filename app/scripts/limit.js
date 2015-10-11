@@ -6,7 +6,7 @@ function Limit(position, width, height) {
   Shape.call(this, position);
 
   this.data = {
-    label: 'polyline', //XXX
+    label: 'polyline',
     measures: {
       points: [{
         x: position.x,

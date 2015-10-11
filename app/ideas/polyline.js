@@ -126,7 +126,7 @@ Polyline.prototype.prepare = function() {
 
 
       },
-      dblclick: function(e) {
+      dblclick: function() {
         canvas.trigger('finishPolyline');
       },
       finishPolyline: function(event, close) {
@@ -170,7 +170,7 @@ Polyline.prototype.close = function() {
 //----------------------------------------------------------------------
 //- Token's abstraction. It marks the initial and end of the Polyline
 //----------------------------------------------------------------------
-function Token(start, sideLength, canvas) {
+function Token(start, sideLength) {
   Shape.call(this, start);
 
   var graphics = this.graphics;

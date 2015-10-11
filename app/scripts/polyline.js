@@ -46,7 +46,6 @@ Polyline.prototype.setCentroid = function() {
     points = this.data.measures.points,
     shape = this;
 
-
   var centroid = calculateCentroid();
 
   Shape.prototype.setCentroid.call(this, centroid);
@@ -76,15 +75,19 @@ Polyline.prototype.setCentroid = function() {
       var
         graphics = shape.graphics,
         start = {
-          x: points[0] - shape.x,
-          y: points[0] - shape.y
+          x: points[0].x - shape.x,
+          y: points[0].y - shape.y
         };
 
       graphics.clear();
 
+      if (isOpened) {
+        graphics.beginStroke('royalBlue');
+      } else {
+        graphics.beginFill('royalBlue');
+      }
 
       graphics
-        .beginFill('royalblue')
         .setStrokeStyle(2)
         .moveTo(start.x, start.y);
 
@@ -100,7 +103,6 @@ Polyline.prototype.setCentroid = function() {
         start = next;
       }
 
-      graphics.closePath();
     }
   }
 

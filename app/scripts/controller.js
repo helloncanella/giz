@@ -8,7 +8,7 @@
   var listOfDraw;
 
   var
-    scale = 30,
+    scale = 100,
     physicsProxy = new Worker('scripts/physicsProxy.js'),
     artist = new Artist('easeljs'),
     converter = new Converter(scale);

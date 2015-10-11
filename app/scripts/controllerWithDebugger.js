@@ -10,7 +10,7 @@
   var
     gravity = new b2Vec2(0, 10),
     world = new b2World(gravity, false),
-    scale = 30,
+    scale = 100,
     physics = new Physics(world, scale),
     rate = 1 / 60;
 

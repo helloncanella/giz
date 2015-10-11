@@ -39,7 +39,7 @@ function Box2dOpenedPolyline(fixtureData, stroke, centroid) {
       var center = new b2Vec2((next.x + start.x) / 2, (next.y + start.y) / 2);
       var angle = Math.atan2(distanceVector.y, distanceVector.x);
 
-      fixture.shape.SetAsOrientedBox(distance / 2, 0.03, center, angle);
+      fixture.shape.SetAsOrientedBox(distance / 2, 0.005, center, angle);
       allFixtures.push(fixture);
       start = next;
     }

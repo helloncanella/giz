@@ -22,7 +22,7 @@ function Artist(canvasId) {
             drawing
               .setAABB()
               .setCentroid();
-          resolve(drawing.data);
+            resolve(drawing.data);
           });
       });
     });
@@ -30,14 +30,14 @@ function Artist(canvasId) {
     return promise;
   };
 
-  this.update = function(bodyList, rate) {
+  this.update = function(bodyList) {
 
     var stage = this.shapeFactory.stage;
 
     var children = stage.children;
 
     for (var i = 0; i < children.length; i++) {
-      var body = bodyList[i+4];
+      var body = bodyList[i + 4];
 
       if (body) {
         children[i].x = body.x;
@@ -47,10 +47,5 @@ function Artist(canvasId) {
 
       stage.update();
     }
-
-
   };
-
-
-
 }

@@ -79,8 +79,6 @@ function Physics(world) {
     return bodyDef;
   };
 
-
-
   var getAllFixtures = function(stroke) {
 
     var allFixtures, shape;
@@ -99,6 +97,7 @@ function Physics(world) {
         var centroid = stroke.centroid;
         var isOpened = stroke.opened;
         if (isOpened) {
+          fixtureData.density = 100;
           shape = new Box2dOpenedPolyline(fixtureData, points, centroid);
         } else {
           shape = new Box2dClosedPolyline(fixtureData, points, centroid);

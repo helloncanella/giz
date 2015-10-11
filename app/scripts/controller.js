@@ -5,10 +5,9 @@
 
 (function Controller() {
 
-
   //- Physics's variables
   var
-    gravity = new b2Vec2(0, 10),
+    gravity = new b2Vec2(0, 9.8),
     world = new b2World(gravity, false),
     scale = 30,
     physics = new Physics(world, scale),
@@ -57,22 +56,6 @@
     });
 
   })();
-
-
-  //-Building the Debug Draw
-  (function debugDrawBuilder() {
-    var
-      context = $('canvas#box2dweb')[0].getContext('2d'),
-      debugDraw = new b2DebugDraw();
-
-    debugDraw.SetSprite(context);
-    debugDraw.SetDrawScale(scale);
-    debugDraw.SetFillAlpha(0.3);
-    debugDraw.SetLineThickness(1.0);
-    debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
-    world.SetDebugDraw(debugDraw);
-  })();
-
 
   //- Running the world
   (function update() {

@@ -45,8 +45,6 @@ Circle.prototype.setCentroid = function(){
 
   Shape.prototype.setCentroid.call(this, centroid);
 
-  console.log(this.data);
-
 };
 
 Circle.prototype.increaseRadius = function() {

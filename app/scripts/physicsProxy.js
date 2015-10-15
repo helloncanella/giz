@@ -18,8 +18,6 @@ self.onmessage = function(e) {
   physics.insertIntoWorld(convertedShape, type);
 };
 
-
-
 setInterval(function() {
   world.Step(rate, 10, 10);
 

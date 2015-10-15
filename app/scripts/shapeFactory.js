@@ -2,13 +2,11 @@
 /*jshint -W098, -W003*/
 'use strict';
 
-function ShapeFactory(canvasId) {
+function ShapeFactory(canvasId, stage) {
 
-  this.stage = new createjs.Stage(canvasId);
+  this.stage = stage;
 
-  var
-    canvas = $('#' + canvasId),
-    stage = this.stage;
+  var canvas = $('#' + canvasId);
 
   stage.enableMouseOver(10);
 

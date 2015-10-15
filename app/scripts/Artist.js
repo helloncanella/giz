@@ -5,12 +5,9 @@
 
 function Artist(canvasId) {
 
+  this.stage = new createjs.Stage(canvasId);
 
   var shapeFactory = new ShapeFactory(canvasId, this.stage);
-
-  this.shapeFactory = shapeFactory;
-
-  var artist = this;
 
   this.draw = function() {
 
@@ -32,7 +29,7 @@ function Artist(canvasId) {
 
   this.update = function(bodyList) {
 
-    var stage = this.shapeFactory.stage;
+    var stage = this.stage;
 
     var children = stage.children;
 

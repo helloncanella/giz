@@ -1,32 +1,56 @@
-/*jshint -W106, -W016, -W098*/
+/*jshint -W106, -W016, -W098,-W003*/
 /*global Artist, Physics, Worker, b2Vec2, b2World, b2DebugDraw, requestAnimationFrame
-, $, Converter, Limit*/
+, $, Converter, Limit, window*/
 'use strict';
 
-(function Controller() {
+
+
+(function Controller(window) {
 
   var listOfDraw;
 
   var
+    paused = true,
     scale = 100,
     physicsProxy = new Worker('scripts/physicsProxy.js'),
-    artist = new Artist('easeljs'),
+    canvasId = 'easeljs',
+    artist = new Artist(canvasId),
+    canvas = $('#' + canvasId),
     converter = new Converter(scale);
 
-  (function readyToDraw() {
-    artist.draw().then(function(shape) {
+  activeDraw();
 
-      //- Cloning object in order to not modify the original shape;
-      var clonedShape = JSON.parse(JSON.stringify(shape));
+  function activeDraw() {
 
-      //- WORKER - TO PASS IN
-      var convertedShape = converter.convert(clonedShape, 'box2d');
+    if (paused) {
+      artist.draw().then(function drawShape(shape) {
 
-      physicsProxy.postMessage([convertedShape, 'dynamic']);
+        //- Cloning object in order to not modify the original shape;
+        var clonedShape = JSON.parse(JSON.stringify(shape));
 
-      readyToDraw();
-    });
-  })();
+        //- WORKER - TO PASS IN
+        var convertedShape = converter.convert(clonedShape, 'box2d');
+
+        physicsProxy.postMessage(['insertBody', convertedShape, 'dynamic']);
+        activeDraw();
+      });
+    }
+  }
+
+
+  //XXX - REPLACE THE CODE BELLOW WITH BUTTONS
+  $(window).on({
+    keydown: function(e) {
+      if (paused) {
+        paused = false;
+      } else {
+        paused = true;
+        activeDraw();
+      }
+      physicsProxy.postMessage(['playPause', paused]);
+    }
+  });
+
 
   (function borders() {
     var canvasWidth = $('#easeljs').width();
@@ -49,18 +73,18 @@
 
     limits.forEach(function(limit) {
       var convertedShape = converter.convert(limit.data, 'box2d');
-      physicsProxy.postMessage([convertedShape, 'static']);
+      physicsProxy.postMessage(['insertBody', convertedShape, 'static']);
     });
 
   })();
 
-  physicsProxy.onmessage = function(e){
+  physicsProxy.onmessage = function(e) {
     var bodies = e.data;
     listOfDraw = converter.convert(bodies, 'canvas', 'angle');
   };
 
-  (function update () {
-    if(listOfDraw){
+  (function update() {
+    if (listOfDraw) {
       artist.update(listOfDraw);
     }
     requestAnimationFrame(update);
@@ -68,4 +92,6 @@
 
 
 
-})();
+
+
+})(window);

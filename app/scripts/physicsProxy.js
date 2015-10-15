@@ -8,20 +8,36 @@ var
   gravity = new b2Vec2(0, 10),
   world = new b2World(gravity, false),
   physics = new Physics(world),
-  rate = 1 / 60;
+  rate = 1 / 60,
+  paused = true;
 
 self.onmessage = function(e) {
-  var
-    convertedShape = e.data[0],
-    type = e.data[1];
+  var message = e.data[0];
 
-  physics.insertIntoWorld(convertedShape, type);
+  switch (message) {
+    case 'playPause':
+      paused = e.data[1];
+      break;
+    case 'insertBody':
+      var
+        convertedShape = e.data[1],
+        type = e.data[2];
+      physics.insertIntoWorld(convertedShape, type);
+      break;
+    default:
+      break;
+  }
+
+
 };
 
 setInterval(function() {
-  world.Step(rate, 10, 10);
 
-  var bodies = physics.getListOfBodies();
-  self.postMessage(bodies);
+  if (!paused) {
+    world.Step(rate, 10, 10);
+
+    var bodies = physics.getListOfBodies();
+    self.postMessage(bodies);
+  }
 
 }, 1000 * rate);

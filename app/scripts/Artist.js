@@ -27,7 +27,7 @@ function Artist(canvasId) {
     });
 
     return promise;
-  };
+  };     
 
 
   this.insertButton = function(buttonPosition) {

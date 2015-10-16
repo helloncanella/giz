@@ -2,7 +2,7 @@
 /*jshint -W003*/
 'use strict';
 
-function Button(position, width, height, playCallback, pauseCallback) {
+function Button(position, width, height) {
 
   var textDisplay, rect;
 
@@ -11,6 +11,7 @@ function Button(position, width, height, playCallback, pauseCallback) {
   var button = this;
 
   this.paused = true;
+  this.touched = false;
 
   var pauseStyle = {
     background: 'red',
@@ -41,20 +42,31 @@ function Button(position, width, height, playCallback, pauseCallback) {
     customize(playStyle);
   })();
 
-  this.on('mousedown', function(){
-    if(this.paused){
-      this.paused = false;
-      customize(pauseStyle);
-      playCallback();
-    }else{
-      this.paused = true;
-      customize(playStyle);
-      pauseCallback();
-    }
+  (function listeners() {
+    button.on('mousedown', function() {
+      if (this.paused) {
+        this.paused = false;
+        customize(pauseStyle);
+      } else {
+        this.paused = true;
+        customize(playStyle);
+      }
 
-    this.stage.update();
+      this.stage.update();
 
-  });
+    });
+
+    button.on('mouseover', function() {
+      console.log('mouseover');
+      this.touched = true;
+    });
+
+    button.on('mouseout', function() {
+      console.log('mouseout');
+      this.touched = false;
+    });
+  })();
+
 
   function customize(style) {
     var

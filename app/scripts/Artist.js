@@ -1,5 +1,5 @@
 /*jshint -W020, -W098*/
-/*global AABB, createjs, drawMode,  ShapeFactory, $*/
+/*global AABB, createjs, drawMode,  ShapeFactory, $, Button*/
 
 'use strict';
 
@@ -7,7 +7,9 @@ function Artist(canvasId) {
 
   this.stage = new createjs.Stage(canvasId);
 
-  var shapeFactory = new ShapeFactory(canvasId, this.stage);
+  this.stage.enableMouseOver(10);
+
+  var shapeFactory = new ShapeFactory(canvasId, this.stage, this.prohibitedRegion);
 
   this.draw = function() {
 
@@ -25,6 +27,20 @@ function Artist(canvasId) {
     });
 
     return promise;
+  };
+
+
+  this.insertButton = function(buttonPosition) {
+
+    var
+      button = new Button(buttonPosition, 100, 59.88),
+      stage = this.stage,
+      artist = this;
+
+    stage.addChild(button);
+    stage.update();
+
+    return button;
   };
 
   this.update = function(bodyList) {

@@ -1,6 +1,6 @@
 /*jshint -W106, -W016, -W098,-W003*/
 /*global Artist, Physics, Worker, b2Vec2, b2World, b2DebugDraw, requestAnimationFrame
-, $, Converter, Limit, window*/
+, $, Converter, Limit, window, Button*/
 'use strict';
 
 
@@ -10,19 +10,23 @@
   var listOfDraw;
 
   var
-    paused = true,
     scale = 100,
     physicsProxy = new Worker('scripts/physicsProxy.js'),
     canvasId = 'easeljs',
     artist = new Artist(canvasId),
     canvas = $('#' + canvasId),
-    converter = new Converter(scale);
+    converter = new Converter(scale),
+    buttonPosition = {
+      x: 0,
+      y: 0
+    };
+
+  var button = artist.insertButton(buttonPosition);  
 
   activeDraw();
 
   function activeDraw() {
-
-    if (paused) {
+    if (button.paused && !button.touched) {
       artist.draw().then(function drawShape(shape) {
 
         //- Cloning object in order to not modify the original shape;
@@ -34,22 +38,13 @@
         physicsProxy.postMessage(['insertBody', convertedShape, 'dynamic']);
         activeDraw();
       });
+    }else{
+      activeDraw();
     }
   }
 
 
-  //XXX - REPLACE THE CODE BELLOW WITH BUTTONS
-  $(window).on({
-    keydown: function(e) {
-      if (paused) {
-        paused = false;
-      } else {
-        paused = true;
-        activeDraw();
-      }
-      physicsProxy.postMessage(['playPause', paused]);
-    }
-  });
+
 
 
   (function borders() {

@@ -34,7 +34,7 @@ function Artist(canvasId) {
     var children = stage.children;
 
     for (var i = 0; i < children.length; i++) {
-      var body = bodyList[i + 4];
+      var body = bodyList[i+1];
 
       if (body) {
         children[i].x = body.x;

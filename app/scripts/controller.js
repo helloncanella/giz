@@ -42,21 +42,14 @@
   })();
 
   (function readyToDraw() {
-    artist.draw().then(
+    artist.draw().then(function(shape) {
+      var
+        clonedShape = JSON.parse(JSON.stringify(shape)),
+        convertedShape = converter.convert(clonedShape, 'box2d');
 
-      function onSucess(shape) {
-        var
-          clonedShape = JSON.parse(JSON.stringify(shape)),
-          convertedShape = converter.convert(clonedShape, 'box2d');
-        physicsProxy.postMessage(['insertBody', convertedShape, 'dynamic']);
-        readyToDraw();
-      },
-
-      function onFail(message) {
-        console.log(message);
-      }
-
-    );
+      physicsProxy.postMessage(['insertBody', convertedShape, 'dynamic']);
+      readyToDraw();
+    });
   })();
 
   physicsProxy.onmessage = function(e) {

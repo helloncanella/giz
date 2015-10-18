@@ -8,7 +8,6 @@ function Stage(canvasId) {
 
   EaseljsStage.call(this, canvasId);
 
-  this.selectedChild = null;
 }
 
 Stage.prototype = Object.create(EaseljsStage.prototype);

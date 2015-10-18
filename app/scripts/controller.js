@@ -67,14 +67,15 @@
   (function update() {
 
     //- Hook
-    selectedBody = stage.selectedChild;
+    var
+      selectedBody = stage.selectedChild,
+      index = selectedBody;
 
-    if (selectedBody) {
+    if (index === 0 || selectedBody) {
       var position = {
         x: stage.mouseX,
         y: stage.mouseY
       };
-      console.log(selectedBody);
 
       var scaledPosition = converter.convert(Object.assign({}, position), 'box2d');
       physicsProxy.postMessage(['moveBody', selectedBody + 4, scaledPosition]);

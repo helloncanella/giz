@@ -9,7 +9,7 @@ var mouseJoint, indexSelectedBody, indexLastBody, position,
   mousePosition, selectedBody;
 
 var
-  gravity = new b2Vec2(0, 10),
+  gravity = new b2Vec2(0, 9.8),
   world = new b2World(gravity, false),
   physics = new Physics(world),
   rate = 1 / 60;
@@ -42,7 +42,7 @@ self.onmessage = function(e) {
         md.bodyB = body;
         md.target.Set(position.x, position.y);
         md.m_collideConnected = true;
-        md.maxForce = 50000.0 * body.GetMass();
+        md.maxForce = 300.0 * body.GetMass();
 
         mouseJoint = world.CreateJoint(md);
         body.SetAwake(true);

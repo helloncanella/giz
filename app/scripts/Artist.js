@@ -11,8 +11,6 @@ function Artist(canvasId) {
 
   this.draw = function() {
 
-    //TODO The promise must be rejected when the shapeFactory is closed.
-
     var promise = new Promise(function(resolve) {
       shapeFactory.spawnShape().then(function(shape) {
         shape
@@ -20,7 +18,8 @@ function Artist(canvasId) {
           .then(function(drawing) {
             drawing
               .setAABB()
-              .setCentroid();
+              .setCentroid()
+              .setListeners();
             resolve(drawing.data);
           });
       });

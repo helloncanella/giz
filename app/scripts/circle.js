@@ -5,8 +5,8 @@
 //-----------------------------------------------------------
 //- Circle's abstraction. It inherits from Shape
 //-----------------------------------------------------------
-function Circle(position, radius) {
-  Shape.call(this, position);
+function Circle(position, radius, shapeFactory) {
+  Shape.call(this, position, shapeFactory);
 
   this.radius = radius || 0;
 

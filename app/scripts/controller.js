@@ -39,44 +39,24 @@
       var convertedShape = converter.convert(limit.data, 'box2d');
       physicsProxy.postMessage(['insertBody', convertedShape, 'static']);
     });
-
   })();
 
-  (function circleInsertions() {
+  (function readyToDraw() {
+    artist.draw().then(
 
-    function random(number) {
-      return Math.round(number * Math.random());
-    }
+      function onSucess(shape) {
+        var
+          clonedShape = JSON.parse(JSON.stringify(shape)),
+          convertedShape = converter.convert(clonedShape, 'box2d');
+        physicsProxy.postMessage(['insertBody', convertedShape, 'dynamic']);
+        readyToDraw();
+      },
 
-    var
-      number = random(70),
-      shapeArray = [],
-      i = 1,
-      canvas = $('canvas#easeljs');
+      function onFail(message) {
+        console.log(message);
+      }
 
-    while (i <= number) {
-      var circle = new Circle({
-        x: random(canvas.width()),
-        y: random(canvas.height())
-      }, random(50) + 20);
-
-      circle.increaseRadius();
-
-      stage.addChild(circle);
-
-      circle
-        .setAABB()
-        .setCentroid()
-        .setListeners();
-
-      var convertedShape = converter.convert(Object.assign({}, circle.data), 'box2d');
-
-      physicsProxy.postMessage(['insertBody', convertedShape, 'dynamic']);
-
-      i++;
-    }
-
-    stage.update();
+    );
   })();
 
   physicsProxy.onmessage = function(e) {
@@ -86,24 +66,23 @@
 
   (function update() {
 
-    (function hook (){
-      selectedBody = stage.selectedChild;
+    //- Hook
+    selectedBody = stage.selectedChild;
 
-      if (selectedBody) {
-        var position = {
-          x: stage.mouseX,
-          y: stage.mouseY
-        };
+    if (selectedBody) {
+      var position = {
+        x: stage.mouseX,
+        y: stage.mouseY
+      };
+      console.log(selectedBody);
 
-        var scaledPosition = converter.convert(Object.assign({}, position), 'box2d');
-        physicsProxy.postMessage(['moveBody', selectedBody + 4, scaledPosition]);
+      var scaledPosition = converter.convert(Object.assign({}, position), 'box2d');
+      physicsProxy.postMessage(['moveBody', selectedBody + 4, scaledPosition]);
 
-        canvas.mouseup(function() {
-          physicsProxy.postMessage(['destroyJoint']);
-          canvas.off();
-        });
-      }
-    })();
+      canvas.mouseup(function() {
+        physicsProxy.postMessage(['destroyJoint']);
+      });
+    }
 
     //-Update World
     if (listOfDraw) {

@@ -2,8 +2,8 @@
 /*jshint -W003*/
 'use strict';
 
-function Polyline(position, canvas) {
-  Shape.call(this, position);
+function Polyline(position, canvas, shapeFactory) {
+  Shape.call(this, position, shapeFactory);
   this.canvas = canvas;
 
   this.points = [];

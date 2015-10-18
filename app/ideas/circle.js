@@ -5,11 +5,11 @@
 //-----------------------------------------------------------
 //- Circle's abstraction. It inherits from Shape
 //-----------------------------------------------------------
-function Circle(position, radius) {
+function Circle(position, radius, shapeFactory) {
   Shape.call(this, position);
 
   this.radius = radius || 0;
-
+  
   this.data = {
     label: 'circle',
     measures: {

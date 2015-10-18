@@ -26,10 +26,8 @@ function Physics(world) {
     var centroid = stroke.centroid;
   };
 
-  this.getListOfBodies = function() {
-    var
-      listOfBodies = [],
-      bodyDataArray = [];
+  this.getListOfBodies = function (){
+    var listOfBodies = [];
 
     var firstBody = world.GetBodyList();
     listOfBodies.push(firstBody);
@@ -41,6 +39,15 @@ function Physics(world) {
       }
       nextBody = nextBody.GetNext();
     }
+
+    return listOfBodies;
+  };
+
+  this.getCustomListOfBodies = function() {
+
+    var
+      listOfBodies = this.getListOfBodies(),
+      bodyDataArray = [];
 
     listOfBodies.forEach(function(body) {
       var centroidPosition = body.GetWorldCenter();

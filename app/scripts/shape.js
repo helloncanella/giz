@@ -46,4 +46,22 @@ Shape.prototype.setCentroid = function(centroid) {
     x: centroid.x,
     y: centroid.y
   };
+
+  return this;
+
+};
+
+Shape.prototype.setListeners = function(){
+  var stage = this.stage;
+
+  this.on('mousedown',function () {
+    var index = stage.getChildIndex(this);
+    stage.setSelectedChild(index);
+  });
+
+  this.on('pressup',function () {
+    stage.setSelectedChild(null);
+  });
+
+  return this;
 };

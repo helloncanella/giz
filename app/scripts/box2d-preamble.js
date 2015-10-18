@@ -4,6 +4,7 @@
 var b2Vec2 = Box2D.Common.Math.b2Vec2;
 var b2BodyDef = Box2D.Dynamics.b2BodyDef;
 var b2Body = Box2D.Dynamics.b2Body;
+var b2AABB = Box2D.Collision.b2AABB;
 
 var b2DistanceJoint = Box2D.Dynamics.Joints.b2DistanceJoint;
 var b2DistanceJointDef = Box2D.Dynamics.Joints.b2DistanceJointDef;

@@ -5,64 +5,20 @@
 
 (function Controller() {
 
-  var listOfDraw;
+  var listOfDraw, selectedBody;
 
   var
+    canvasId = 'easeljs',
+    canvas = $('#' + canvasId),
     scale = 100,
     physicsProxy = new Worker('scripts/physicsProxy.js'),
-    artist = new Artist('easeljs'),
+    artist = new Artist(canvasId),
     stage = artist.stage,
     converter = new Converter(scale);
 
-
-  (function circleInsertions() {
-
-    function random (number){
-      return Math.round(number*Math.random());
-    }
-
-    var
-      number = random(70),
-      shapeArray = [],
-      i = 1,
-      canvas = $('canvas#easeljs');
-
-    while(i <= number){
-      var circle = new Circle({
-        x: random(canvas.width()),
-        y: random(canvas.height())
-      }, random(50)+20);
-
-      circle.increaseRadius();
-
-      stage.addChild(circle);
-
-      circle.setBounds();
-
-      circle.setCentroid();
-
-      //- Cloning object in order to not modify the original shape;
-      var clonedShape = JSON.parse(JSON.stringify(circle.data));
-
-      //- WORKER - TO PASS IN
-      var convertedShape = converter.convert(clonedShape, 'box2d');
-
-      physicsProxy.postMessage([convertedShape, 'dynamic']);
-
-      i++;
-    }
-
-    console.log(i);
-
-    stage.update();
-  })();
-
-
-
-
   (function borders() {
-    var canvasWidth = $('#easeljs').width();
-    var canvasHeight = $('#easeljs').height();
+    var canvasWidth = canvas.width();
+    var canvasHeight = canvas.height();
 
     var bottom = new Limit({
       x: 10,
@@ -81,9 +37,46 @@
 
     limits.forEach(function(limit) {
       var convertedShape = converter.convert(limit.data, 'box2d');
-      physicsProxy.postMessage([convertedShape, 'static']);
+      physicsProxy.postMessage(['insertBody', convertedShape, 'static']);
     });
 
+  })();
+
+  (function circleInsertions() {
+
+    function random(number) {
+      return Math.round(number * Math.random());
+    }
+
+    var
+      number = random(70),
+      shapeArray = [],
+      i = 1,
+      canvas = $('canvas#easeljs');
+
+    while (i <= number) {
+      var circle = new Circle({
+        x: random(canvas.width()),
+        y: random(canvas.height())
+      }, random(50) + 20);
+
+      circle.increaseRadius();
+
+      stage.addChild(circle);
+
+      circle
+        .setAABB()
+        .setCentroid()
+        .setListeners();
+
+      var convertedShape = converter.convert(Object.assign({}, circle.data), 'box2d');
+
+      physicsProxy.postMessage(['insertBody', convertedShape, 'dynamic']);
+
+      i++;
+    }
+
+    stage.update();
   })();
 
   physicsProxy.onmessage = function(e) {
@@ -92,9 +85,31 @@
   };
 
   (function update() {
+
+    (function hook (){
+      selectedBody = stage.selectedChild;
+
+      if (selectedBody) {
+        var position = {
+          x: stage.mouseX,
+          y: stage.mouseY
+        };
+
+        var scaledPosition = converter.convert(Object.assign({}, position), 'box2d');
+        physicsProxy.postMessage(['moveBody', selectedBody + 4, scaledPosition]);
+
+        canvas.mouseup(function() {
+          physicsProxy.postMessage(['destroyJoint']);
+          canvas.off();
+        });
+      }
+    })();
+
+    //-Update World
     if (listOfDraw) {
       artist.update(listOfDraw);
     }
+
     requestAnimationFrame(update);
   })();
 

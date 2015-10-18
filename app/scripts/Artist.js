@@ -1,15 +1,17 @@
 /*jshint -W020, -W098*/
-/*global AABB, createjs, drawMode,  ShapeFactory, $*/
+/*global AABB, createjs, drawMode, Stage,  ShapeFactory, $*/
 
 'use strict';
 
 function Artist(canvasId) {
 
-  this.stage = new createjs.Stage(canvasId);
+  this.stage = new Stage(canvasId);
 
   var shapeFactory = new ShapeFactory(canvasId, this.stage);
 
   this.draw = function() {
+
+    //TODO The promise must be rejected when the shapeFactory is closed.
 
     var promise = new Promise(function(resolve) {
       shapeFactory.spawnShape().then(function(shape) {
@@ -34,7 +36,7 @@ function Artist(canvasId) {
     var children = stage.children;
 
     for (var i = 0; i < children.length; i++) {
-      var body = bodyList[i+1];
+      var body = bodyList[i+4];
 
       if (body) {
         children[i].x = body.x;
